@@ -1,6 +1,6 @@
 {
   "name": "suite-bureautique-dark",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Suite bureautique : Word, Excel et PowerPoint (apparence Word, thème clair/sombre)",
   "author": "Word Dark Edition",
   "main": "main.js",
@@ -76,7 +76,7 @@
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
+      "createDesktopShortcut": "always",
       "createStartMenuShortcut": true,
       "shortcutName": "Suite Bureautique Dark",
       "installerIcon": "build/icon.ico",
@@ -89,7 +89,13 @@
       "artifactName": "SuiteBureautiqueDark-Setup-${version}.exe",
       "deleteAppDataOnUninstall": false,
       "runAfterFinish": true,
-      "differentialPackage": false
+      "differentialPackage": false,
+      "uninstallDisplayName": "Suite Bureautique Dark",
+      "menuCategory": false,
+      "installerLanguages": [
+        "fr_FR"
+      ],
+      "unicode": true
     },
     "publish": [
       {
