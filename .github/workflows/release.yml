@@ -13,6 +13,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: npm ci
+      - name: Identifiants Google intégrés (secrets du dépôt)
+        shell: bash
+        run: |
+          if [ -n "$GOOGLE_CLIENT_ID" ]; then printf '{"clientId":"%s","clientSecret":"%s"}' "$GOOGLE_CLIENT_ID" "$GOOGLE_CLIENT_SECRET" > google-default.json; fi
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       - run: npx electron-builder --win --x64 --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

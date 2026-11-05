@@ -90,6 +90,7 @@ ipcMain.handle('app:startup-file', async e => {
 });
 ipcMain.handle('app:open-hub', () => { openHub(); });
 ipcMain.handle('app:open-app', async (e, kind, file) => {
+  if (G.isLocked()) return { locked: true };
   if (!PAGES[kind]) return false;
   if (file) { createWindow(kind, file); return true; }
   createWindow(kind); return true;
@@ -129,7 +130,7 @@ async function backupVersion(p) {
 async function writeAtomic(p, data) {
   await backupVersion(p);
   const tmp = p + '.tmp-' + process.pid;
-  try { await fsp.writeFile(tmp, data); await fsp.rename(tmp, p); }
+  try { await fsp.writeFile(tmp, data); await fsp.rename(tmp, p); G.afterWrite(p); }
   catch (e) { try { await fsp.unlink(tmp); } catch (_) { /* ignore */ } throw e; }
 }
 /* ----- Excel (exceljs) ----- */
@@ -138,7 +139,7 @@ const hex = c => 'FF' + String(c || '#000000').replace('#', '').toUpperCase().pa
 const fromArgb = a => (typeof a === 'string' && a.length === 8 ? '#' + a.slice(2).toLowerCase() : null);
 const serialToDate = n => new Date(Date.UTC(1899, 11, 30) + Math.round(n * 864e5));
 async function xlsxBuild(book) {
-  const ExcelJS = require('exceljs'), wb = new ExcelJS.Workbook(); wb.creator = 'Excel Dark'; wb.title = book.title;
+  const ExcelJS = require('exceljs'), wb = new ExcelJS.Workbook(); wb.creator = G.authorName() || 'Excel Dark'; wb.title = book.title;
   for (const sh of book.sheets) {
     const ws = wb.addWorksheet(sh.name.slice(0, 31), sh.freeze && (sh.freeze.r || sh.freeze.c) ? { views: [{ state: 'frozen', xSplit: sh.freeze.c || 0, ySplit: sh.freeze.r || 0 }] } : undefined);
     (sh.merges || []).forEach(g => { try { ws.mergeCells(g.r0 + 1, g.c0 + 1, g.r1 + 1, g.c1 + 1); } catch (e) { /* ignorée */ } });
@@ -202,7 +203,7 @@ ipcMain.handle('xlsx:parse', async (_e, bytes) => { try { return { ok: true, she
 /* ----- PowerPoint (pptxgenjs) ----- */
 async function pptxBuild(deck) {
   const PptxGenJS = require('pptxgenjs'), p = new PptxGenJS();
-  p.defineLayout({ name: 'W169', width: 13.333, height: 7.5 }); p.layout = 'W169'; p.title = deck.title; p.author = 'PowerPoint Dark';
+  p.defineLayout({ name: 'W169', width: 13.333, height: 7.5 }); p.layout = 'W169'; p.title = deck.title; p.author = G.authorName() || 'PowerPoint Dark';
   const I = n => Math.round(n / 72 * 1000) / 1000, col = c => String(c || '#000000').replace('#', '').toUpperCase();
   for (const sd of deck.slides) {
     const s = p.addSlide(); s.background = { color: col(sd.bg || '#ffffff') };
@@ -244,44 +245,8 @@ ipcMain.handle('pptx:write', async (_e, { path: p, deck }) => { try { await writ
 const AI_MODEL = 'claude-sonnet-5-5', keyFile = () => path.join(app.getPath('userData'), 'ai.key');
 function aiKey() { try { const b = fs.readFileSync(keyFile()); const { safeStorage } = require('electron'); return safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(b) : b.toString('utf8'); } catch (e) { return ''; } }
 
-/* ----- Compte Google (OAuth 2.0 + PKCE, navigateur système, redirection locale 127.0.0.1) ----- */
-const gFile = () => path.join(app.getPath('userData'), 'google.json');
-const gEnc = s => { const { safeStorage } = require('electron'); return safeStorage.isEncryptionAvailable() ? 'e:' + safeStorage.encryptString(s).toString('base64') : 'p:' + Buffer.from(s).toString('base64'); };
-const gDec = s => { try { const { safeStorage } = require('electron'); const b = Buffer.from(String(s).slice(2), 'base64'); return String(s)[0] === 'e' ? safeStorage.decryptString(b) : b.toString('utf8'); } catch (e) { return ''; } };
-const gRead = () => { try { return JSON.parse(fs.readFileSync(gFile(), 'utf8')); } catch (e) { return {}; } };
-const gWrite = o => fs.writeFileSync(gFile(), JSON.stringify(o));
-const gPublic = () => { const g = gRead(); return { configured: !!(g.clientId && g.secret), clientId: g.clientId || '', user: g.user || null }; };
-ipcMain.handle('google:status', () => gPublic());
-ipcMain.handle('google:config', (_e, { clientId, clientSecret }) => { const g = gRead(); g.clientId = String(clientId || '').trim(); if (clientSecret) g.secret = gEnc(String(clientSecret).trim()); if (!g.clientId) { delete g.secret; delete g.user; delete g.refresh; } gWrite(g); return gPublic(); });
-ipcMain.handle('google:signin', async () => {
-  const g = gRead(); if (!g.clientId || !g.secret) return { ok: false, error: 'Identifiants Google non configurés.' };
-  const crypto = require('crypto'), http = require('http'), b64u = b => b.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const verifier = b64u(crypto.randomBytes(48)), challenge = b64u(crypto.createHash('sha256').update(verifier).digest()), state = b64u(crypto.randomBytes(16));
-  try {
-    const code = await new Promise((resolve, reject) => {
-      const srv = http.createServer((req, res) => {
-        const u = new URL(req.url, 'http://127.0.0.1'); if (u.pathname !== '/cb') { res.writeHead(404); res.end(); return; }
-        const ok = u.searchParams.get('code') && u.searchParams.get('state') === state;
-        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-        res.end('<!doctype html><meta charset="utf-8"><body style="font-family:Segoe UI,sans-serif;background:#1e1e1e;color:#eee;text-align:center;padding-top:15vh"><h2>' + (ok ? 'Connexion réussie' : 'Connexion refusée') + '</h2><p>Vous pouvez fermer cet onglet et revenir à la Suite Bureautique.</p>');
-        clearTimeout(to); srv.close(); ok ? resolve(u.searchParams.get('code')) : reject(new Error(u.searchParams.get('error') || 'Connexion refusée.'));
-      });
-      const to = setTimeout(() => { srv.close(); reject(new Error('Délai dépassé (3 min).')); }, 180000);
-      srv.listen(0, '127.0.0.1', () => {
-        const redirect = 'http://127.0.0.1:' + srv.address().port + '/cb'; g._redirect = redirect;
-        const q = new URLSearchParams({ client_id: g.clientId, redirect_uri: redirect, response_type: 'code', scope: 'openid email profile', code_challenge: challenge, code_challenge_method: 'S256', state, access_type: 'offline', prompt: 'select_account' });
-        shell.openExternal('https://accounts.google.com/o/oauth2/v2/auth?' + q);
-      });
-    });
-    const tr = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ code, client_id: g.clientId, client_secret: gDec(g.secret), redirect_uri: g._redirect, grant_type: 'authorization_code', code_verifier: verifier }) });
-    const tj = await tr.json(); if (!tr.ok) throw new Error(tj.error_description || tj.error || 'Échec de l\'échange du code.');
-    const ur = await fetch('https://openidconnect.googleapis.com/v1/userinfo', { headers: { authorization: 'Bearer ' + tj.access_token } }); const uj = await ur.json(); if (!ur.ok) throw new Error('Profil Google illisible.');
-    let picture = ''; try { if (uj.picture) { const pr = await fetch(uj.picture); picture = 'data:' + (pr.headers.get('content-type') || 'image/jpeg') + ';base64,' + Buffer.from(await pr.arrayBuffer()).toString('base64'); } } catch (e) { /* photo facultative */ }
-    delete g._redirect; g.user = { name: uj.name || uj.email, email: uj.email, picture }; if (tj.refresh_token) g.refresh = gEnc(tj.refresh_token); gWrite(g);
-    return { ok: true, ...gPublic() };
-  } catch (e) { return { ok: false, error: e.message }; }
-});
-ipcMain.handle('google:signout', async () => { const g = gRead(); try { if (g.refresh) await fetch('https://oauth2.googleapis.com/revoke?token=' + encodeURIComponent(gDec(g.refresh)), { method: 'POST' }); } catch (e) { /* hors ligne : on oublie quand même la session */ } delete g.user; delete g.refresh; gWrite(g); return gPublic(); });
+/* ----- Compte Google : voir google.js ----- */
+const G = require('./google'); G.register();
 
 /* ----- Mise à jour automatique depuis GitHub (versions installées via l'installateur uniquement) ----- */
 function setupUpdater() {
@@ -318,7 +283,7 @@ async function buildDocx(pl) {
   const html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' + pl.html + '</body></html>';
   const o = pl.opts || {};
   const out = await docxLib(html, pl.headerHtml || null, {
-    orientation: o.orientation, pageSize: o.pageSize, margins: o.margins, title: o.title, creator: o.creator, font: o.font, fontSize: o.fontSize,
+    orientation: o.orientation, pageSize: o.pageSize, margins: o.margins, title: o.title, creator: G.authorName() || o.creator, font: o.font, fontSize: o.fontSize,
     table: { row: { cantSplit: true } }, header: !!pl.headerHtml, footer: o.footer, pageNumber: o.pageNumber, lang: 'fr-FR'
   }, pl.footerHtml || null);
   return Buffer.isBuffer(out) ? out : Buffer.from(await out.arrayBuffer());

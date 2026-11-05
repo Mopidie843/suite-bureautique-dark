@@ -41,3 +41,18 @@ body:not(.look-word) .tpl-card{background:#262626;border-color:#3a3a3a;border-le
 body.dropping::after{content:'Déposez le fichier pour l\'ouvrir';position:fixed;inset:12px;border:3px dashed #2b579a;border-radius:10px;background:rgba(43,87,154,.12);display:flex;align-items:center;justify-content:center;font-size:22px;color:#2b579a;z-index:99;pointer-events:none}
 
 #btn-account .acc-pic{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px}
+
+.acc-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.acc-row{display:flex;align-items:center;gap:12px;padding:8px 10px;border:1px solid rgba(128,128,128,.35);border-radius:10px}
+.acc-row.on{border-color:#4a8cff;background:rgba(74,140,255,.08)}
+.acc-row img{width:36px;height:36px;border-radius:50%}.acc-row>i{font-size:34px;opacity:.6}
+.acc-row>div{flex:1;display:flex;flex-direction:column}.acc-row small{opacity:.65}
+.acc-row .tag{font-size:11px;background:#4a8cff;color:#fff;border-radius:10px;padding:2px 8px}
+.mini{border:1px solid rgba(128,128,128,.5);background:transparent;color:inherit;border-radius:8px;padding:4px 10px;cursor:pointer;font:inherit;font-size:13px}
+.mini:hover{background:rgba(128,128,128,.18)}.mini.big{padding:8px 14px}.mini.danger:hover{background:#c0392b;color:#fff}
+.chk{display:flex;gap:8px;align-items:flex-start;margin-top:10px;line-height:1.4}
+.drive-list{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow:auto}
+.drive-it{display:flex;justify-content:space-between;gap:12px;text-align:left;padding:10px 12px;border:1px solid rgba(128,128,128,.35);border-radius:8px;background:transparent;color:inherit;cursor:pointer;font:inherit}
+.drive-it:hover{background:rgba(74,140,255,.12)}.drive-it small{opacity:.6;white-space:nowrap}
+#lock{position:fixed;inset:0;z-index:500;background:rgba(15,18,26,.96);display:flex;align-items:center;justify-content:center;color:#eee}
+#lock.hidden{display:none}.lock-box{text-align:center}.lock-box>i{font-size:46px;color:#6ab0ff}
