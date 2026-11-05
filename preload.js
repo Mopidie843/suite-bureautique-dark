@@ -1,0 +1,36 @@
+'use strict';
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  openDialog: () => ipcRenderer.invoke('dlg:open'),
+  pickSavePath: o => ipcRenderer.invoke('dlg:save', o),
+  writeFile: o => ipcRenderer.invoke('file:write', o),
+  writePdf: o => ipcRenderer.invoke('file:pdf', o),
+  clipboardRead: () => ipcRenderer.invoke('clip:read'),
+  info: () => ipcRenderer.invoke('app:info'),
+  openExternal: u => ipcRenderer.invoke('app:external', u),
+  setSpellLang: l => ipcRenderer.invoke('app:spell', l),
+  shareStart: o => ipcRenderer.invoke('share:start', o),
+  shareUpdate: o => ipcRenderer.invoke('share:update', o),
+  shareStop: () => ipcRenderer.invoke('share:stop'),
+  shareUrls: () => ipcRenderer.invoke('share:urls'),
+  getStartupFile: () => ipcRenderer.invoke('app:startup-file'),
+  openFiles: o => ipcRenderer.invoke('dlg:open-files', o),
+  xlsxWrite: o => ipcRenderer.invoke('xlsx:write', o),
+  xlsxParse: b => ipcRenderer.invoke('xlsx:parse', b),
+  pptxWrite: o => ipcRenderer.invoke('pptx:write', o),
+  openVersions: () => ipcRenderer.invoke('versions:open'),
+  googleStatus: () => ipcRenderer.invoke('google:status'),
+  googleConfig: o => ipcRenderer.invoke('google:config', o),
+  googleSignIn: () => ipcRenderer.invoke('google:signin'),
+  googleSignOut: () => ipcRenderer.invoke('google:signout'),
+  aiStatus: () => ipcRenderer.invoke('ai:status'),
+  aiSetKey: k => ipcRenderer.invoke('ai:set-key', k),
+  aiAsk: o => ipcRenderer.invoke('ai:ask', o),
+  openHub: () => ipcRenderer.invoke('app:open-hub'),
+  openApp: (k, f) => ipcRenderer.invoke('app:open-app', k, f),
+  pathForFile: f => { try { return webUtils.getPathForFile(f); } catch (e) { return null; } },
+  onBeforeClose: cb => ipcRenderer.on('app:before-close', () => cb()),
+  confirmClose: ok => ipcRenderer.send('app:confirm-close', !!ok),
+  onOpenFile: cb => ipcRenderer.on('app:open-file', (_e, f) => cb(f))
+});

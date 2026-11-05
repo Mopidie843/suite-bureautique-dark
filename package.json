@@ -1,0 +1,117 @@
+{
+  "name": "suite-bureautique-dark",
+  "version": "3.3.0",
+  "description": "Suite bureautique : Word, Excel et PowerPoint (apparence Word, thème clair/sombre)",
+  "author": "Word Dark Edition",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable --x64",
+    "dist:win": "electron-builder --win --x64 --publish never",
+    "release:win": "electron-builder --win --x64 --publish always"
+  },
+  "build": {
+    "appId": "com.worddark.suite",
+    "productName": "Suite Bureautique Dark",
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "package.json",
+      "!**/*.map"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis-web",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "portable": {
+      "artifactName": "SuiteBureautiqueDark-Portable.exe"
+    },
+    "fileAssociations": [
+      {
+        "ext": "docx",
+        "name": "Document Word"
+      },
+      {
+        "ext": "wordweb",
+        "name": "Document Word Dark"
+      },
+      {
+        "ext": "xlsx",
+        "name": "Classeur Excel"
+      },
+      {
+        "ext": "pptx",
+        "name": "Présentation PowerPoint"
+      },
+      {
+        "ext": "csv",
+        "name": "Fichier CSV"
+      }
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Suite Bureautique Dark",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/uninstallerSidebar.bmp",
+      "installerHeader": "build/installerHeader.bmp",
+      "license": "build/license.txt",
+      "language": "1036",
+      "artifactName": "SuiteBureautiqueDark-Setup-${version}.exe",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "differentialPackage": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Mopidie843",
+        "repo": "suite-bureautique-dark",
+        "releaseType": "release"
+      }
+    ],
+    "afterPack": "build/afterPack.js"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^7.3.1",
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11",
+    "exceljs": "^4.4.0",
+    "html-to-docx": "^1.8.0",
+    "mammoth": "^1.13.0",
+    "pptxgenjs": "^4.0.1"
+  },
+  "repository": "https://github.com/Mopidie843/suite-bureautique-dark"
+}

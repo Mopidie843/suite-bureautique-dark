@@ -1,0 +1,377 @@
+'use strict';
+const { app, BrowserWindow, ipcMain, dialog, clipboard, shell, Menu, session } = require('electron');
+const path = require('path');
+const fs = require('fs');
+const fsp = fs.promises;
+const http = require('http');
+const os = require('os');
+
+const OPENABLE = ['.docx', '.wordweb', '.html', '.htm', '.txt', '.md', '.csv'];
+const wins = new Map(); // webContents.id -> { win, kind, closing, startup }
+const PAGES = { hub: 'hub.html', word: 'index.html', excel: 'excel/index.html', ppt: 'ppt/index.html' };
+const TITLES = { hub: 'Suite Bureautique Dark', word: 'Word Dark Edition', excel: 'Excel Dark', ppt: 'PowerPoint Dark' };
+const kindOfFile = p => { const e = path.extname(p).toLowerCase(); return ['.xlsx', '.xls', '.csv'].includes(e) ? 'excel' : e === '.pptx' ? 'ppt' : 'word'; };
+const OPENABLE_ALL = OPENABLE.concat(['.xlsx', '.pptx']);
+
+/* ---------- Instance unique + fichier passé en argument ---------- */
+const argFile = argv => argv.slice(app.isPackaged ? 1 : 2).find(a => !a.startsWith('-') && OPENABLE_ALL.includes(path.extname(a).toLowerCase()) && fs.existsSync(a));
+if (!app.requestSingleInstanceLock()) { app.quit(); }
+else {
+  app.on('second-instance', (_e, argv) => {
+    const f = argFile(argv);
+    if (f) createWindow(kindOfFile(f), f); else openHub();
+  });
+}
+
+async function readForRenderer(p) {
+  const buf = await fsp.readFile(p), ext = path.extname(p).toLowerCase().replace('.', '');
+  const isText = ['html', 'htm', 'txt', 'md', 'csv', 'wordweb'].includes(ext);
+  return { name: path.basename(p), ext, path: p, ...(isText ? { text: buf.toString('utf8').replace(/^﻿/, '') } : { bytes: new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength) }) };
+}
+const winOf = e => BrowserWindow.fromWebContents(e.sender);
+
+/* ---------- Fenêtres ---------- */
+function openHub() {
+  for (const v of wins.values()) if (v.kind === 'hub') { if (v.win.isMinimized()) v.win.restore(); v.win.focus(); return v.win; }
+  return createWindow('hub');
+}
+function createWindow(kind, startupPath) {
+  const hub = kind === 'hub';
+  const win = new BrowserWindow({
+    width: hub ? 1000 : 1360, height: hub ? 660 : 860, minWidth: hub ? 760 : 360, minHeight: hub ? 520 : 480,
+    backgroundColor: hub ? '#2b579a' : '#1f1f1f', title: TITLES[kind], icon: path.join(__dirname, 'src', 'icon.png'), show: false, autoHideMenuBar: true, resizable: true,
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: false, spellcheck: kind !== 'excel' }
+  });
+  const id = win.webContents.id, rec = { win, kind, closing: false, startup: startupPath || null };
+  wins.set(id, rec);
+  win.loadFile(path.join(__dirname, 'src', PAGES[kind]));
+  win.once('ready-to-show', () => win.show());
+  win.webContents.setWindowOpenHandler(({ url }) => { openSafe(url); return { action: 'deny' }; });
+  win.webContents.on('will-navigate', (e, url) => { if (!url.startsWith('file://')) { e.preventDefault(); openSafe(url); } else e.preventDefault(); });
+  win.on('page-title-updated', e => { if (kind === 'hub') e.preventDefault(); });
+  win.on('close', e => {
+    if (rec.closing || hub) return;
+    e.preventDefault();
+    win.webContents.send('app:before-close');
+  });
+  win.on('unresponsive', () => { rec.closing = true; });
+  win.on('closed', () => { wins.delete(id); if (!wins.size) stopShare(); });
+  win.webContents.on('context-menu', (_e, p) => {
+    const t = [];
+    if (p.misspelledWord) {
+      p.dictionarySuggestions.slice(0, 5).forEach(s => t.push({ label: s, click: () => win.webContents.replaceMisspelling(s) }));
+      if (!p.dictionarySuggestions.length) t.push({ label: 'Aucune suggestion', enabled: false });
+      t.push({ label: 'Ajouter au dictionnaire', click: () => win.webContents.session.addWordToSpellCheckerDictionary(p.misspelledWord) }, { type: 'separator' });
+    }
+    if (p.isEditable) t.push({ label: 'Couper', role: 'cut', enabled: p.editFlags.canCut }, { label: 'Copier', role: 'copy', enabled: p.editFlags.canCopy }, { label: 'Coller', role: 'paste', enabled: p.editFlags.canPaste }, { type: 'separator' }, { label: 'Tout sélectionner', role: 'selectAll' });
+    else if (p.selectionText) t.push({ label: 'Copier', role: 'copy' });
+    if (t.length) Menu.buildFromTemplate(t).popup({ window: win });
+  });
+  return win;
+}
+function openSafe(url) { if (/^(https?:|mailto:)/i.test(url)) shell.openExternal(url); }
+
+app.whenReady().then(() => {
+  setupUpdater();
+  session.defaultSession.setPermissionRequestHandler((_wc, _perm, cb) => cb(false));
+  session.defaultSession.setSpellCheckerLanguages(['fr', 'fr-FR'].filter(l => session.defaultSession.availableSpellCheckerLanguages.includes(l)).slice(0, 1));
+  Menu.setApplicationMenu(null);
+  const f = argFile(process.argv);
+  if (f) createWindow(kindOfFile(f), f); else createWindow('hub');
+  app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) openHub(); });
+});
+app.on('window-all-closed', () => app.quit());
+
+ipcMain.on('app:confirm-close', e => { const r = wins.get(e.sender.id); if (r && !r.win.isDestroyed()) { r.closing = true; r.win.close(); } });
+ipcMain.handle('app:startup-file', async e => {
+  const r = wins.get(e.sender.id); if (!r || !r.startup) return null;
+  const f = r.startup; r.startup = null;
+  try { return await readForRenderer(f); } catch (err) { return null; }
+});
+ipcMain.handle('app:open-hub', () => { openHub(); });
+ipcMain.handle('app:open-app', async (e, kind, file) => {
+  if (!PAGES[kind]) return false;
+  if (file) { createWindow(kind, file); return true; }
+  createWindow(kind); return true;
+});
+ipcMain.handle('app:recent-open', async (e, kind, p) => { if (p && fs.existsSync(p)) createWindow(kind, p); });
+
+/* ---------- Dialogues ---------- */
+ipcMain.handle('dlg:open', async e => {
+  const r = await dialog.showOpenDialog(winOf(e), { title: 'Ouvrir un document', properties: ['openFile'], filters: [{ name: 'Documents', extensions: ['docx', 'wordweb', 'html', 'htm', 'txt', 'md', 'csv'] }, { name: 'Tous les fichiers', extensions: ['*'] }] });
+  if (r.canceled || !r.filePaths.length) return null;
+  return Promise.all(r.filePaths.map(readForRenderer));
+});
+ipcMain.handle('dlg:open-files', async (e, o) => {
+  const r = await dialog.showOpenDialog(winOf(e), { title: 'Ouvrir', properties: ['openFile'], filters: (o && o.filters) || [] });
+  if (r.canceled || !r.filePaths.length) return null;
+  return Promise.all(r.filePaths.map(readForRenderer));
+});
+ipcMain.handle('dlg:save', async (e, o) => {
+  o = o || {};
+  const r = await dialog.showSaveDialog(winOf(e), { title: 'Enregistrer', defaultPath: path.join(app.getPath('documents'), o.defaultName || 'Document.docx'), filters: o.filters || [] });
+  return r.canceled ? { canceled: true } : { canceled: false, path: r.filePath };
+});
+
+/* ---------- Écriture de fichiers ---------- */
+/* Historique de versions : avant d'écraser un fichier, on en garde une copie datée (10 dernières) */
+async function backupVersion(p) {
+  try {
+    await fsp.access(p); const dir = path.join(app.getPath('userData'), 'versions', path.basename(p).replace(/[^\w.\- ]/g, '_'));
+    await fsp.mkdir(dir, { recursive: true });
+    const d = new Date(), pad = n => String(n).padStart(2, '0'), ts = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+    const last = (await fsp.readdir(dir)).sort().pop();
+    if (last && Date.now() - (await fsp.stat(path.join(dir, last))).mtimeMs < 60000) return; // pas plus d'une copie par minute
+    await fsp.copyFile(p, path.join(dir, ts + path.extname(p)));
+    const all = (await fsp.readdir(dir)).sort(); for (const f of all.slice(0, Math.max(0, all.length - 10))) await fsp.unlink(path.join(dir, f));
+  } catch (_) { /* pas de fichier précédent ou copie impossible : on ne bloque jamais l'enregistrement */ }
+}
+async function writeAtomic(p, data) {
+  await backupVersion(p);
+  const tmp = p + '.tmp-' + process.pid;
+  try { await fsp.writeFile(tmp, data); await fsp.rename(tmp, p); }
+  catch (e) { try { await fsp.unlink(tmp); } catch (_) { /* ignore */ } throw e; }
+}
+/* ----- Excel (exceljs) ----- */
+const NF = { '0': '0', '0.00': '0.00', sep: '#,##0.00', '%': '0%', eur: '#,##0.00 "€"', date: 'dd/mm/yyyy', txt: '@' };
+const hex = c => 'FF' + String(c || '#000000').replace('#', '').toUpperCase().padStart(6, '0');
+const fromArgb = a => (typeof a === 'string' && a.length === 8 ? '#' + a.slice(2).toLowerCase() : null);
+const serialToDate = n => new Date(Date.UTC(1899, 11, 30) + Math.round(n * 864e5));
+async function xlsxBuild(book) {
+  const ExcelJS = require('exceljs'), wb = new ExcelJS.Workbook(); wb.creator = 'Excel Dark'; wb.title = book.title;
+  for (const sh of book.sheets) {
+    const ws = wb.addWorksheet(sh.name.slice(0, 31), sh.freeze && (sh.freeze.r || sh.freeze.c) ? { views: [{ state: 'frozen', xSplit: sh.freeze.c || 0, ySplit: sh.freeze.r || 0 }] } : undefined);
+    (sh.merges || []).forEach(g => { try { ws.mergeCells(g.r0 + 1, g.c0 + 1, g.r1 + 1, g.c1 + 1); } catch (e) { /* ignorée */ } });
+    Object.entries(sh.colW || {}).forEach(([c, w]) => { ws.getColumn(+c + 1).width = Math.max(3, (w - 5) / 7); });
+    for (const c of sh.cells) {
+      const cell = ws.getCell(c.k), s = c.s || {};
+      if (typeof c.v === 'string' && c.v[0] === '=' && c.v.length > 1) cell.value = { formula: c.v.slice(1).replace(/;/g, ','), result: c.res === null ? undefined : c.res };
+      else if (typeof c.v === 'number' && s.nf === 'date') cell.value = serialToDate(c.v);
+      else if (c.v !== '' && c.v != null) cell.value = c.v;
+      const dp = s.dp != null ? s.dp : null; let fmt = NF[s.nf];
+      if (dp != null && s.nf !== 'date' && s.nf !== 'txt') { const z = dp > 0 ? '.' + '0'.repeat(dp) : ''; fmt = s.nf === '%' ? '0' + z + '%' : s.nf === 'eur' ? '#,##0' + z + ' "€"' : s.nf === 'sep' ? '#,##0' + z : '0' + z; }
+      if (fmt) cell.numFmt = fmt;
+      const font = {}; if (s.b) font.bold = true; if (s.i) font.italic = true; if (s.u) font.underline = true; if (s.color) font.color = { argb: hex(s.color) }; if (s.sz) font.size = s.sz;
+      if (Object.keys(font).length) cell.font = font;
+      if (s.fill) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: hex(s.fill) } };
+      if (s.al || s.wrap) cell.alignment = { horizontal: s.al || undefined, wrapText: !!s.wrap };
+      if (s.bd) { const b = { style: 'thin', color: { argb: 'FF000000' } }; cell.border = { top: b, left: b, bottom: b, right: b }; }
+    }
+  }
+  return Buffer.from(await wb.xlsx.writeBuffer());
+}
+function nfBack(f) {
+  if (!f || f === 'General') return {};
+  if (f.includes('%')) { const m = /\.(0+)%/.exec(f); return { nf: '%', dp: m ? m[1].length : 0 }; }
+  if (f.includes('€')) { const m = /\.(0+)/.exec(f); return { nf: 'eur', dp: m ? m[1].length : 0 }; }
+  if (/[dmy]{1,4}[/.\-][dmy]{1,4}/i.test(f)) return { nf: 'date' };
+  if (f === '@') return { nf: 'txt' };
+  if (f.includes('#,##')) { const m = /\.(0+)/.exec(f); return { nf: 'sep', dp: m ? m[1].length : 0 }; }
+  const m = /^0(?:\.(0+))?$/.exec(f); if (m) return m[1] ? { nf: '0.00', dp: m[1].length } : { nf: '0' };
+  return {};
+}
+async function xlsxParse(bytes) {
+  const ExcelJS = require('exceljs'), wb = new ExcelJS.Workbook(); await wb.xlsx.load(Buffer.from(bytes));
+  const sheets = [];
+  wb.eachSheet(ws => {
+    const cells = {}, colW = {};
+    ws.columns.forEach((col, i) => { if (col && col.width) colW[i] = Math.round(col.width * 7 + 5); });
+    ws.eachRow({ includeEmpty: false }, (row, rn) => row.eachCell({ includeEmpty: false }, (cell, cn) => {
+      if (rn > 2000 || cn > 26) return;
+      let v = cell.value, st = {};
+      if (v && typeof v === 'object') { if (v instanceof Date) { st.nf = 'date'; v = (v.getTime() - Date.UTC(1899, 11, 30)) / 864e5; } else if (v.formula) v = '=' + v.formula; else if (v.sharedFormula) v = v.result != null ? v.result : ''; else if (v.richText) v = v.richText.map(t => t.text).join(''); else if (v.text) v = v.text; else if (v.error) v = v.error; else v = String(v.result != null ? v.result : ''); }
+      const f = cell.font || {}; if (f.bold) st.b = true; if (f.italic) st.i = true; if (f.underline) st.u = true; const col = f.color && fromArgb(f.color.argb); if (col && col !== '#000000') st.color = col; if (f.size && f.size !== 11) st.sz = f.size;
+      if (cell.fill && cell.fill.fgColor) { const fl = fromArgb(cell.fill.fgColor.argb); if (fl && fl !== '#ffffff') st.fill = fl; }
+      const al = cell.alignment || {}; if (al.horizontal && ['left', 'center', 'right'].includes(al.horizontal)) st.al = al.horizontal; if (al.wrapText) st.wrap = true;
+      if (cell.border && cell.border.top) st.bd = true;
+      Object.assign(st, nfBack(cell.numFmt));
+      const key = (function (c) { let s = ''; let n = c; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; })(cn) + rn;
+      cells[key] = Object.keys(st).length ? { v: v == null ? '' : v, s: st } : { v: v == null ? '' : v };
+    }));
+    const A1 = k => { const q = /^([A-Z]+)(\d+)$/.exec(k); if (!q) return null; let c = 0; for (const ch of q[1]) c = c * 26 + ch.charCodeAt(0) - 64; return { c: c - 1, r: +q[2] - 1 }; };
+    const merges = ((ws.model && ws.model.merges) || []).map(x => { const [a, b] = String(x).split(':'), p = A1(a), q = A1(b || a); return p && q ? { r0: p.r, c0: p.c, r1: q.r, c1: q.c } : null; }).filter(g => g && g.r1 < 2000 && g.c1 < 26 && (g.r1 > g.r0 || g.c1 > g.c0));
+    const vw = ws.views && ws.views[0], freeze = vw && vw.state === 'frozen' ? { r: vw.ySplit || 0, c: vw.xSplit || 0 } : undefined;
+    sheets.push({ name: ws.name, cells, colW, merges, freeze });
+  });
+  return sheets;
+}
+ipcMain.handle('versions:open', async () => { const d = path.join(app.getPath('userData'), 'versions'); await fsp.mkdir(d, { recursive: true }); shell.openPath(d); return d; });
+ipcMain.handle('xlsx:write', async (_e, { path: p, book }) => { try { await writeAtomic(p, await xlsxBuild(book)); return { ok: true }; } catch (e) { return { ok: false, error: e.message }; } });
+ipcMain.handle('xlsx:parse', async (_e, bytes) => { try { return { ok: true, sheets: await xlsxParse(bytes) }; } catch (e) { return { ok: false, error: e.message }; } });
+
+/* ----- PowerPoint (pptxgenjs) ----- */
+async function pptxBuild(deck) {
+  const PptxGenJS = require('pptxgenjs'), p = new PptxGenJS();
+  p.defineLayout({ name: 'W169', width: 13.333, height: 7.5 }); p.layout = 'W169'; p.title = deck.title; p.author = 'PowerPoint Dark';
+  const I = n => Math.round(n / 72 * 1000) / 1000, col = c => String(c || '#000000').replace('#', '').toUpperCase();
+  for (const sd of deck.slides) {
+    const s = p.addSlide(); s.background = { color: col(sd.bg || '#ffffff') };
+    for (const o of sd.objs) {
+      const pos = { x: I(o.x), y: I(o.y), w: I(o.w), h: I(o.h) };
+      if (o.type === 'table' && Array.isArray(o.cells)) {
+        const bc = col(o.line || '#8a8a8a'), rowsT = o.cells.map((row, r) => row.map(v => ({ text: String(v || ''), options: o.hdr && r === 0 ? { bold: true, color: 'FFFFFF', fill: { color: col(o.fill || '#2b579a') } } : { color: col(o.color || '#262626'), fill: o.hdr && r % 2 === 0 ? { color: 'EDEDED' } : undefined } })));
+        s.addTable(rowsT, { ...pos, fontSize: Math.round((o.fs || 20) * 0.75), fontFace: o.ff || 'Calibri', border: { type: 'solid', color: bc, pt: 1 }, valign: 'middle', margin: 0.06 }); continue;
+      }
+      const fx = {}; if (o.rot) fx.rotate = o.rot; if (o.shadow) fx.shadow = { type: 'outer', color: '000000', opacity: 0.45, blur: 8, offset: 6, angle: 45 };
+      if (o.type === 'image') { if (/^data:image\//.test(o.src || '')) s.addImage({ data: o.src.replace(/^data:/, ''), ...pos, ...(o.rot ? { rotate: o.rot } : {}) }); continue; }
+      if (o.type === 'arrow') { s.addShape(p.ShapeType.line, { ...pos, y: pos.y + pos.h / 2, h: 0, line: { color: col(o.line || '#ffffff'), width: o.lw || 4, endArrowType: 'triangle' }, ...fx }); continue; }
+      const fill = o.fill ? { color: col(o.fill) } : undefined, line = o.line ? { color: col(o.line), width: o.lw || 1 } : undefined;
+      const txt = { fontSize: o.fs || 18, bold: !!o.b, italic: !!o.i, underline: o.u ? { style: 'sng' } : undefined, color: col(o.color || '#000000'), align: o.al || 'left', valign: 'top', fontFace: o.ff || 'Calibri' };
+      if (o.type === 'text') s.addText(o.text || '', { ...pos, ...txt, fill, line, margin: 4, fit: 'none', ...fx });
+      else s.addShape(o.type === 'ellipse' ? p.ShapeType.ellipse : o.type === 'triangle' ? p.ShapeType.triangle : p.ShapeType.rect, { ...pos, fill: fill || { color: 'FFFFFF' }, line, ...fx });
+      if (o.type !== 'text' && o.text) s.addText(o.text, { ...pos, ...txt, valign: 'middle', align: o.al || 'center', ...(o.rot ? { rotate: o.rot } : {}) });
+    }
+    if (sd.notes) s.addNotes(sd.notes);
+  }
+  let buf = Buffer.from(await p.write({ outputType: 'nodebuffer' }));
+  if (deck.slides.some(x => x.tr && x.tr !== 'none')) {
+    try {
+      const JSZip = require('jszip'), zip = await JSZip.loadAsync(buf), X = { fade: '<p:fade/>', slide: '<p:cover dir="l"/>', push: '<p:push dir="l"/>', zoom: '<p:zoom dir="in"/>', wipe: '<p:wipe dir="l"/>', flip: '<p:split orient="horz" dir="out"/>', rotate: '<p:zoom dir="out"/>', blur: '<p:fade/>', bounce: '<p:push dir="u"/>', curtain: '<p:split orient="vert" dir="out"/>' };
+      for (let i = 0; i < deck.slides.length; i++) {
+        const t = X[deck.slides[i].tr], f = zip.file('ppt/slides/slide' + (i + 1) + '.xml'); if (!t || !f) continue;
+        const xml = await f.async('string'); if (xml.includes('<p:transition')) continue;
+        zip.file('ppt/slides/slide' + (i + 1) + '.xml', xml.replace('</p:clrMapOvr>', '</p:clrMapOvr><p:transition spd="med">' + t + '</p:transition>'));
+      }
+      buf = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+    } catch (e) { /* transitions non exportées */ }
+  }
+  return buf;
+}
+ipcMain.handle('pptx:write', async (_e, { path: p, deck }) => { try { await writeAtomic(p, await pptxBuild(deck)); return { ok: true }; } catch (e) { return { ok: false, error: e.message }; } });
+
+
+/* ---------- IA connectée (clé API de l'utilisateur, optionnelle) ---------- */
+const AI_MODEL = 'claude-sonnet-5-5', keyFile = () => path.join(app.getPath('userData'), 'ai.key');
+function aiKey() { try { const b = fs.readFileSync(keyFile()); const { safeStorage } = require('electron'); return safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(b) : b.toString('utf8'); } catch (e) { return ''; } }
+
+/* ----- Compte Google (OAuth 2.0 + PKCE, navigateur système, redirection locale 127.0.0.1) ----- */
+const gFile = () => path.join(app.getPath('userData'), 'google.json');
+const gEnc = s => { const { safeStorage } = require('electron'); return safeStorage.isEncryptionAvailable() ? 'e:' + safeStorage.encryptString(s).toString('base64') : 'p:' + Buffer.from(s).toString('base64'); };
+const gDec = s => { try { const { safeStorage } = require('electron'); const b = Buffer.from(String(s).slice(2), 'base64'); return String(s)[0] === 'e' ? safeStorage.decryptString(b) : b.toString('utf8'); } catch (e) { return ''; } };
+const gRead = () => { try { return JSON.parse(fs.readFileSync(gFile(), 'utf8')); } catch (e) { return {}; } };
+const gWrite = o => fs.writeFileSync(gFile(), JSON.stringify(o));
+const gPublic = () => { const g = gRead(); return { configured: !!(g.clientId && g.secret), clientId: g.clientId || '', user: g.user || null }; };
+ipcMain.handle('google:status', () => gPublic());
+ipcMain.handle('google:config', (_e, { clientId, clientSecret }) => { const g = gRead(); g.clientId = String(clientId || '').trim(); if (clientSecret) g.secret = gEnc(String(clientSecret).trim()); if (!g.clientId) { delete g.secret; delete g.user; delete g.refresh; } gWrite(g); return gPublic(); });
+ipcMain.handle('google:signin', async () => {
+  const g = gRead(); if (!g.clientId || !g.secret) return { ok: false, error: 'Identifiants Google non configurés.' };
+  const crypto = require('crypto'), http = require('http'), b64u = b => b.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const verifier = b64u(crypto.randomBytes(48)), challenge = b64u(crypto.createHash('sha256').update(verifier).digest()), state = b64u(crypto.randomBytes(16));
+  try {
+    const code = await new Promise((resolve, reject) => {
+      const srv = http.createServer((req, res) => {
+        const u = new URL(req.url, 'http://127.0.0.1'); if (u.pathname !== '/cb') { res.writeHead(404); res.end(); return; }
+        const ok = u.searchParams.get('code') && u.searchParams.get('state') === state;
+        res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+        res.end('<!doctype html><meta charset="utf-8"><body style="font-family:Segoe UI,sans-serif;background:#1e1e1e;color:#eee;text-align:center;padding-top:15vh"><h2>' + (ok ? 'Connexion réussie' : 'Connexion refusée') + '</h2><p>Vous pouvez fermer cet onglet et revenir à la Suite Bureautique.</p>');
+        clearTimeout(to); srv.close(); ok ? resolve(u.searchParams.get('code')) : reject(new Error(u.searchParams.get('error') || 'Connexion refusée.'));
+      });
+      const to = setTimeout(() => { srv.close(); reject(new Error('Délai dépassé (3 min).')); }, 180000);
+      srv.listen(0, '127.0.0.1', () => {
+        const redirect = 'http://127.0.0.1:' + srv.address().port + '/cb'; g._redirect = redirect;
+        const q = new URLSearchParams({ client_id: g.clientId, redirect_uri: redirect, response_type: 'code', scope: 'openid email profile', code_challenge: challenge, code_challenge_method: 'S256', state, access_type: 'offline', prompt: 'select_account' });
+        shell.openExternal('https://accounts.google.com/o/oauth2/v2/auth?' + q);
+      });
+    });
+    const tr = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ code, client_id: g.clientId, client_secret: gDec(g.secret), redirect_uri: g._redirect, grant_type: 'authorization_code', code_verifier: verifier }) });
+    const tj = await tr.json(); if (!tr.ok) throw new Error(tj.error_description || tj.error || 'Échec de l\'échange du code.');
+    const ur = await fetch('https://openidconnect.googleapis.com/v1/userinfo', { headers: { authorization: 'Bearer ' + tj.access_token } }); const uj = await ur.json(); if (!ur.ok) throw new Error('Profil Google illisible.');
+    let picture = ''; try { if (uj.picture) { const pr = await fetch(uj.picture); picture = 'data:' + (pr.headers.get('content-type') || 'image/jpeg') + ';base64,' + Buffer.from(await pr.arrayBuffer()).toString('base64'); } } catch (e) { /* photo facultative */ }
+    delete g._redirect; g.user = { name: uj.name || uj.email, email: uj.email, picture }; if (tj.refresh_token) g.refresh = gEnc(tj.refresh_token); gWrite(g);
+    return { ok: true, ...gPublic() };
+  } catch (e) { return { ok: false, error: e.message }; }
+});
+ipcMain.handle('google:signout', async () => { const g = gRead(); try { if (g.refresh) await fetch('https://oauth2.googleapis.com/revoke?token=' + encodeURIComponent(gDec(g.refresh)), { method: 'POST' }); } catch (e) { /* hors ligne : on oublie quand même la session */ } delete g.user; delete g.refresh; gWrite(g); return gPublic(); });
+
+/* ----- Mise à jour automatique depuis GitHub (versions installées via l'installateur uniquement) ----- */
+function setupUpdater() {
+  if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR) return; // pas pour la version portable ni en développement
+  try {
+    const { autoUpdater } = require('electron-updater'); autoUpdater.autoDownload = true; autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.on('update-downloaded', info => {
+      dialog.showMessageBox({ type: 'info', buttons: ['Redémarrer maintenant', 'Plus tard'], defaultId: 0, title: 'Mise à jour prête', message: 'La version ' + info.version + ' est téléchargée.', detail: 'Redémarrez pour l\'installer (sinon elle s\'installera à la fermeture).' }).then(r => { if (r.response === 0) autoUpdater.quitAndInstall(); });
+    });
+    autoUpdater.on('error', () => { /* hors ligne ou dépôt sans version : on ignore */ });
+    setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 8000);
+  } catch (e) { /* module absent : pas de mise à jour automatique */ }
+}
+ipcMain.handle('ai:status', () => ({ on: !!aiKey() }));
+ipcMain.handle('ai:set-key', (_e, k) => {
+  try { k = String(k || '').trim(); if (!k) { try { fs.unlinkSync(keyFile()); } catch (e) { /* absent */ } return { ok: true, on: false }; }
+    const { safeStorage } = require('electron'); fs.writeFileSync(keyFile(), safeStorage.isEncryptionAvailable() ? safeStorage.encryptString(k) : Buffer.from(k, 'utf8')); return { ok: true, on: true }; }
+  catch (e) { return { ok: false, error: e.message }; }
+});
+ipcMain.handle('ai:ask', async (_e, { system, prompt }) => {
+  const key = aiKey(); if (!key) return { ok: false, error: 'Aucune clé API enregistrée.' };
+  try {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 60000);
+    const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: AI_MODEL, max_tokens: 2500, system: String(system || '').slice(0, 4000), messages: [{ role: 'user', content: String(prompt || '').slice(0, 20000) }] }) });
+    clearTimeout(t); const j = await r.json();
+    if (!r.ok) return { ok: false, error: (j && j.error && j.error.message) || ('Erreur ' + r.status) };
+    return { ok: true, text: (j.content || []).map(c => c.text || '').join('') };
+  } catch (e) { return { ok: false, error: e.name === 'AbortError' ? 'Délai dépassé.' : e.message }; }
+});
+
+let docxLib = null;
+async function buildDocx(pl) {
+  if (!docxLib) { const m = require('html-to-docx'); docxLib = m.default || m; }
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' + pl.html + '</body></html>';
+  const o = pl.opts || {};
+  const out = await docxLib(html, pl.headerHtml || null, {
+    orientation: o.orientation, pageSize: o.pageSize, margins: o.margins, title: o.title, creator: o.creator, font: o.font, fontSize: o.fontSize,
+    table: { row: { cantSplit: true } }, header: !!pl.headerHtml, footer: o.footer, pageNumber: o.pageNumber, lang: 'fr-FR'
+  }, pl.footerHtml || null);
+  return Buffer.isBuffer(out) ? out : Buffer.from(await out.arrayBuffer());
+}
+ipcMain.handle('file:write', async (_e, { path: p, payload }) => {
+  try {
+    if (!p || typeof p !== 'string') throw new Error('chemin invalide');
+    if (payload.kind === 'docx') await writeAtomic(p, await buildDocx(payload));
+    else if (payload.kind === 'text') await writeAtomic(p, Buffer.from((p.toLowerCase().endsWith('.txt') ? '﻿' : '') + payload.text, 'utf8'));
+    else throw new Error('type inconnu');
+    return { ok: true };
+  } catch (e) { return { ok: false, error: e.message }; }
+});
+ipcMain.handle('file:pdf', async (e, { path: p }) => {
+  try {
+    const data = await e.sender.printToPDF({ printBackground: true, preferCSSPageSize: true, displayHeaderFooter: false });
+    await writeAtomic(p, data); return { ok: true };
+  } catch (err) { return { ok: false, error: err.message }; }
+});
+
+/* ---------- Divers ---------- */
+ipcMain.handle('clip:read', () => ({ html: clipboard.readHTML(), text: clipboard.readText() }));
+ipcMain.handle('app:info', () => ({ version: app.getVersion(), electron: process.versions.electron, chrome: process.versions.chrome, node: process.versions.node, platform: process.platform + ' ' + process.arch, userData: app.getPath('userData') }));
+ipcMain.handle('app:external', (_e, u) => { openSafe(String(u)); });
+ipcMain.handle('app:spell', (_e, lang) => {
+  const map = { fr: 'fr', en: 'en-US', es: 'es', de: 'de', it: 'it' }, l = map[lang] || lang;
+  const avail = session.defaultSession.availableSpellCheckerLanguages;
+  const pick = avail.find(x => x === l) || avail.find(x => x.startsWith(String(l).slice(0, 2)));
+  if (pick) session.defaultSession.setSpellCheckerLanguages([pick]);
+});
+
+/* ---------- Partage en réseau local (lecture seule) ---------- */
+let server = null, shared = { title: '', html: '', rev: 0 }, port = 0;
+const lanIPs = () => Object.values(os.networkInterfaces()).flat().filter(i => i && i.family === 'IPv4' && !i.internal).map(i => i.address);
+function stopShare() { if (server) { try { server.closeAllConnections && server.closeAllConnections(); server.close(); } catch (e) { /* ignore */ } server = null; } }
+function urls() { return server ? lanIPs().concat(['localhost']).map(ip => 'http://' + ip + ':' + port + '/') : null; }
+function liveHTML(html) {
+  const poll = '<script>(function(){var r=' + shared.rev + ';setInterval(function(){fetch("/rev",{cache:"no-store"}).then(function(x){return x.text()}).then(function(t){if(+t!==r)location.reload()}).catch(function(){})},3000)})()</script>';
+  return html.replace('</body>', '<p style="text-align:center;color:#888;font:12px sans-serif;margin-top:40px">Lecture seule · mise à jour automatique</p>' + poll + '</body>');
+}
+ipcMain.handle('share:start', async (_e, o) => {
+  shared = { title: o.title, html: o.html, rev: shared.rev + 1 };
+  if (!server) {
+    server = http.createServer((req, res) => {
+      const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': "default-src 'none'; img-src data: https:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'" };
+      if (req.url === '/rev') { res.writeHead(200, { ...headers, 'Content-Type': 'text/plain' }); res.end(String(shared.rev)); }
+      else if (req.url === '/' || req.url.startsWith('/?')) { res.writeHead(200, { ...headers, 'Content-Type': 'text/html; charset=utf-8' }); res.end(liveHTML(shared.html)); }
+      else { res.writeHead(404, headers); res.end('Introuvable'); }
+    });
+    await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '0.0.0.0', () => { port = server.address().port; resolve(); }); }).catch(err => { server = null; throw err; });
+  }
+  return { urls: urls() };
+});
+ipcMain.handle('share:update', (_e, o) => { if (server) shared = { title: o.title, html: o.html, rev: shared.rev + 1 }; return true; });
+ipcMain.handle('share:stop', () => { stopShare(); return true; });
+ipcMain.handle('share:urls', () => urls());

@@ -1,0 +1,120 @@
+/* ===== Animations de la suite (désactivées si « réduire les animations » est actif) ===== */
+@keyframes mFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes mFadeDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+@keyframes mFade{from{opacity:0}to{opacity:1}}
+@keyframes mPop{0%{opacity:0;transform:scale(.88) translateY(10px)}60%{opacity:1;transform:scale(1.02)}100%{transform:none}}
+@keyframes mSlideR{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes mSlideL{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+@keyframes mGrow{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes mPulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.55)}100%{box-shadow:0 0 0 14px rgba(255,255,255,0)}}
+@keyframes mShimmer{from{background-position:-200% 0}to{background-position:200% 0}}
+@keyframes mFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes mRipple{to{transform:scale(3.2);opacity:0}}
+@keyframes mToastIn{from{opacity:0;transform:translateY(24px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes mToastOut{to{opacity:0;transform:translateY(12px)}}
+@keyframes mBadge{0%{transform:scale(.7)}60%{transform:scale(1.15)}100%{transform:none}}
+@keyframes mGlow{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 6px currentColor)}}
+
+/* Chargement des fenêtres */
+#titlebar{animation:mFadeDown .45s cubic-bezier(.2,.8,.2,1) backwards}
+#ribbon-tabs{animation:mFadeDown .5s .05s cubic-bezier(.2,.8,.2,1) backwards}
+#ribbon{animation:mFadeDown .55s .1s cubic-bezier(.2,.8,.2,1) backwards}
+#fbar,#sheet-bar{animation:mFade .6s .2s backwards}
+#statusbar{animation:mFadeUp .5s .25s backwards}
+#grid-wrap,#stage-area,#thumbs{animation:mFade .7s .15s backwards}
+.group{animation:mFadeUp .45s backwards}
+.group:nth-child(3){animation-delay:.04s}.group:nth-child(5){animation-delay:.08s}.group:nth-child(7){animation-delay:.12s}.group:nth-child(9){animation-delay:.16s}.group:nth-child(11){animation-delay:.2s}
+
+/* Changement d'onglet du ruban */
+.ribbon-panel:not(.hidden){animation:mFadeUp .28s cubic-bezier(.2,.8,.2,1) backwards}
+.ribbon-tab{transition:background-color .2s,color .2s,box-shadow .25s,transform .2s}
+.ribbon-tab:hover{transform:translateY(-1px)}
+.ribbon-tab.active{box-shadow:inset 0 -3px 0 currentColor}
+
+/* Boutons */
+.btn,.tool,.icon-btn,.btn-file,.stab,.theme,.thumb,button{transition:background-color .18s,transform .16s cubic-bezier(.3,1.6,.5,1),box-shadow .2s,color .18s,border-color .2s,opacity .2s}
+.btn:hover,.tool:hover,.icon-btn:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.18)}
+.btn:active,.tool:active,.icon-btn:active,button:active{transform:scale(.92) translateY(0);box-shadow:none}
+.btn i,.tool i{transition:transform .25s cubic-bezier(.3,1.8,.5,1)}
+.btn:hover i,.tool:hover i{transform:scale(1.18) rotate(-6deg)}
+.btn.on,.tool.on{animation:mBadge .3s backwards}
+.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.28;pointer-events:none;transform:scale(0);animation:mRipple .6s ease-out forwards}
+.btn,.tool,.icon-btn,.btn-file{position:relative;overflow:hidden}
+.btn.has-pop,.btn.colorbtn{overflow:visible}
+
+/* Fenêtres de dialogue, menus, notifications */
+#modal-backdrop{animation:mFade .18s backwards;backdrop-filter:blur(2px)}
+#modal{animation:mPop .34s cubic-bezier(.2,.9,.3,1.2) backwards}
+.popup{animation:mFadeDown .2s backwards;transform-origin:top}
+#toast-host .toast{animation:mToastIn .35s cubic-bezier(.2,.9,.3,1.3) backwards}
+#toast-host .toast.out{animation:mToastOut .3s forwards}
+#find-panel:not(.hidden){animation:mFadeDown .25s backwards}
+#backstage:not(.hidden){animation:mFade .25s backwards}
+#backstage:not(.hidden)>*{animation:mSlideL .35s backwards}
+.badge{transition:background-color .3s,color .3s}
+.badge.dirty{animation:mBadge .35s backwards}
+
+/* Listes et panneaux */
+#thumbs .thumb{animation:mSlideL .4s backwards}
+#thumbs .thumb:nth-child(2){animation-delay:.04s}#thumbs .thumb:nth-child(3){animation-delay:.08s}#thumbs .thumb:nth-child(4){animation-delay:.12s}#thumbs .thumb:nth-child(5){animation-delay:.16s}#thumbs .thumb:nth-child(n+6){animation-delay:.2s}
+.thumb:hover{transform:translateX(4px) scale(1.03)}.thumb.on{box-shadow:0 0 0 2px #b7472a,0 6px 16px rgba(0,0,0,.25)}
+#ai-panel:not(.hidden){animation:mSlideR .38s cubic-bezier(.2,.9,.3,1) backwards}
+.ai-m{animation:mPop .35s backwards}.ai-chips button{animation:mGrow .35s backwards}.ai-chips button:nth-child(2){animation-delay:.05s}.ai-chips button:nth-child(3){animation-delay:.1s}.ai-chips button:nth-child(4){animation-delay:.15s}.ai-chips button:nth-child(n+5){animation-delay:.2s}
+.ai-chips button:hover{transform:translateY(-2px) scale(1.05)}
+#ai-send:hover{animation:mPulse .8s}
+#comment-list .cm-card,.cm-card{animation:mSlideR .3s backwards}
+.theme{animation:mGrow .4s backwards}.theme:hover{transform:translateY(-3px) scale(1.06);box-shadow:0 6px 14px rgba(0,0,0,.3)}
+.stab{transition:background-color .2s,box-shadow .25s,transform .2s}.stab:hover{transform:translateY(-2px)}.stab.on{animation:mBadge .3s backwards}
+
+/* Document / tableur / diapositives */
+#editor .page,#print-root .page{animation:mFadeUp .5s backwards}
+#stage .pslide{animation:mFade .35s backwards}
+.pobj{transition:box-shadow .2s,outline-color .2s}
+.pobj.selected{animation:mGlow 1.6s infinite}
+.hdl{transition:transform .15s}.hdl:hover{transform:scale(1.5)}
+.chart{animation:mGrow .5s cubic-bezier(.2,.9,.3,1.2) backwards}
+.chart rect,.chart path{transform-box:fill-box}
+.chart svg rect{transform-origin:bottom;animation:mBarUp .7s cubic-bezier(.2,.9,.3,1) backwards}
+@keyframes mBarUp{from{transform:scaleY(0)}to{transform:none}}
+.chart svg polyline,.chart svg polygon{animation:mFade .9s backwards}
+.chart svg circle{animation:mGrow .6s .3s backwards}
+.chart svg path{animation:mGrow .6s backwards;transform-origin:center}
+.grid td.active{animation:mPulseCell .9s}
+@keyframes mPulseCell{0%{box-shadow:inset 0 0 0 4px rgba(33,115,70,.5)}100%{box-shadow:none}}
+#sheet-bar .icon-btn:hover{transform:rotate(90deg) scale(1.15)}
+#obj-bar{animation:mPop .25s backwards}
+
+/* Accueil de la suite */
+.tiles .tile{animation:mFadeUp .6s cubic-bezier(.2,.9,.3,1.1) backwards}
+.tiles .tile:nth-child(2){animation-delay:.1s}.tiles .tile:nth-child(3){animation-delay:.2s}
+.tile i{transition:transform .4s cubic-bezier(.3,1.8,.5,1);animation:mFloat 3.5s ease-in-out infinite}
+.tile.excel i{animation-delay:.4s}.tile.ppt i{animation-delay:.8s}
+.tile:hover{transform:translateY(-6px) scale(1.03)!important;box-shadow:0 14px 28px rgba(0,0,0,.25)!important}
+.tile:hover i{animation:none;transform:scale(1.2) rotate(-8deg)}
+.tile:active{transform:scale(.97)!important}
+.recent-box{animation:mFadeUp .6s .3s backwards}
+#recent tr{animation:mSlideL .4s backwards}#recent tr:nth-child(2){animation-delay:.05s}#recent tr:nth-child(3){animation-delay:.1s}#recent tr:nth-child(4){animation-delay:.15s}#recent tr:nth-child(n+5){animation-delay:.2s}
+#recent tr{transition:background-color .2s,transform .2s}#recent tr:hover{transform:translateX(6px)}
+
+/* Bascule clair / sombre */
+body{transition:background-color .4s,color .4s}
+body.look-switching *{transition:background-color .4s,color .4s,border-color .4s,fill .4s!important}
+.fa-solid.fa-circle-half-stroke{transition:transform .6s cubic-bezier(.3,1.5,.5,1)}
+body.look-switching .fa-circle-half-stroke{transform:rotate(180deg)}
+
+/* Barres de défilement douces */
+*{scrollbar-width:thin}
+html{scroll-behavior:smooth}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+body.no-motion *,body.no-motion *::before,body.no-motion *::after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+/* Palette de commandes */
+#palette{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.35);display:flex;justify-content:center;align-items:flex-start;padding-top:12vh;animation:mFade .15s backwards}
+#palette .pal{width:min(560px,92vw);background:var(--bg2,#fff);color:var(--txt,#222);border:1px solid var(--line,#bbb);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.45);overflow:hidden;animation:mPop .25s backwards}
+#palette input{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid var(--line,#ccc);padding:14px 16px;font-size:16px;background:transparent;color:inherit;outline:none}
+#palette .pal-list{max-height:48vh;overflow:auto}
+#palette .pal-it{display:flex;justify-content:space-between;gap:12px;padding:9px 16px;cursor:pointer}
+#palette .pal-it.on,#palette .pal-it:hover{background:var(--bg4,#e5ecf6)}
+#palette .pal-it small{opacity:.6;white-space:nowrap}
+#palette .pal-empty{padding:18px;text-align:center;opacity:.6}
+#palette .pal-foot{padding:6px 14px;font-size:11px;opacity:.55;border-top:1px solid var(--line,#ccc)}

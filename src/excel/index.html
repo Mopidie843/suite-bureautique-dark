@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data:; object-src 'none'; base-uri 'none'">
+<title>Classeur1 - Excel Dark</title>
+<link rel="stylesheet" href="../vendor/fa/css/all.min.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../word-look.css">
+<link rel="stylesheet" href="../common/suite.css">
+<link rel="stylesheet" href="excel.css">
+<link rel="stylesheet" href="../common/motion.css">
+</head>
+<body class="look-word app-excel">
+<header id="titlebar">
+  <div class="tb-left">
+    <button class="btn-file" data-act="fileMenu"><i class="fa-solid fa-file-excel"></i> Fichier</button>
+    <button class="icon-btn" data-act="home" title="Accueil de la suite"><i class="fa-solid fa-table-cells-large"></i></button>
+    <button class="icon-btn" data-act="save" title="Enregistrer (Ctrl+S)"><i class="fa-regular fa-floppy-disk"></i></button>
+    <button class="icon-btn" data-act="undo" title="Annuler (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
+    <button class="icon-btn" data-act="redo" title="Rétablir (Ctrl+Y)"><i class="fa-solid fa-rotate-right"></i></button>
+    <span class="sep">|</span>
+    <input type="text" id="doc-title" value="Classeur1" spellcheck="false" aria-label="Titre du classeur">
+    <span class="muted">- Excel</span>
+    <span id="save-badge" class="badge">Enregistré</span>
+  </div>
+  <div class="tb-right">
+    <button class="icon-btn" id="btn-look" data-act="toggleLook" title="Basculer clair / sombre"><i class="fa-solid fa-circle-half-stroke"></i></button>
+  </div>
+</header>
+<nav id="ribbon-tabs">
+  <button class="ribbon-tab active" data-tab="accueil">Accueil</button>
+  <button class="ribbon-tab" data-tab="insertion">Insertion</button>
+  <button class="ribbon-tab" data-tab="formules">Formules</button>
+  <button class="ribbon-tab" data-tab="donnees">Données</button>
+  <button class="ribbon-tab" data-tab="affichage">Affichage</button>
+</nav>
+<div id="ribbon">
+  <div class="ribbon-panel" id="ribbon-accueil">
+    <div class="group" data-label="Presse-papiers">
+      <div class="btn big" data-act="paste"><i class="fa-regular fa-clipboard c-yellow"></i><span>Coller</span></div>
+      <div class="stack">
+        <div class="btn sm" data-act="cut"><i class="fa-solid fa-scissors"></i> Couper</div>
+        <div class="btn sm" data-act="copy"><i class="fa-regular fa-copy"></i> Copier</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Police">
+      <div class="row">
+        <select id="sel-size" class="office-select w-size" title="Taille"><option>8</option><option>9</option><option>10</option><option selected>11</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>24</option><option>36</option></select>
+        <button class="tool b" data-act="bold" id="t-bold" title="Gras (Ctrl+B)">G</button>
+        <button class="tool i" data-act="italic" id="t-italic" title="Italique (Ctrl+I)">I</button>
+        <button class="tool u" data-act="underline" id="t-underline" title="Souligné (Ctrl+U)">S</button>
+      </div>
+      <div class="row">
+        <label class="tool colorbtn" title="Couleur de remplissage"><i class="fa-solid fa-fill-drip c-yellow"></i><span class="bar" id="bar-fill" style="background:#ffff00"></span><input type="color" id="in-fill" value="#ffff00"></label>
+        <label class="tool colorbtn" title="Couleur du texte"><b>A</b><span class="bar" id="bar-color" style="background:#e03131"></span><input type="color" id="in-color" value="#e03131"></label>
+        <button class="tool" data-act="clearStyle" title="Effacer la mise en forme"><i class="fa-solid fa-eraser c-pink"></i></button>
+        <button class="tool" data-act="borders" id="t-borders" title="Bordures"><i class="fa-solid fa-border-all"></i></button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Alignement">
+      <div class="row">
+        <button class="tool" data-act="alignL" title="Aligner à gauche"><i class="fa-solid fa-align-left"></i></button>
+        <button class="tool" data-act="alignC" title="Centrer"><i class="fa-solid fa-align-center"></i></button>
+        <button class="tool" data-act="alignR" title="Aligner à droite"><i class="fa-solid fa-align-right"></i></button>
+      </div>
+      <div class="row"><button class="tool" data-act="wrap" id="t-wrap" title="Renvoyer à la ligne"><i class="fa-solid fa-text-height"></i></button><button class="tool" data-act="toggleMerge" title="Fusionner / annuler la fusion"><i class="fa-solid fa-object-group"></i></button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Nombre">
+      <div class="row"><select id="sel-nf" class="office-select" style="width:130px">
+        <option value="g">Standard</option><option value="0">Nombre (0)</option><option value="0.00">Nombre (0,00)</option><option value="sep">Séparateur de milliers</option><option value="%">Pourcentage</option><option value="eur">Monétaire (€)</option><option value="date">Date</option><option value="txt">Texte</option></select></div>
+      <div class="row">
+        <button class="tool" data-act="nfEur" title="Format monétaire">€</button>
+        <button class="tool" data-act="nfPct" title="Pourcentage">%</button>
+        <button class="tool" data-act="decMore" title="Ajouter une décimale">,0<sub>+</sub></button>
+        <button class="tool" data-act="decLess" title="Réduire les décimales">,0<sub>−</sub></button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Cellules">
+      <div class="stack">
+        <div class="btn sm" data-act="insRow"><i class="fa-solid fa-plus c-green"></i> Insérer une ligne</div>
+        <div class="btn sm" data-act="insCol"><i class="fa-solid fa-plus c-green"></i> Insérer une colonne</div>
+      </div>
+      <div class="stack">
+        <div class="btn sm" data-act="delRow"><i class="fa-solid fa-xmark c-red"></i> Supprimer la ligne</div>
+        <div class="btn sm" data-act="delCol"><i class="fa-solid fa-xmark c-red"></i> Supprimer la colonne</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Édition">
+      <div class="btn big" data-act="autoSum"><i class="fa-solid fa-square-root-variable c-blue"></i><span>Somme auto</span></div>
+      <div class="btn big" data-act="sortAsc"><i class="fa-solid fa-arrow-down-a-z c-blue"></i><span>Trier A→Z</span></div>
+      <div class="btn big" data-act="sortDesc"><i class="fa-solid fa-arrow-down-z-a c-blue"></i><span>Trier Z→A</span></div>
+      <div class="btn big" data-act="cfAdd"><i class="fa-solid fa-paintbrush c-orange"></i><span>Mise en forme conditionnelle</span></div>
+      <div class="btn big" data-act="cfClear"><i class="fa-solid fa-ban c-red"></i><span>Effacer les règles</span></div>
+    </div>
+  </div>
+  <div class="ribbon-panel hidden" id="ribbon-insertion">
+    <div class="group" data-label="Graphiques">
+      <div class="btn big" data-act="chartBar"><i class="fa-solid fa-chart-column c-blue"></i><span>Histogramme</span></div>
+      <div class="btn big" data-act="chartLine"><i class="fa-solid fa-chart-line c-green"></i><span>Courbes</span></div>
+      <div class="btn big" data-act="chartPie"><i class="fa-solid fa-chart-pie c-orange"></i><span>Secteurs</span></div>
+      <div class="btn big" data-act="chartArea"><i class="fa-solid fa-chart-area c-purple"></i><span>Aires</span></div>
+    </div>
+  </div>
+  <div class="ribbon-panel hidden" id="ribbon-formules">
+    <div class="group" data-label="Bibliothèque de fonctions">
+      <div class="btn big" data-act="fnSum"><i class="fa-solid fa-square-root-variable c-blue"></i><span>Somme</span></div>
+      <div class="btn big" data-act="fnAvg"><i class="fa-solid fa-divide c-green"></i><span>Moyenne</span></div>
+      <div class="btn big" data-act="fnMin"><i class="fa-solid fa-arrow-down-short-wide c-orange"></i><span>Min</span></div>
+      <div class="btn big" data-act="fnMax"><i class="fa-solid fa-arrow-up-wide-short c-red"></i><span>Max</span></div>
+      <div class="btn big" data-act="fnCount"><i class="fa-solid fa-list-ol c-purple"></i><span>NB</span></div>
+      <div class="btn big" data-act="insertFn"><i class="fa-solid fa-calculator c-yellow"></i><span>Insérer une fonction</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Calcul"><div class="btn big" data-act="recalc"><i class="fa-solid fa-calculator c-blue"></i><span>Recalculer</span></div></div>
+  </div>
+  <div class="ribbon-panel hidden" id="ribbon-donnees">
+    <div class="group" data-label="Trier">
+      <div class="btn big" data-act="sortAsc"><i class="fa-solid fa-arrow-down-a-z c-blue"></i><span>Croissant</span></div>
+      <div class="btn big" data-act="sortDesc"><i class="fa-solid fa-arrow-down-z-a c-blue"></i><span>Décroissant</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Filtrer">
+      <div class="btn big" data-act="filterCol"><i class="fa-solid fa-filter c-blue"></i><span>Filtrer la colonne</span></div>
+      <div class="btn big" data-act="filterClear"><i class="fa-solid fa-filter-circle-xmark c-red"></i><span>Effacer le filtre</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Importer / exporter">
+      <div class="btn big" data-act="open"><i class="fa-solid fa-folder-open c-yellow"></i><span>Ouvrir (.xlsx, .csv)</span></div>
+      <div class="btn big" data-act="exportCsv"><i class="fa-solid fa-file-csv c-green"></i><span>Exporter en CSV</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Analyse">
+      <div class="btn big" data-act="pivot"><i class="fa-solid fa-table-cells-large c-purple"></i><span>Tableau croisé</span></div>
+      <div class="btn big" data-act="exportPdf"><i class="fa-solid fa-file-pdf c-red"></i><span>Imprimer / PDF</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Feuilles">
+      <div class="btn big" data-act="addSheet"><i class="fa-solid fa-plus c-green"></i><span>Nouvelle feuille</span></div>
+      <div class="btn big" data-act="renameSheet"><i class="fa-solid fa-pen c-blue"></i><span>Renommer</span></div>
+      <div class="btn big" data-act="delSheet"><i class="fa-solid fa-trash c-red"></i><span>Supprimer</span></div>
+    </div>
+  </div>
+  <div class="ribbon-panel hidden" id="ribbon-affichage">
+    <div class="group" data-label="Affichage">
+      <div class="btn big" data-act="toggleGrid"><i class="fa-solid fa-border-none c-gray"></i><span>Quadrillage</span></div>
+      <div class="btn big" data-act="toggleLook"><i class="fa-solid fa-circle-half-stroke c-purple"></i><span>Clair / sombre</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Zoom">
+      <div class="btn big" data-act="zoomIn"><i class="fa-solid fa-magnifying-glass-plus c-blue"></i><span>Zoom +</span></div>
+      <div class="btn big" data-act="zoomOut"><i class="fa-solid fa-magnifying-glass-minus c-blue"></i><span>Zoom −</span></div>
+      <div class="btn big" data-act="toggleFreeze"><i class="fa-solid fa-snowflake c-blue"></i><span>Figer les volets</span></div>
+      <div class="btn big" data-act="freezeTopRow"><i class="fa-solid fa-arrows-up-to-line c-blue"></i><span>Figer la 1re ligne</span></div>
+      <div class="btn big" data-act="zoom100"><i class="fa-solid fa-magnifying-glass c-blue"></i><span>100 %</span></div>
+    </div>
+  </div>
+</div>
+<div id="fbar">
+  <input id="name-box" class="name-box" value="A1" spellcheck="false">
+  <i class="fa-solid fa-square-root-variable fx"></i>
+  <input id="formula" spellcheck="false" autocomplete="off">
+</div>
+<div id="print-root"></div>
+<div id="grid-wrap"><div id="grid-host"></div><input id="cell-edit" class="hidden" spellcheck="false" autocomplete="off"></div>
+<div id="sheet-bar"><div id="tabs"></div><button class="icon-btn" data-act="addSheet" title="Nouvelle feuille"><i class="fa-solid fa-plus"></i></button></div>
+<footer id="statusbar"><div class="sb-left"><span id="sb-msg">Prêt</span></div><div class="sb-right"><span id="sb-stats"></span><span id="sb-zoom">100 %</span></div></footer>
+<script src="../common/lib.js"></script>
+<script src="../common/templates.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+<script src="extras.js"></script>
+<script src="extras2.js"></script>
+<script src="../common/motion.js"></script>
+<script src="../common/palette.js"></script>
+</body>
+</html>

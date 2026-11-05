@@ -1,0 +1,22 @@
+const { chromium } = require('playwright'); const SP = process.argv[2];
+(async () => {
+  const b = await chromium.connectOverCDP('http://localhost:9337'); const ctx = b.contexts()[0]; const errs = [];
+  ctx.on('page', pg => pg.on('pageerror', e => errs.push(pg.url().split('/').slice(-2).join('/') + ' ' + e.message)));
+  const hub = ctx.pages().find(x => x.url().includes('hub')); await hub.reload(); await hub.waitForTimeout(800);
+  console.log('cards', await hub.locator('.tpl-card').count());
+  await hub.screenshot({ path: SP + '/h2.png' });
+  const open = async sel => { const before = ctx.pages().length; await hub.click(sel); await hub.waitForTimeout(2800); return ctx.pages()[ctx.pages().length - 1]; };
+  let p = await open('.tpl-card[data-t="word:invoice"]'); p.on('pageerror', e => errs.push(e.message));
+  console.log('word', await p.evaluate(() => W.editor.querySelector('h1') && W.editor.querySelector('h1').textContent), await p.evaluate(() => W.doc.title));
+  await p.keyboard.press('Control+Shift+P'); await p.waitForSelector('#palette input'); await p.keyboard.type('tableau'); await p.waitForTimeout(200);
+  console.log('palette', await p.evaluate(() => Array.from(document.querySelectorAll('.pal-it b')).slice(0, 5).map(x => x.textContent)));
+  await p.screenshot({ path: SP + '/pal.png' }); await p.keyboard.press('Escape');
+  p = await open('.tpl-card[data-t="excel:budget"]'); p.on('pageerror', e => errs.push(e.message));
+  console.log('excel', await p.evaluate(() => XL.wb.title + ' ' + Object.keys(XL.sh().cells).length + ' cellules ; D5=' + XL.display(XL.calc.value(0, 'D5'))), await p.evaluate(() => XL.display(XL.calc.value(0, 'B12'))));
+  await p.screenshot({ path: SP + '/x_tpl.png' });
+  p = await open('.tpl-card[data-t="ppt:report"]'); p.on('pageerror', e => errs.push(e.message));
+  console.log('ppt', await p.evaluate(() => PP.deck.title + ' ' + PP.deck.slides.length + ' diapos, table=' + PP.deck.slides[2].objs.some(o => o.type === 'table')));
+  await p.keyboard.press('Control+Shift+P'); await p.keyboard.type('transition'); await p.waitForTimeout(200); console.log('ppt palette', await p.evaluate(() => Array.from(document.querySelectorAll('.pal-it b')).map(x => x.textContent)));
+  await p.keyboard.press('Escape');
+  console.log(errs.join('\n') || 'no errors'); await b.close();
+})().catch(e => { console.error('FAIL', e.message); process.exit(1); });

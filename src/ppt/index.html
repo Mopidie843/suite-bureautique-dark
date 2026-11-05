@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data:; object-src 'none'; base-uri 'none'">
+<title>Présentation1 - PowerPoint Dark</title>
+<link rel="stylesheet" href="../vendor/fa/css/all.min.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../word-look.css">
+<link rel="stylesheet" href="../common/suite.css">
+<link rel="stylesheet" href="ppt.css">
+<link rel="stylesheet" href="../common/motion.css">
+</head>
+<body class="look-word app-ppt">
+<header id="titlebar">
+  <div class="tb-left">
+    <button class="btn-file" data-act="fileMenu"><i class="fa-solid fa-file-powerpoint"></i> Fichier</button>
+    <button class="icon-btn" data-act="home" title="Accueil de la suite"><i class="fa-solid fa-table-cells-large"></i></button>
+    <button class="icon-btn" data-act="save" title="Enregistrer (Ctrl+S)"><i class="fa-regular fa-floppy-disk"></i></button>
+    <button class="icon-btn" data-act="undo" title="Annuler (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
+    <button class="icon-btn" data-act="redo" title="Rétablir (Ctrl+Y)"><i class="fa-solid fa-rotate-right"></i></button>
+    <span class="sep">|</span>
+    <input type="text" id="doc-title" value="Présentation1" spellcheck="false" aria-label="Titre">
+    <span class="muted">- PowerPoint</span>
+    <span id="save-badge" class="badge">Enregistré</span>
+  </div>
+  <div class="tb-right">
+    <button class="icon-btn" data-act="aiToggle" title="Assistant IA"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+    <button class="icon-btn" data-act="playFrom0" title="Diaporama (F5)"><i class="fa-solid fa-play"></i></button>
+    <button class="icon-btn" id="btn-look" data-act="toggleLook" title="Basculer clair / sombre"><i class="fa-solid fa-circle-half-stroke"></i></button>
+  </div>
+</header>
+<nav id="ribbon-tabs">
+  <button class="ribbon-tab active" data-tab="accueil">Accueil</button>
+  <button class="ribbon-tab" data-tab="insertion">Insertion</button>
+  <button class="ribbon-tab" data-tab="creation">Création</button>
+  <button class="ribbon-tab" data-tab="transitions">Transitions</button>
+  <button class="ribbon-tab" data-tab="diaporama">Diaporama</button>
+</nav>
+<div id="ribbon">
+  <div class="ribbon-panel" id="ribbon-accueil">
+    <div class="group" data-label="Presse-papiers">
+      <div class="btn big" data-act="paste"><i class="fa-regular fa-clipboard c-yellow"></i><span>Coller</span></div>
+      <div class="stack"><div class="btn sm" data-act="cut"><i class="fa-solid fa-scissors"></i> Couper</div><div class="btn sm" data-act="copy"><i class="fa-regular fa-copy"></i> Copier</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Diapositives">
+      <div class="btn big" data-act="addSlide"><i class="fa-solid fa-square-plus c-orange"></i><span>Nouvelle diapositive</span></div>
+      <div class="stack">
+        <select id="sel-layout" class="office-select" style="width:140px"><option value="title">Titre</option><option value="content" selected>Titre et contenu</option><option value="two">Deux contenus</option><option value="titleonly">Titre seul</option><option value="section">En-tête de section</option><option value="compare">Comparaison</option><option value="imgtext">Texte et image</option><option value="quote">Citation</option><option value="blank">Vide</option></select>
+        <div class="btn sm" data-act="dupSlide"><i class="fa-regular fa-clone"></i> Dupliquer</div>
+        <div class="btn sm" data-act="delSlide"><i class="fa-solid fa-trash c-red"></i> Supprimer</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Police">
+      <div class="row">
+        <select id="sel-font" class="office-select w-font"><option>Calibri</option><option>Arial</option><option>Times New Roman</option><option>Segoe UI</option><option>Georgia</option><option>Verdana</option><option>Impact</option><option>Consolas</option></select>
+        <select id="sel-size" class="office-select w-size"><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>24</option><option>28</option><option>32</option><option>36</option><option>44</option><option>54</option><option>66</option><option>80</option></select>
+      </div>
+      <div class="row">
+        <button class="tool b" data-act="bold" id="t-bold">G</button><button class="tool i" data-act="italic" id="t-italic">I</button><button class="tool u" data-act="underline" id="t-underline">S</button>
+        <label class="tool colorbtn" title="Couleur du texte"><b>A</b><span class="bar" id="bar-color" style="background:#e03131"></span><input type="color" id="in-color" value="#e03131"></label>
+        <button class="tool" data-act="alignL"><i class="fa-solid fa-align-left"></i></button><button class="tool" data-act="alignC"><i class="fa-solid fa-align-center"></i></button><button class="tool" data-act="alignR"><i class="fa-solid fa-align-right"></i></button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Dessin">
+      <div class="row">
+        <button class="tool" data-act="addRect" title="Rectangle"><i class="fa-regular fa-square"></i></button>
+        <button class="tool" data-act="addEllipse" title="Ellipse"><i class="fa-regular fa-circle"></i></button>
+        <button class="tool" data-act="addTriangle" title="Triangle"><i class="fa-solid fa-play fa-rotate-270"></i></button>
+      </div>
+      <div class="row">
+        <label class="tool colorbtn" title="Remplissage"><i class="fa-solid fa-fill-drip c-yellow"></i><span class="bar" id="bar-fill" style="background:#2b579a"></span><input type="color" id="in-fill" value="#2b579a"></label>
+        <label class="tool colorbtn" title="Contour"><i class="fa-regular fa-square"></i><span class="bar" id="bar-line" style="background:#000"></span><input type="color" id="in-line" value="#000000"></label>
+        <button class="tool" data-act="noFill" title="Sans remplissage"><i class="fa-solid fa-ban"></i></button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Assistant"><div class="btn big" data-act="aiToggle"><i class="fa-solid fa-wand-magic-sparkles c-purple"></i><span>Assistant IA</span></div></div>
+    <div class="divider"></div>
+    <div class="group" data-label="Organiser">
+      <div class="stack"><div class="btn sm" data-act="toFront"><i class="fa-solid fa-arrow-up"></i> Premier plan</div><div class="btn sm" data-act="toBack"><i class="fa-solid fa-arrow-down"></i> Arrière-plan</div></div>
+    </div>
+  </div>
+  <div class="ribbon-panel hidden" id="ribbon-insertion">
+    <div class="group" data-label="Texte"><div class="btn big" data-act="addText"><i class="fa-solid fa-font c-orange"></i><span>Zone de texte</span></div></div>
+    <div class="divider"></div>
+    <div class="group" data-label="Tableaux"><div class="btn big" data-act="addTable"><i class="fa-solid fa-table c-blue"></i><span>Tableau</span></div><div class="stack"><div class="btn sm" data-act="tblAddRow"><i class="fa-solid fa-plus c-green"></i> Ligne</div><div class="btn sm" data-act="tblAddCol"><i class="fa-solid fa-plus c-green"></i> Colonne</div></div><div class="stack"><div class="btn sm" data-act="tblDelRow"><i class="fa-solid fa-minus c-red"></i> Ligne</div><div class="btn sm" data-act="tblDelCol"><i class="fa-solid fa-minus c-red"></i> Colonne</div></div></div>
+    <div class="divider"></div>
+    <div class="group" data-label="Images"><div class="btn big" data-act="addImage"><i class="fa-regular fa-image c-green"></i><span>Image</span></div></div>
+    <div class="divider"></div>
+    <div class="group" data-label="Effets de l'objet"><div class="btn big" data-act="rotL"><i class="fa-solid fa-rotate-left c-blue"></i><span>Rotation −15°</span></div><div class="btn big" data-act="rotR"><i class="fa-solid fa-rotate-right c-blue"></i><span>Rotation +15°</span></div><div class="btn big" data-act="shadow"><i class="fa-solid fa-clone c-purple"></i><span>Ombre</span></div><div class="btn big" data-act="grad"><i class="fa-solid fa-droplet c-red"></i><span>Dégradé</span></div></div>
+    <div class="divider"></div>
+    <div class="group" data-label="Illustrations">
+      <div class="btn big" data-act="addRect"><i class="fa-regular fa-square c-blue"></i><span>Rectangle</span></div>
+      <div class="btn big" data-act="addEllipse"><i class="fa-regular fa-circle c-red"></i><span>Ellipse</span></div>
+      <div class="btn big" data-act="addArrow"><i class="fa-solid fa-arrow-right c-orange"></i><span>Flèche</span></div>
+      <div class="btn big" data-act="addTriangle"><i class="fa-solid fa-play fa-rotate-270 c-yellow"></i><span>Triangle</span></div>
+    </div>
+  </div>
+  <div class="ribbon-panel hidden" id="ribbon-creation">
+    <div class="group" data-label="Thèmes" id="themes"></div>
+    <div class="divider"></div>
+    <div class="group" data-label="Arrière-plan">
+      <label class="btn big colorbtn" style="position:relative"><i class="fa-solid fa-fill c-blue"></i><span>Couleur de fond</span><input type="color" id="in-bg" value="#ffffff"></label>
+      <div class="btn big" data-act="bgAll"><i class="fa-solid fa-copy c-purple"></i><span>Fond sur toutes</span></div>
+    </div>
+  </div>
+  <div class="ribbon-panel hidden" id="ribbon-transitions">
+    <div class="group col" data-label="Transition de la diapositive">
+      <div class="row"><select id="sel-tr" class="office-select" style="width:170px"><option value="none">Aucune</option><option value="fade">Fondu</option><option value="slide">Glissement</option><option value="push">Poussée</option><option value="zoom">Zoom</option><option value="wipe">Volet</option><option value="flip">Retournement</option><option value="rotate">Rotation</option><option value="blur">Flou</option><option value="bounce">Rebond</option><option value="curtain">Rideau</option></select></div>
+      <div class="row"><div class="btn sm" data-act="trAll"><i class="fa-solid fa-copy c-purple"></i> Appliquer à toutes</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Animation de l'objet sélectionné">
+      <div class="row"><select id="sel-anim" class="office-select" style="width:170px"><option value="none">Aucune</option><option value="fade">Apparition en fondu</option><option value="fly">Entrée par la gauche</option><option value="up">Entrée par le bas</option><option value="zoom">Zoom</option><option value="spin">Rotation</option><option value="bounce">Rebond</option><option value="drop">Chute</option><option value="right">Entrée par la droite</option><option value="swing">Balancier</option><option value="flip">Retournement</option><option value="blurin">Mise au point</option><option value="pulse">Pulsation</option></select></div>
+      <div class="row"><span class="muted" style="font-size:11px">Chaque animation se déclenche au clic en diaporama.</span></div>
+    </div>
+  </div>
+  <div class="ribbon-panel hidden" id="ribbon-diaporama">
+    <div class="group" data-label="Démarrer">
+      <div class="btn big" data-act="playFrom0"><i class="fa-solid fa-play c-orange"></i><span>Depuis le début</span></div>
+      <div class="btn big" data-act="presenter"><i class="fa-solid fa-user-tie c-blue"></i><span>Mode présentateur (P)</span></div>
+      <div class="btn big" data-act="playFromCur"><i class="fa-regular fa-circle-play c-orange"></i><span>Depuis la diapositive actuelle</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Exporter">
+      <div class="btn big" data-act="exportPdf"><i class="fa-solid fa-file-pdf c-red"></i><span>Exporter en PDF</span></div>
+      <div class="btn big" data-act="exportPng"><i class="fa-regular fa-file-image c-green"></i><span>Image de la diapo</span></div>
+    </div>
+  </div>
+</div>
+<div id="work">
+  <aside id="thumbs"></aside>
+  <section id="center">
+    <div id="stage-area"><div id="stage-size"><div id="stage"></div></div></div>
+    <textarea id="notes" placeholder="Cliquez pour ajouter des commentaires (notes du présentateur)"></textarea>
+  </section>
+  <aside id="ai-panel" class="hidden"><div class="ai-head"><b><i class="fa-solid fa-wand-magic-sparkles"></i> Assistant</b><button class="mini" id="ai-mode" data-act="aiKey" title="Activer l'IA connectée avec votre clé API (facultatif)">Hors ligne</button><button class="icon-btn" data-act="aiToggle">✕</button></div><div id="ai-log"></div><div class="ai-chips" id="ai-chips"></div><div class="ai-in"><input id="ai-input" placeholder="Ex : crée une présentation sur le recyclage" spellcheck="false" autocomplete="off"><button class="mini primary" id="ai-send">Envoyer</button></div></aside>
+</div>
+<footer id="statusbar"><div class="sb-left"><span id="sb-slide">Diapositive 1 sur 1</span></div><div class="sb-right"><button data-act="zoomOut">−</button><span id="sb-zoom">100 %</span><button data-act="zoomIn">+</button><button data-act="zoomFit" title="Ajuster">⛶</button></div></footer>
+<div id="present" class="hidden"><div id="pres-slide"></div><div id="pres-info"></div><div id="pres-panel"><div class="pp-t" id="pres-timer">00:00</div><div class="pp-c"></div><h4>Notes</h4><div class="pp-n"></div><h4>Ensuite</h4><div class="pp-x"></div><small>P : quitter le mode présentateur</small></div></div><input type="color" id="in-grad" style="position:fixed;left:-50px;opacity:0">
+<div id="print-root"></div>
+<input type="file" id="image-input" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
+<script src="../vendor/jszip.min.js"></script>
+<script src="../common/lib.js"></script>
+<script src="../common/templates.js"></script>
+<script src="app.js"></script>
+<script src="ai.js"></script>
+<script src="../common/motion.js"></script>
+<script src="../common/palette.js"></script>
+</body>
+</html>

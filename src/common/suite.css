@@ -1,0 +1,14 @@
+/* Couleurs propres à chaque application de la suite */
+body.app-excel{--blue:#217346;--blue-dark:#185a35;--blue-hover:#2f8a57}
+body.app-ppt{--blue:#b7472a;--blue-dark:#8f3720;--blue-hover:#cc5b3d}
+body.look-word.app-excel .ribbon-tab.active,body.look-word.app-ppt .ribbon-tab.active{color:var(--blue)}
+body.look-word.app-excel .bs-side,body.look-word.app-ppt .bs-side{background:var(--blue)}
+body.look-word .btn-share,body.look-word .btn-share i{color:var(--blue)}
+body.look-word .m-head h3{color:var(--blue)}
+body.look-word .mini.primary,body.look-word .primary,body.look-word .m-foot button.primary{background:var(--blue);border-color:var(--blue)}
+body:not(.look-word).app-excel{--accent:#217346;--accent2:#185a35}
+body:not(.look-word).app-ppt{--accent:#b7472a;--accent2:#8f3720}
+body.app-excel .ribbon-tab.active,body.app-ppt .ribbon-tab.active{border-bottom-color:var(--accent)}
+#app-main{flex:1;min-height:0;display:flex}
+.hide-sm{}
+.name-box{width:70px;text-align:center}

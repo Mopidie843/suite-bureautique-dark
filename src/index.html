@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: http:; font-src 'self' data:; connect-src 'self' data:; object-src 'none'; base-uri 'none'">
+<title>Word Dark Edition</title>
+<link rel="stylesheet" href="vendor/fa/css/all.min.css">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="word-look.css">
+<style id="print-page-style"></style>
+<link rel="stylesheet" href="common/motion.css">
+</head>
+<body class="look-word">
+
+<!-- ============ BARRE DE TITRE ============ -->
+<header id="titlebar">
+  <div class="tb-left">
+    <button class="btn-file" data-act="openBackstage" title="Fichier"><i class="fa-solid fa-file-word"></i><span class="hide-sm"> Fichier</span></button>
+    <div id="autosave-toggle" class="chip" data-act="toggleAutosave" title="Copie de récupération automatique (ne modifie pas le fichier d'origine)">
+      <i id="autosave-icon" class="fa-solid fa-toggle-on"></i><span class="hide-md">Enregistrement auto</span>
+    </div>
+    <button class="icon-btn" data-act="suiteHome" title="Accueil de la suite"><i class="fa-solid fa-table-cells-large"></i></button>
+    <button class="icon-btn" data-act="save" title="Enregistrer (Ctrl+S)"><i class="fa-regular fa-floppy-disk"></i></button>
+    <button class="icon-btn" data-act="undo" title="Annuler (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
+    <button class="icon-btn" data-act="redo" title="Rétablir (Ctrl+Y)"><i class="fa-solid fa-rotate-right"></i></button>
+    <span class="sep hide-sm">|</span>
+    <div class="doc-title-wrap">
+      <input type="text" id="doc-title" value="Document1" spellcheck="false" aria-label="Titre du document">
+      <span class="muted hide-sm">- Word</span>
+    </div>
+    <span id="save-badge" class="badge">Enregistré</span>
+  </div>
+  <div class="tb-center">
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="global-search" placeholder="Rechercher dans le document (Ctrl+F)" spellcheck="false">
+    </div>
+  </div>
+  <div class="tb-right">
+    <button class="icon-btn" id="btn-look" data-act="toggleLook" title="Basculer clair / sombre"><i class="fa-solid fa-circle-half-stroke"></i></button>
+    <div id="user-chip" class="user-chip" data-act="openAccount" title="Compte">
+      <div id="user-initials" class="avatar">U</div><span id="user-name" class="hide-md">Utilisateur</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ ONGLETS ============ -->
+<nav id="ribbon-tabs">
+  <button class="ribbon-tab active" data-tab="accueil">Accueil</button>
+  <button class="ribbon-tab" data-tab="insertion">Insertion</button>
+  <button class="ribbon-tab" data-tab="conception">Conception</button>
+  <button class="ribbon-tab" data-tab="mise-en-page">Mise en page</button>
+  <button class="ribbon-tab" data-tab="references">Références</button>
+  <button class="ribbon-tab" data-tab="publipostage">Publipostage</button>
+  <button class="ribbon-tab" data-tab="revision">Révision</button>
+  <button class="ribbon-tab" data-tab="affichage">Affichage</button>
+  <button class="ribbon-tab" data-tab="aide">Aide</button>
+  <div class="grow"></div>
+  <button class="btn-share" data-act="share"><i class="fa-solid fa-share-nodes"></i><span class="hide-sm"> Partager</span></button>
+</nav>
+
+<!-- ============ RUBAN ============ -->
+<div id="ribbon">
+
+  <!-- ACCUEIL -->
+  <div class="ribbon-panel" id="ribbon-accueil">
+    <div class="group" data-label="Presse-papiers">
+      <div class="btn big" data-act="paste" title="Coller (Ctrl+V)"><i class="fa-regular fa-clipboard c-yellow"></i><span>Coller</span></div>
+      <div class="stack">
+        <div class="btn sm" data-act="cut"><i class="fa-solid fa-scissors"></i> Couper</div>
+        <div class="btn sm" data-act="copy"><i class="fa-regular fa-copy"></i> Copier</div>
+        <div class="btn sm" data-act="painter" id="btn-painter" title="Reproduire la mise en forme"><i class="fa-solid fa-paint-roller c-yellow"></i> Reproduire</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Police">
+      <div class="row">
+        <select id="sel-font" class="office-select w-font" title="Police">
+          <option>Calibri</option><option>Arial</option><option>Times New Roman</option><option>Segoe UI</option>
+          <option>Georgia</option><option>Cambria</option><option>Verdana</option><option>Tahoma</option>
+          <option>Trebuchet MS</option><option>Courier New</option><option>Consolas</option><option>Comic Sans MS</option>
+        </select>
+        <select id="sel-size" class="office-select w-size" title="Taille de police (pt)">
+          <option>8</option><option>9</option><option>10</option><option selected>11</option><option>12</option><option>14</option>
+          <option>16</option><option>18</option><option>20</option><option>24</option><option>28</option><option>36</option><option>48</option><option>72</option>
+        </select>
+        <button class="tool" data-act="fontGrow" title="Agrandir la police">A<sup>+</sup></button>
+        <button class="tool" data-act="fontShrink" title="Réduire la police">A<sup>-</sup></button>
+        <button class="tool" data-act="clearFormat" title="Effacer la mise en forme"><i class="fa-solid fa-eraser c-pink"></i></button>
+      </div>
+      <div class="row">
+        <button class="tool b" data-act="bold" data-state="bold" title="Gras (Ctrl+B)">G</button>
+        <button class="tool i" data-act="italic" data-state="italic" title="Italique (Ctrl+I)">I</button>
+        <button class="tool u" data-act="underline" data-state="underline" title="Souligné (Ctrl+U)">S</button>
+        <button class="tool s" data-act="strike" data-state="strikeThrough" title="Barré">ab</button>
+        <button class="tool" data-act="subscript" data-state="subscript" title="Indice">x<sub>2</sub></button>
+        <button class="tool" data-act="superscript" data-state="superscript" title="Exposant">x<sup>2</sup></button>
+        <label class="tool colorbtn" title="Surlignage"><i class="fa-solid fa-highlighter c-yellow"></i><span class="bar" id="bar-hilite" style="background:#ffff00"></span><input type="color" id="in-hilite" value="#ffff00"></label>
+        <label class="tool colorbtn" title="Couleur de police"><b>A</b><span class="bar" id="bar-color" style="background:#e03131"></span><input type="color" id="in-color" value="#e03131"></label>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Paragraphe">
+      <div class="row">
+        <button class="tool" data-act="bullets" data-state="insertUnorderedList" title="Puces"><i class="fa-solid fa-list-ul"></i></button>
+        <button class="tool" data-act="numbers" data-state="insertOrderedList" title="Numérotation"><i class="fa-solid fa-list-ol"></i></button>
+        <button class="tool" data-act="outdent" title="Diminuer le retrait"><i class="fa-solid fa-outdent"></i></button>
+        <button class="tool" data-act="indent" title="Augmenter le retrait"><i class="fa-solid fa-indent"></i></button>
+        <select id="sel-spacing" class="office-select w-spacing" title="Interligne">
+          <option value="">Interligne</option><option value="1">1,0</option><option value="1.15">1,15</option><option value="1.5">1,5</option><option value="2">2,0</option><option value="2.5">2,5</option>
+        </select>
+      </div>
+      <div class="row">
+        <button class="tool" data-act="alignL" data-state="justifyLeft" title="Aligner à gauche"><i class="fa-solid fa-align-left"></i></button>
+        <button class="tool" data-act="alignC" data-state="justifyCenter" title="Centrer"><i class="fa-solid fa-align-center"></i></button>
+        <button class="tool" data-act="alignR" data-state="justifyRight" title="Aligner à droite"><i class="fa-solid fa-align-right"></i></button>
+        <button class="tool" data-act="alignJ" data-state="justifyFull" title="Justifier"><i class="fa-solid fa-align-justify"></i></button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group styles" data-label="Styles">
+      <div class="style-card" data-act="styleNormal"><span class="s-normal">AaBbCc</span><small>¶ Normal</small></div>
+      <div class="style-card" data-act="styleH1"><span class="s-h1">AaBbCc</span><small>Titre 1</small></div>
+      <div class="style-card" data-act="styleH2"><span class="s-h2">AaBbCc</span><small>Titre 2</small></div>
+      <div class="style-card" data-act="styleH3"><span class="s-h3">AaBbCc</span><small>Titre 3</small></div>
+      <div class="stack"><div class="btn sm" data-act="styleNew"><i class="fa-solid fa-plus c-green"></i> Créer un style</div><div class="btn sm" data-act="styleApply"><i class="fa-solid fa-paintbrush c-purple"></i> Mes styles</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group stack" data-label="Modification">
+      <div class="btn sm" data-act="find"><i class="fa-solid fa-magnifying-glass c-blue"></i> Rechercher</div>
+      <div class="btn sm" data-act="replace"><i class="fa-solid fa-arrow-right-arrow-left c-green"></i> Remplacer</div>
+      <div class="btn sm" data-act="selectAll"><i class="fa-regular fa-hand-pointer c-yellow"></i> Sélectionner tout</div>
+    </div>
+  </div>
+
+  <!-- INSERTION -->
+  <div class="ribbon-panel hidden" id="ribbon-insertion">
+    <div class="group" data-label="Tableaux">
+      <div class="btn big has-pop" id="btn-table">
+        <i class="fa-solid fa-table c-blue"></i><span>Tableau</span>
+        <div class="popup" id="table-popup">
+          <div class="popup-title" id="table-grid-label">Insérer un tableau</div>
+          <div class="table-grid" id="table-grid"></div>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="btn sm" data-act="rowBelow"><i class="fa-solid fa-arrow-down-long"></i> Ligne dessous</div>
+        <div class="btn sm" data-act="colRight"><i class="fa-solid fa-arrow-right-long"></i> Colonne à droite</div>
+        <div class="btn sm" data-act="delRow"><i class="fa-solid fa-xmark c-red"></i> Suppr. ligne</div>
+      </div>
+      <div class="stack">
+        <div class="btn sm" data-act="rowAbove"><i class="fa-solid fa-arrow-up-long"></i> Ligne dessus</div>
+        <div class="btn sm" data-act="colLeft"><i class="fa-solid fa-arrow-left-long"></i> Colonne à gauche</div>
+        <div class="btn sm" data-act="delCol"><i class="fa-solid fa-xmark c-red"></i> Suppr. colonne</div>
+      </div>
+      <div class="btn big" data-act="tableStyle"><i class="fa-solid fa-palette c-purple"></i><span>Style du tableau</span></div>
+      <div class="btn big" data-act="tableEqual"><i class="fa-solid fa-table-columns c-green"></i><span>Colonnes égales</span></div>
+      <div class="btn big" data-act="delTable"><i class="fa-solid fa-table-cells c-red"></i><span>Suppr. tableau</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Illustrations">
+      <div class="btn big" data-act="imageFile"><i class="fa-regular fa-image c-green"></i><span>Image</span></div>
+      <div class="btn big" data-act="equation"><i class="fa-solid fa-square-root-variable c-blue"></i><span>Équation</span></div>
+      <div class="btn big" data-act="imageUrl"><i class="fa-solid fa-link c-green"></i><span>Image (URL)</span></div>
+      <div class="btn big has-pop">
+        <i class="fa-solid fa-shapes c-yellow"></i><span>Formes</span>
+        <div class="popup list">
+          <button data-act="shapeRect"><i class="fa-regular fa-square"></i> Rectangle</button>
+          <button data-act="shapeCircle"><i class="fa-regular fa-circle"></i> Cercle</button>
+          <button data-act="shapeTriangle"><i class="fa-solid fa-play fa-rotate-270"></i> Triangle</button>
+          <button data-act="shapeStar"><i class="fa-regular fa-star"></i> Étoile</button>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Éléments">
+      <div class="btn big" data-act="link"><i class="fa-solid fa-link c-blue"></i><span>Lien</span></div>
+      <div class="btn big" data-act="pageBreak"><i class="fa-solid fa-file-circle-plus c-purple"></i><span>Saut de page</span></div>
+      <div class="btn big" data-act="hr"><i class="fa-solid fa-minus c-gray"></i><span>Ligne</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="En-tête et pied de page">
+      <div class="btn big" data-act="headerFooter"><i class="fa-solid fa-heading c-purple"></i><span>En-tête / Pied</span></div>
+      <div class="btn big" data-act="pageNumber"><i class="fa-solid fa-list-ol c-blue"></i><span>N° de page</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Texte">
+      <div class="btn big" data-act="textBox"><i class="fa-regular fa-square-plus c-orange"></i><span>Zone de texte</span></div>
+      <div class="btn big" data-act="symbols"><i class="fa-solid fa-icons c-red"></i><span>Symboles</span></div>
+      <div class="btn big" data-act="dateTime"><i class="fa-regular fa-calendar c-green"></i><span>Date et heure</span></div>
+    </div>
+  </div>
+
+  <!-- CONCEPTION -->
+  <div class="ribbon-panel hidden" id="ribbon-conception">
+    <div class="group" data-label="Thème du document">
+      <div class="btn big" data-act="themeDark"><i class="fa-solid fa-moon c-blue"></i><span>Page sombre</span></div>
+      <div class="btn big" data-act="themeWhite"><i class="fa-solid fa-sun c-yellow"></i><span>Page blanche</span></div>
+      <div class="btn big" data-act="themeSepia"><i class="fa-solid fa-book-open c-amber"></i><span>Mode sépia</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Arrière-plan de page">
+      <div class="btn big" data-act="watermark"><i class="fa-solid fa-stamp c-red"></i><span>Filigrane</span></div>
+      <div class="btn big" data-act="removeWatermark"><i class="fa-solid fa-eraser c-gray"></i><span>Effacer filigrane</span></div>
+    </div>
+  </div>
+
+  <!-- MISE EN PAGE -->
+  <div class="ribbon-panel hidden" id="ribbon-mise-en-page">
+    <div class="group col" data-label="Mise en page">
+      <div class="row"><span class="lbl">Marges :</span>
+        <select id="sel-margins" class="office-select">
+          <option value="96">Normales (2,5 cm)</option><option value="72">Modérées (1,9 cm)</option><option value="48">Étroites (1,3 cm)</option><option value="120">Larges (3,2 cm)</option>
+        </select></div>
+      <div class="row"><span class="lbl">Orientation :</span>
+        <select id="sel-orient" class="office-select"><option value="portrait">Portrait</option><option value="landscape">Paysage</option></select></div>
+    </div>
+    <div class="group col" data-label="Papier">
+      <div class="row"><span class="lbl">Taille :</span>
+        <select id="sel-papersize" class="office-select"><option value="A4">A4 (21 × 29,7 cm)</option><option value="Letter">Lettre (21,6 × 27,9 cm)</option><option value="A5">A5 (14,8 × 21 cm)</option></select></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Organisation">
+      <div class="btn big" data-act="pageBreak"><i class="fa-solid fa-file-circle-plus c-purple"></i><span>Saut de page</span></div>
+      <div class="btn big" data-act="headerFooter"><i class="fa-solid fa-heading c-purple"></i><span>En-tête / Pied</span></div>
+    </div>
+  </div>
+
+  <!-- RÉFÉRENCES -->
+  <div class="ribbon-panel hidden" id="ribbon-references">
+    <div class="group" data-label="Table des matières">
+      <div class="btn big" data-act="toc"><i class="fa-solid fa-list c-blue"></i><span>Table des matières</span></div>
+      <div class="btn big" data-act="updateToc"><i class="fa-solid fa-rotate c-green"></i><span>Mettre à jour</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Notes et légendes">
+      <div class="btn big" data-act="footnote"><i class="fa-solid fa-asterisk c-orange"></i><span>Note de fin</span></div>
+      <div class="btn big" data-act="caption"><i class="fa-regular fa-rectangle-list c-purple"></i><span>Légende</span></div>
+      <div class="btn big" data-act="quote"><i class="fa-solid fa-quote-right c-yellow"></i><span>Citation</span></div>
+    </div>
+  </div>
+
+  <!-- PUBLIPOSTAGE -->
+  <div class="ribbon-panel hidden" id="ribbon-publipostage">
+    <div class="group" data-label="Démarrer la fusion">
+      <div class="btn big" data-act="mmRecipients"><i class="fa-solid fa-address-book c-blue"></i><span>Destinataires</span></div>
+      <div class="btn big" data-act="mmField"><i class="fa-solid fa-code c-purple"></i><span>Insérer un champ</span></div>
+      <div class="btn big" data-act="mmSample"><i class="fa-regular fa-envelope c-yellow"></i><span>Lettre type</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Aperçu des résultats">
+      <div class="btn big" data-act="mmPreview" id="btn-mmpreview"><i class="fa-regular fa-eye c-green"></i><span>Aperçu</span></div>
+      <div class="stack">
+        <div class="btn sm" data-act="mmPrev"><i class="fa-solid fa-chevron-left"></i> Précédent</div>
+        <div class="btn sm" data-act="mmNext"><i class="fa-solid fa-chevron-right"></i> Suivant</div>
+        <div class="lbl" id="mm-status">Aucun destinataire</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Terminer">
+      <div class="btn big" data-act="mmFinish"><i class="fa-solid fa-envelopes-bulk c-orange"></i><span>Terminer et fusionner</span></div>
+    </div>
+  </div>
+
+  <!-- RÉVISION -->
+  <div class="ribbon-panel hidden" id="ribbon-revision">
+    <div class="group" data-label="Vérification">
+      <div class="btn big" data-act="spell" id="btn-spell"><i class="fa-solid fa-spell-check c-green"></i><span>Orthographe</span></div>
+      <div class="group col">
+        <div class="row"><span class="lbl">Langue :</span>
+          <select id="sel-lang" class="office-select"><option value="fr">Français</option><option value="en-US">English</option><option value="es">Español</option><option value="de">Deutsch</option></select></div>
+      </div>
+      <div class="btn big" data-act="stats"><i class="fa-solid fa-chart-simple c-blue"></i><span>Statistiques</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Suivi des modifications">
+      <div class="btn big" data-act="toggleTrack" id="btn-track"><i class="fa-solid fa-pen-ruler c-orange"></i><span>Suivre les modifications</span></div>
+      <div class="stack">
+        <div class="btn sm" data-act="revPrev"><i class="fa-solid fa-chevron-left"></i> Précédente</div>
+        <div class="btn sm" data-act="revNext"><i class="fa-solid fa-chevron-right"></i> Suivante</div>
+        <div class="btn sm" id="rev-count" style="pointer-events:none;opacity:.8"></div>
+      </div>
+      <div class="stack">
+        <div class="btn sm" data-act="revAccept"><i class="fa-solid fa-check c-green"></i> Accepter</div>
+        <div class="btn sm" data-act="revReject"><i class="fa-solid fa-xmark c-red"></i> Refuser</div>
+      </div>
+      <div class="stack">
+        <div class="btn sm" data-act="revAcceptAll"><i class="fa-solid fa-check-double c-green"></i> Tout accepter</div>
+        <div class="btn sm" data-act="revRejectAll"><i class="fa-solid fa-ban c-red"></i> Tout refuser</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Commentaires">
+      <div class="btn big" data-act="newComment"><i class="fa-regular fa-comment-dots c-yellow"></i><span>Nouveau commentaire</span></div>
+      <div class="btn big" data-act="toggleComments"><i class="fa-regular fa-comments c-purple"></i><span>Volet commentaires</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Recherche">
+      <div class="btn big" data-act="find"><i class="fa-solid fa-magnifying-glass c-blue"></i><span>Rechercher</span></div>
+      <div class="btn big" data-act="replace"><i class="fa-solid fa-arrow-right-arrow-left c-green"></i><span>Remplacer</span></div>
+    </div>
+  </div>
+
+  <!-- AFFICHAGE -->
+  <div class="ribbon-panel hidden" id="ribbon-affichage">
+    <div class="group" data-label="Affichage">
+      <div class="btn big" data-act="viewPrint"><i class="fa-regular fa-file-lines c-blue"></i><span>Mode page</span></div>
+      <div class="btn big" data-act="viewWeb"><i class="fa-solid fa-globe c-green"></i><span>Disposition Web</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Zoom">
+      <div class="btn big" data-act="zoom100"><i class="fa-solid fa-magnifying-glass-plus c-blue"></i><span>100 %</span></div>
+      <div class="btn big" data-act="fitWidth"><i class="fa-solid fa-left-right c-green"></i><span>Largeur de page</span></div>
+      <div class="btn big" data-act="fitPage"><i class="fa-solid fa-expand c-purple"></i><span>Page entière</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Afficher">
+      <div class="btn big" data-act="ruler"><i class="fa-solid fa-ruler-combined c-yellow"></i><span>Règle</span></div>
+      <div class="btn big" data-act="focus"><i class="fa-solid fa-maximize c-green"></i><span>Mode Focus</span></div>
+    </div>
+  </div>
+
+  <!-- AIDE -->
+  <div class="ribbon-panel hidden" id="ribbon-aide">
+    <div class="group" data-label="Aide">
+      <div class="btn big" data-act="shortcuts"><i class="fa-regular fa-keyboard c-blue"></i><span>Raccourcis</span></div>
+      <div class="btn big" data-act="about"><i class="fa-solid fa-circle-info c-green"></i><span>À propos</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ZONE DE TRAVAIL ============ -->
+<div id="work-area">
+  <main id="workspace">
+    <div id="doc-column">
+      <div id="ruler" class="hidden">
+        <div id="ruler-ticks"></div>
+        <div class="ruler-handle" id="rh-left" title="Marge gauche"></div>
+        <div class="ruler-handle" id="rh-right" title="Marge droite"></div>
+      </div>
+      <div id="zoom-sizer">
+        <div id="page-wrapper">
+          <div id="editor" class="dark-doc" contenteditable="true" spellcheck="true" lang="fr" role="textbox" aria-multiline="true" aria-label="Document"></div>
+          <div id="page-overlay" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Recherche / remplacement -->
+  <div id="find-panel" class="hidden" role="dialog" aria-label="Rechercher et remplacer">
+    <div class="fp-row">
+      <input type="text" id="find-input" placeholder="Rechercher" spellcheck="false">
+      <span id="find-count" class="muted">0/0</span>
+      <button class="tool" data-act="findPrev" title="Précédent (Maj+Entrée)"><i class="fa-solid fa-chevron-up"></i></button>
+      <button class="tool" data-act="findNext" title="Suivant (Entrée)"><i class="fa-solid fa-chevron-down"></i></button>
+      <button class="tool" data-act="findClose" title="Fermer (Échap)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="fp-row" id="replace-row">
+      <input type="text" id="replace-input" placeholder="Remplacer par" spellcheck="false">
+      <button class="mini" data-act="replaceOne">Remplacer</button>
+      <button class="mini primary" data-act="replaceAll">Tout remplacer</button>
+    </div>
+    <div class="fp-row opts">
+      <label><input type="checkbox" id="find-case"> Respecter la casse</label>
+      <label><input type="checkbox" id="find-word"> Mot entier</label>
+      <button class="mini" data-act="toggleReplace" id="btn-toggle-replace">Remplacer…</button>
+    </div>
+  </div>
+
+  <!-- Volet commentaires -->
+  <aside id="side-panel" class="hidden">
+    <div class="sp-head"><b>Commentaires</b><button class="tool" data-act="toggleComments"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="comment-list"></div>
+  </aside>
+</div>
+
+<!-- ============ BARRE D'ÉTAT ============ -->
+<footer id="statusbar">
+  <div class="sb-left">
+    <span id="page-count">Page 1 sur 1</span>
+    <span id="word-count">0 mots</span>
+    <span id="char-count" class="hide-sm">0 caractères</span>
+    <span class="hide-sm"><i class="fa-solid fa-spell-check c-green"></i> <span id="lang-label">Français</span></span>
+  </div>
+  <div class="sb-right">
+    <div class="sb-views">
+      <button data-act="focus" title="Mode Focus"><i class="fa-solid fa-maximize"></i><span class="hide-sm"> Focus</span></button>
+      <button data-act="viewPrint" id="sb-print" title="Mode page"><i class="fa-solid fa-file-lines"></i></button>
+      <button data-act="viewWeb" id="sb-web" title="Disposition Web"><i class="fa-solid fa-globe"></i></button>
+    </div>
+    <div class="sb-zoom">
+      <button data-act="zoomOut" title="Zoom arrière"><i class="fa-solid fa-minus"></i></button>
+      <input type="range" id="zoom-slider" min="30" max="200" value="100" aria-label="Zoom">
+      <button data-act="zoomIn" title="Zoom avant"><i class="fa-solid fa-plus"></i></button>
+      <span id="zoom-text">100 %</span>
+    </div>
+  </div>
+</footer>
+
+<button id="focus-exit" class="hidden" data-act="focus"><i class="fa-solid fa-minimize"></i> Quitter le mode Focus</button>
+
+<!-- ============ FICHIER (BACKSTAGE) ============ -->
+<div id="backstage" class="hidden">
+  <div class="bs-side">
+    <div class="bs-top">
+      <button class="bs-btn" data-act="closeBackstage"><i class="fa-solid fa-arrow-left c-blue"></i><span>Retour</span></button>
+      <hr>
+      <button class="bs-btn active" data-bs="home"><i class="fa-solid fa-house"></i><span>Accueil</span></button>
+      <button class="bs-btn" data-act="bsNew"><i class="fa-regular fa-file"></i><span>Nouveau</span></button>
+      <button class="bs-btn" data-act="openFile"><i class="fa-regular fa-folder-open"></i><span>Ouvrir…</span></button>
+      <hr>
+      <button class="bs-btn" data-act="saveClose"><i class="fa-solid fa-floppy-disk c-blue"></i><span>Enregistrer</span></button>
+      <button class="bs-btn" data-act="saveAs"><i class="fa-solid fa-file-export c-blue"></i><span>Enregistrer sous…</span></button>
+      <button class="bs-btn" data-bs="export"><i class="fa-solid fa-download c-green"></i><span>Exporter</span></button>
+      <button class="bs-btn" data-act="printDoc"><i class="fa-solid fa-print c-purple"></i><span>Imprimer</span></button>
+      <button class="bs-btn" data-act="shareClose"><i class="fa-solid fa-share-nodes c-blue"></i><span>Partager</span></button>
+    </div>
+    <div class="bs-bottom">
+      <button class="bs-btn" data-bs="account"><i class="fa-regular fa-circle-user"></i><span>Compte</span></button>
+      <button class="bs-btn" data-bs="options"><i class="fa-solid fa-gear"></i><span>Options</span></button>
+      <button class="bs-btn" data-act="aboutClose"><i class="fa-solid fa-circle-info"></i><span>À propos</span></button>
+    </div>
+  </div>
+  <div class="bs-content">
+    <section id="bs-home" class="bs-pane">
+      <h1 id="bs-hello">Bonjour</h1>
+      <h2>Créer un document</h2>
+      <div class="tpl-grid" id="tpl-grid"></div>
+      <h2>Documents récents <span class="muted" style="text-transform:none;letter-spacing:0">(enregistrés sur cet ordinateur)</span></h2>
+      <div class="recent-box">
+        <table>
+          <thead><tr><th>Nom</th><th>Emplacement</th><th>Dernière modification</th><th></th></tr></thead>
+          <tbody id="recent-body"></tbody>
+        </table>
+        <div id="recent-empty" class="muted pad hidden">Aucun document récent pour le moment.</div>
+      </div>
+    </section>
+    <section id="bs-export" class="bs-pane hidden">
+      <h1>Exporter</h1>
+      <div class="export-list">
+        <button data-exp="docx"><i class="fa-solid fa-file-word c-blue"></i><div><b>Document Word (.docx)</b><small>Compatible Microsoft Word, LibreOffice, Google Docs</small></div></button>
+        <button data-exp="pdf"><i class="fa-solid fa-file-pdf c-red"></i><div><b>PDF (.pdf)</b><small>Pagination A4 identique à l'impression</small></div></button>
+        <button data-exp="wordweb"><i class="fa-solid fa-file-zipper c-purple"></i><div><b>Format natif (.wordweb)</b><small>Conserve toute la mise en page et les commentaires</small></div></button>
+        <button data-exp="html"><i class="fa-solid fa-code c-green"></i><div><b>Page web (.html)</b><small>Document autonome, images incluses</small></div></button>
+        <button data-exp="txt"><i class="fa-solid fa-file-lines c-yellow"></i><div><b>Texte brut (.txt)</b><small>Sans mise en forme</small></div></button>
+      </div>
+    </section>
+    <section id="bs-account" class="bs-pane hidden">
+      <h1>Compte</h1>
+      <p class="muted">Ce nom est utilisé comme auteur des commentaires. Il reste enregistré sur cet ordinateur.</p>
+      <label class="field">Nom affiché<input type="text" id="opt-username" maxlength="40" placeholder="Votre nom"></label>
+    </section>
+    <section id="bs-options" class="bs-pane hidden">
+      <h1>Options</h1>
+      <label class="check"><input type="checkbox" id="opt-autosave"> Enregistrement automatique (copie de récupération dans « Documents récents »)</label>
+      <label class="check"><input type="checkbox" id="opt-spell"> Vérifier l'orthographe pendant la frappe</label>
+      <label class="field">Apparence de l'application
+        <select id="opt-look" class="office-select"><option value="word">Word (clair)</option><option value="dark">Sombre</option></select></label>
+      <label class="field">Thème de page par défaut
+        <select id="opt-theme" class="office-select"><option value="dark">Page sombre</option><option value="white">Page blanche</option><option value="sepia">Sépia</option></select></label>
+      <p class="muted">Le fichier d'origine n'est jamais modifié par l'enregistrement automatique : seul « Enregistrer » (Ctrl+S) écrit sur le disque.</p>
+    </section>
+  </div>
+</div>
+
+<!-- ============ BOÎTE DE DIALOGUE GÉNÉRIQUE ============ -->
+<div id="modal-backdrop" class="hidden">
+  <div id="modal" role="dialog" aria-modal="true">
+    <div class="m-head"><h3 id="modal-title"></h3><button class="tool" id="modal-x" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="m-body" id="modal-body"></div>
+    <div class="m-foot" id="modal-foot"></div>
+  </div>
+</div>
+<div id="toast-host"></div>
+
+<!-- Zone d'impression (remplie à la volée) -->
+<div id="print-root"></div>
+
+<input type="file" id="file-input" class="hidden" accept=".docx,.txt,.html,.htm,.wordweb">
+<input type="file" id="image-input" class="hidden" accept="image/*" multiple>
+<input type="file" id="csv-input" class="hidden" accept=".csv,.tsv,.txt">
+
+<script src="vendor/mammoth.browser.min.js"></script>
+<script src="js/util.js"></script>
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/history.js"></script>
+<script src="js/find.js"></script>
+<script src="js/files.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/features.js"></script>
+<script src="common/templates.js"></script>
+<script src="js/objects.js"></script>
+<script src="js/extras.js"></script>
+<script src="js/main.js"></script>
+<script src="common/motion.js"></script>
+<script src="common/palette.js"></script>
+</body>
+</html>

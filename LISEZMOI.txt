@@ -1,0 +1,35 @@
+WORD DARK EDITION 3.0
+=====================
+
+WordDarkEdition.exe  -> application Windows portable (aucune installation, double-clic).
+WordDarkEdition-web.zip -> version navigateur : ouvrez src/index.html (fonctionne hors ligne ; pas d'export .docx, pas de PDF direct).
+
+Formats : ouvrir/enregistrer .docx, .wordweb, .html, .txt ; exporter en PDF.
+Enregistrement auto : copie dans la bibliothèque interne (jamais par-dessus votre fichier d'origine).
+Ctrl+S enregistre le fichier réel. Partage : lecture seule, réseau local.
+Windows peut afficher "SmartScreen" (exe non signé) : Informations complémentaires > Exécuter quand même.
+
+=== Nouveautés v3.1 ===
+- Icône de l'application intégrée à l'exécutable.
+- Excel : graphiques (histogramme, courbes, secteurs, aires), filtres, mise en forme conditionnelle.
+- PowerPoint : tableaux, transitions, animations d'objets, nouvelles mises en page, IA connectée facultative.
+- Word : barre d'image (alignement, taille, légende, poignée), style de tableau, suivi des modifications.
+- Animations partout (désactivées si Windows demande de réduire les animations).
+- Récupération : chaque document est enregistré automatiquement toutes les ~1 s dans la bibliothèque et rouvert au lancement.
+
+=== Signature du .exe (supprime l'avertissement SmartScreen) ===
+Il faut acheter un certificat de signature de code (.pfx). Ensuite, à la compilation :
+  set CSC_LINK=chemin\certificat.pfx
+  set CSC_KEY_PASSWORD=motdepasse
+et passer "signAndEditExecutable" à true dans package.json.
+
+NOUVEAUTÉS 3.2
+--------------
+Excel : tableaux croisés dynamiques, fusion de cellules, volets figés, hauteur de ligne à la souris, ~60 nouvelles fonctions (RECHERCHEV, SI.CONDITIONS, SOMME.SI.ENS, dates, texte…), export PDF avec en-têtes.
+Word : équations (Insertion > Équation), styles personnalisés (Accueil > Créer un style / Mes styles), suivi des modifications, barre d'image.
+PowerPoint : flèches, rotation, ombre, dégradé, repères magnétiques (Alt = désactiver), mode présentateur (touche P en diaporama : minuteur, notes, diapo suivante).
+Confort : palette de commandes Ctrl+Maj+P, modèles sur l'accueil (CV, facture, rapport, budget…), glisser-déposer de fichiers sur l'accueil, « Ouvrir avec » pour .xlsx/.pptx.
+Sécurité : avant chaque enregistrement, l'ancienne version du fichier est copiée (10 dernières, 1 par minute max). Dossier : palette > « Ouvrir le dossier des versions précédentes ».
+Limites : graphiques Excel et animations PowerPoint ne sont pas exportés en .xlsx/.pptx ; le collage n'est pas suivi dans le suivi des modifications.
+
+Compte Google (3.3) : bouton « Se connecter avec Google » sur l accueil. Il faut créer une fois un ID client OAuth « Application de bureau » (console.cloud.google.com) ; le code secret est chiffré sur le PC. Le compte sert à l identité (nom, e-mail, photo), pas à synchroniser les documents.
