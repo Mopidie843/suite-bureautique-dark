@@ -37,7 +37,7 @@ Compte Google (3.3) : bouton « Se connecter avec Google » sur l accueil. Il fa
 COMPTE GOOGLE (3.5)
 -------------------
 - Connexion en un clic si les identifiants sont intégrés (secrets GitHub GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET, ou fichier google-default.json à la racine avant de construire).
-- Plusieurs comptes, copie automatique de chaque document dans Drive (« Suite Bureautique »), ouvrir depuis Drive, brouillon Gmail avec pièce jointe, réglages restaurés à la connexion, verrouillage par compte, auteur des documents = compte actif.
+- Plusieurs comptes, copie automatique de chaque document dans Drive (« Nocte »), ouvrir depuis Drive, brouillon Gmail avec pièce jointe, réglages restaurés à la connexion, verrouillage par compte, auteur des documents = compte actif.
 - Page de confidentialité : docs/index.html (activer GitHub Pages sur le dossier /docs).
 
 3.6

@@ -378,7 +378,7 @@
 
   /* ---------- Titre ---------- */
   $('#doc-title').addEventListener('change', e => {
-    W.doc.title = e.target.value.trim() || 'Document1'; e.target.value = W.doc.title; document.title = W.doc.title + ' - Word Dark Edition';
+    W.doc.title = e.target.value.trim() || 'Document1'; e.target.value = W.doc.title; document.title = W.doc.title + ' - Nocte Word';
     W.docChanged({ history: false, paginate: false });
   });
   $('#doc-title').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); W.focusEditor(false); } });
@@ -400,7 +400,7 @@
   };
   ACT.about = async () => {
     const info = W.api ? await W.api.info() : null;
-    return W.dialog({ title: 'À propos', body: '<p><b>Word Dark Edition</b> — version ' + W.version + '</p><p>Éditeur de documents (apparence Word clair ou sombre) : vraies pages A4, enregistrement réel en .docx, import/export, publipostage, commentaires.</p>' + (info ? '<p class="muted">Electron ' + W.esc(info.electron) + ' · Chromium ' + W.esc(info.chrome) + ' · ' + W.esc(info.platform) + '</p>' : '<p class="muted">Version navigateur</p>') + '<p class="note">Les fichiers .docx sont convertis depuis/vers du HTML : les mises en page très avancées (colonnes, zones de texte flottantes, suivi des modifications) peuvent être simplifiées.</p>' });
+    return W.dialog({ title: 'À propos', body: '<p><b>Nocte Word</b> — version ' + W.version + '</p><p>Éditeur de documents (apparence Word clair ou sombre) : vraies pages A4, enregistrement réel en .docx, import/export, publipostage, commentaires.</p>' + (info ? '<p class="muted">Electron ' + W.esc(info.electron) + ' · Chromium ' + W.esc(info.chrome) + ' · ' + W.esc(info.platform) + '</p>' : '<p class="muted">Version navigateur</p>') + '<p class="note">Les fichiers .docx sont convertis depuis/vers du HTML : les mises en page très avancées (colonnes, zones de texte flottantes, suivi des modifications) peuvent être simplifiées.</p>' });
   };
 
   /* ---------- Fenêtre de partage ---------- */

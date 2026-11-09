@@ -5,7 +5,7 @@ PUBLIER SUR GITHUB (installateur en ligne + mises à jour automatiques)
    ou glissez-déposez les fichiers sur la page du dépôt.
 3. Créez une version : git tag v3.3.0 && git push --tags
    -> GitHub Actions (onglet « Actions ») construit sur un vrai Windows et publie la « Release » avec :
-      * SuiteBureautiqueDark-Setup-3.3.0.exe  = installateur COMPLET
+      * Nocte-Setup-3.3.0.exe  = installateur COMPLET
       * l'installateur EN LIGNE (« Web Setup », petit : il télécharge l'application depuis GitHub pendant l'installation)
       * la version portable, latest.yml et les paquets de mise à jour
 4. Les PC où l'application est INSTALLÉE vérifient GitHub au lancement : quand vous publiez la version suivante

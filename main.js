@@ -9,7 +9,7 @@ const os = require('os');
 const OPENABLE = ['.docx', '.wordweb', '.html', '.htm', '.txt', '.md', '.csv'];
 const wins = new Map(); // webContents.id -> { win, kind, closing, startup }
 const PAGES = { hub: 'hub.html', word: 'index.html', excel: 'excel/index.html', ppt: 'ppt/index.html' };
-const TITLES = { hub: 'Suite Bureautique Dark', word: 'Word Dark Edition', excel: 'Excel Dark', ppt: 'PowerPoint Dark' };
+const TITLES = { hub: 'Nocte', word: 'Nocte Word', excel: 'Nocte Excel', ppt: 'Nocte PowerPoint' };
 const kindOfFile = p => { const e = path.extname(p).toLowerCase(); return ['.xlsx', '.xls', '.csv'].includes(e) ? 'excel' : e === '.pptx' ? 'ppt' : 'word'; };
 const OPENABLE_ALL = OPENABLE.concat(['.xlsx', '.pptx']);
 
@@ -71,6 +71,7 @@ function createWindow(kind, startupPath) {
 }
 function openSafe(url) { if (/^(https?:|mailto:)/i.test(url)) shell.openExternal(url); }
 
+if (!app.commandLine.hasSwitch('user-data-dir')) try { app.setPath('userData', path.join(app.getPath('appData'), 'Suite Bureautique Dark')); } catch (e) { /* garde le dossier de données historique */ }
 app.whenReady().then(() => {
   setupUpdater();
   session.defaultSession.setPermissionRequestHandler((_wc, _perm, cb) => cb(false));
@@ -139,7 +140,7 @@ const hex = c => 'FF' + String(c || '#000000').replace('#', '').toUpperCase().pa
 const fromArgb = a => (typeof a === 'string' && a.length === 8 ? '#' + a.slice(2).toLowerCase() : null);
 const serialToDate = n => new Date(Date.UTC(1899, 11, 30) + Math.round(n * 864e5));
 async function xlsxBuild(book) {
-  const ExcelJS = require('exceljs'), wb = new ExcelJS.Workbook(); wb.creator = G.authorName() || 'Excel Dark'; wb.title = book.title;
+  const ExcelJS = require('exceljs'), wb = new ExcelJS.Workbook(); wb.creator = G.authorName() || 'Nocte Excel'; wb.title = book.title;
   for (const sh of book.sheets) {
     const ws = wb.addWorksheet(sh.name.slice(0, 31), sh.freeze && (sh.freeze.r || sh.freeze.c) ? { views: [{ state: 'frozen', xSplit: sh.freeze.c || 0, ySplit: sh.freeze.r || 0 }] } : undefined);
     (sh.merges || []).forEach(g => { try { ws.mergeCells(g.r0 + 1, g.c0 + 1, g.r1 + 1, g.c1 + 1); } catch (e) { /* ignorée */ } });
@@ -203,7 +204,7 @@ ipcMain.handle('xlsx:parse', async (_e, bytes) => { try { return { ok: true, she
 /* ----- PowerPoint (pptxgenjs) ----- */
 async function pptxBuild(deck) {
   const PptxGenJS = require('pptxgenjs'), p = new PptxGenJS();
-  p.defineLayout({ name: 'W169', width: 13.333, height: 7.5 }); p.layout = 'W169'; p.title = deck.title; p.author = G.authorName() || 'PowerPoint Dark';
+  p.defineLayout({ name: 'W169', width: 13.333, height: 7.5 }); p.layout = 'W169'; p.title = deck.title; p.author = G.authorName() || 'Nocte PowerPoint';
   const I = n => Math.round(n / 72 * 1000) / 1000, col = c => String(c || '#000000').replace('#', '').toUpperCase();
   for (const sd of deck.slides) {
     const s = p.addSlide(); s.background = { color: col(sd.bg || '#ffffff') };

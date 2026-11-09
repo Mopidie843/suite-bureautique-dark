@@ -38,7 +38,7 @@
     else say(String(j.text || 'Je n\'ai rien à ajouter.'));
   }
   function intro() {
-    say('Bonjour ! Je suis l\'assistant de PowerPoint Dark. ' + (online ? 'L\'IA connectée est activée : je peux aussi rédiger, reformuler et traduire.' : 'Je fonctionne hors ligne : je structure vos idées en diapositives et j\'exécute vos commandes, mais je ne rédige pas de contenu (bouton « Hors ligne » en haut pour activer une IA connectée avec votre clé API).') + '\n\nEssayez : « crée une présentation sur le recyclage en 6 diapos », ou collez un texte avec « transforme ce texte en diaporama ».');
+    say('Bonjour ! Je suis l\'assistant de Nocte PowerPoint. ' + (online ? 'L\'IA connectée est activée : je peux aussi rédiger, reformuler et traduire.' : 'Je fonctionne hors ligne : je structure vos idées en diapositives et j\'exécute vos commandes, mais je ne rédige pas de contenu (bouton « Hors ligne » en haut pour activer une IA connectée avec votre clé API).') + '\n\nEssayez : « crée une présentation sur le recyclage en 6 diapos », ou collez un texte avec « transforme ce texte en diaporama ».');
     chips();
   }
   const CHIPS = [['Créer une présentation…', () => genDialog()], ['Ajouter une diapo', 'ajoute une diapo'], ['Changer le thème', 'thème océan'], ['Texte plus grand', 'agrandis le texte'], ['Mettre en liste', 'mets en liste'], ['Résumer', 'résume'], ['Lancer le diaporama', 'lance le diaporama']];

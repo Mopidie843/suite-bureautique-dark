@@ -1,5 +1,5 @@
 'use strict';
-/* ===== Excel Dark : grille, sélection, édition, formats, fichiers ===== */
+/* ===== Nocte Excel : grille, sélection, édition, formats, fichiers ===== */
 (function () {
   const { $, $$, esc, ACT } = A, api = A.api;
   const ROWS0 = 200, COLS = 26, DEFW = 90, DEFH = 22;
@@ -363,10 +363,10 @@
     if (!path) { const r = await api.pickSavePath({ defaultName: A.safeName(wb.title) + '.xlsx', filters: [{ name: 'Classeur Excel', extensions: ['xlsx'] }] }); if (!r || r.canceled) return false; path = /\.xlsx$/i.test(r.path) ? r.path : r.path + '.xlsx'; }
     const res = await api.xlsxWrite({ path, book: exportPayload() });
     if (!res || !res.ok) { A.toast('Échec de l\'enregistrement : ' + (res && res.error), 'err'); return false; }
-    wb.path = path; wb.title = A.baseName(path); $('#doc-title').value = wb.title; document.title = wb.title + ' - Excel Dark'; await doSave(); dirty = false; setBadge('saved'); A.toast('Enregistré : ' + path.replace(/^.*[\\/]/, ''), 'ok'); return true;
+    wb.path = path; wb.title = A.baseName(path); $('#doc-title').value = wb.title; document.title = wb.title + ' - Nocte Excel'; await doSave(); dirty = false; setBadge('saved'); A.toast('Enregistré : ' + path.replace(/^.*[\\/]/, ''), 'ok'); return true;
   };
   ACT.saveAs = () => ACT.save(null, null, true);
-  function load(b) { wb = b; sel = { r0: 0, c0: 0, r1: 0, c1: 0 }; act = { r: 0, c: 0 }; anchor = act; undoStack = []; redoStack = []; ROWS = ROWS0; $('#doc-title').value = wb.title; document.title = wb.title + ' - Excel Dark'; build(); setBadge('saved'); dirty = false; }
+  function load(b) { wb = b; sel = { r0: 0, c0: 0, r1: 0, c1: 0 }; act = { r: 0, c: 0 }; anchor = act; undoStack = []; redoStack = []; ROWS = ROWS0; $('#doc-title').value = wb.title; document.title = wb.title + ' - Nocte Excel'; build(); setBadge('saved'); dirty = false; }
   ACT.newBook = async () => { await doSave(); load(newBook()); };
   async function openFile(f) {
     const ext = (f.ext || '').toLowerCase(); let b;
@@ -387,10 +387,10 @@
     const v = await A.dialog({ title: 'Fichier', width: 420, body, buttons: [{ label: 'Fermer', value: null }], onOpen: (b, fin) => { b.querySelectorAll('[data-a]').forEach(x => x.onclick = () => fin({ a: x.dataset.a })); b.querySelectorAll('[data-d]').forEach(x => x.onclick = () => fin({ d: x.dataset.d })); } });
     if (!v) return; if (v.a) ACT[v.a](); else if (v.d) { await doSave(); const rec = await store.get(v.d); if (rec) load(rec); }
   };
-  $('#doc-title').addEventListener('change', e => { wb.title = e.target.value.trim() || 'Classeur1'; e.target.value = wb.title; document.title = wb.title + ' - Excel Dark'; dirty = true; autosave(); });
+  $('#doc-title').addEventListener('change', e => { wb.title = e.target.value.trim() || 'Classeur1'; e.target.value = wb.title; document.title = wb.title + ' - Nocte Excel'; dirty = true; autosave(); });
   window.addEventListener('beforeunload', () => { doSave(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) doSave(); });
-  if (api && api.onBeforeClose) api.onBeforeClose(async () => { if (dirty && !A.settings.get('autosave', true)) { const ok = await A.confirmBox('Excel Dark', 'Enregistrer les modifications de « ' + wb.title + ' » ?', 'Enregistrer'); if (ok) await ACT.save(); } await doSave(); api.confirmClose(true); });
+  if (api && api.onBeforeClose) api.onBeforeClose(async () => { if (dirty && !A.settings.get('autosave', true)) { const ok = await A.confirmBox('Nocte Excel', 'Enregistrer les modifications de « ' + wb.title + ' » ?', 'Enregistrer'); if (ok) await ACT.save(); } await doSave(); api.confirmClose(true); });
   if (api && api.onOpenFile) api.onOpenFile(f => openFile(f));
 
   /* ---------- Démarrage ---------- */

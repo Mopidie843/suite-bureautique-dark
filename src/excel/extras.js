@@ -1,5 +1,5 @@
 'use strict';
-/* ===== Excel Dark : graphiques, filtres, mise en forme conditionnelle ===== */
+/* ===== Nocte Excel : graphiques, filtres, mise en forme conditionnelle ===== */
 (function () {
   const { $, esc, ACT } = A, X = window.XL, wrap = X.wrap;
   const PAL = ['#4472c4', '#ed7d31', '#a5a5a5', '#ffc000', '#5b9bd5', '#70ad47', '#264478', '#9e480e'];

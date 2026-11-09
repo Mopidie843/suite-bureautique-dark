@@ -8,7 +8,7 @@
     blank: { title: 'Document1', html: '<p><br></p>' },
     single: { title: 'Document1', html: '<p style="line-height:1"><br></p>' },
     welcome: { title: 'Bienvenue', html:
-      '<h1>Bienvenue dans Word Dark Edition</h1><p><i>Guide de démarrage rapide</i></p><hr>' +
+      '<h1>Bienvenue dans Nocte Word</h1><p><i>Guide de démarrage rapide</i></p><hr>' +
       '<p>Ce document est un modèle pour explorer les fonctionnalités. Vous pouvez modifier ce texte, insérer des tableaux, des images, changer l\'orientation ou le thème de la page depuis les onglets du ruban.</p>' +
       '<h2>Ce que vous pouvez faire</h2><ul><li><b>Mettre en forme</b> : police, taille, couleurs, listes, alignement, interligne.</li><li><b>Insérer</b> : tableaux, images depuis votre ordinateur, liens, sauts de page, table des matières.</li><li><b>Enregistrer</b> : vrais fichiers Word (.docx), PDF, HTML ou texte.</li><li><b>Publipostage</b> : fusionner un fichier CSV avec une lettre type.</li></ul>' +
       '<p>Commencez à saisir votre texte directement sur la page.</p>' },
@@ -65,7 +65,7 @@
     if (W.mm && W.mm.preview) W.mmSetPreview(false);
     W.doc = { id: rec.id || W.uid(), title: rec.title || 'Document1', path: rec.path || null, fmt: rec.fmt || 'docx', comments: Array.isArray(rec.comments) ? rec.comments : [], created: rec.created || Date.now(), dirty: !!rec.dirty };
     W.page = Object.assign(W.defaultPage(), rec.page || {});
-    $('#doc-title').value = W.doc.title; document.title = W.doc.title + ' - Word Dark Edition';
+    $('#doc-title').value = W.doc.title; document.title = W.doc.title + ' - Nocte Word';
     W.applyPageCSS(); if (W.syncPageControls) W.syncPageControls();
     W.setHTML(typeof rec.html === 'function' ? rec.html() : rec.html);
     W.history.reset();
@@ -236,7 +236,7 @@
       const res = await W.api.writeFile({ path, payload: await payloadFor(ext) });
       if (!res || !res.ok) throw new Error((res && res.error) || 'écriture impossible');
       W.doc.path = path; W.doc.fmt = ext; W.doc.dirty = false;
-      if (opt.saveAs || W.doc.title === 'Document1') { W.doc.title = baseName(path); $('#doc-title').value = W.doc.title; document.title = W.doc.title + ' - Word Dark Edition'; }
+      if (opt.saveAs || W.doc.title === 'Document1') { W.doc.title = baseName(path); $('#doc-title').value = W.doc.title; document.title = W.doc.title + ' - Nocte Word'; }
       await W.saveLibrary(); setBadge('saved');
       W.toast('Enregistré : ' + path.replace(/^.*[\\/]/, ''), 'ok'); return true;
     } catch (e) { W.toast('Échec de l\'enregistrement : ' + e.message, 'err'); return false; }

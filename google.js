@@ -19,7 +19,7 @@ const URLS = {
 };
 const BASE_SCOPES = 'openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata';
 const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.compose';
-const FOLDER = 'Suite Bureautique';
+const FOLDER = 'Nocte';
 
 const file = () => path.join(app.getPath('userData'), 'google.json');
 const enc = s => (safeStorage.isEncryptionAvailable() ? 'e:' + safeStorage.encryptString(s).toString('base64') : 'p:' + Buffer.from(s).toString('base64'));
@@ -70,7 +70,7 @@ async function signIn(extraScope, hint) {
         const u = new URL(req.url, 'http://127.0.0.1'); if (u.pathname !== '/cb') { res.writeHead(404); res.end(); return; }
         const ok = u.searchParams.get('code') && u.searchParams.get('state') === state;
         res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-        res.end('<!doctype html><meta charset="utf-8"><body style="font-family:Segoe UI,sans-serif;background:#1e1e1e;color:#eee;text-align:center;padding-top:15vh"><h2>' + (ok ? 'Connexion réussie' : 'Connexion refusée') + '</h2><p>Vous pouvez fermer cet onglet et revenir à la Suite Bureautique.</p>');
+        res.end('<!doctype html><meta charset="utf-8"><body style="font-family:Segoe UI,sans-serif;background:#1e1e1e;color:#eee;text-align:center;padding-top:15vh"><h2>' + (ok ? 'Connexion réussie' : 'Connexion refusée') + '</h2><p>Vous pouvez fermer cet onglet et revenir à la Nocte.</p>');
         clearTimeout(to); srv.close(); ok ? resolve(u.searchParams.get('code')) : reject(new Error(u.searchParams.get('error') || 'Connexion refusée.'));
       });
       const to = setTimeout(() => { srv.close(); reject(new Error('Délai dépassé (3 min).')); }, 180000);

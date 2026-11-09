@@ -1,5 +1,5 @@
 'use strict';
-/* ===== Excel Dark : fusion, volets figés, hauteur de ligne, impression PDF, tableau croisé ===== */
+/* ===== Nocte Excel : fusion, volets figés, hauteur de ligne, impression PDF, tableau croisé ===== */
 (function () {
   const { $, esc, ACT } = A, X = window.XL, api = A.api;
   const sh = () => X.sh();

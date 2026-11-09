@@ -151,7 +151,7 @@
       W.history.flush();
       if (W.settings.get('autosave', true)) { await W.saveLibrary(); W.api.confirmClose(true); return; }
       if (!W.doc.dirty || W.isBlank()) { W.api.confirmClose(true); return; }
-      const r = await W.dialog({ title: 'Word Dark Edition', body: '<p>Enregistrer les modifications de « ' + W.esc(W.doc.title) + ' » avant de quitter ?</p>', buttons: [{ label: 'Annuler', value: 'cancel' }, { label: 'Ne pas enregistrer', value: 'no' }, { label: 'Enregistrer', primary: true, value: 'yes' }] });
+      const r = await W.dialog({ title: 'Nocte Word', body: '<p>Enregistrer les modifications de « ' + W.esc(W.doc.title) + ' » avant de quitter ?</p>', buttons: [{ label: 'Annuler', value: 'cancel' }, { label: 'Ne pas enregistrer', value: 'no' }, { label: 'Enregistrer', primary: true, value: 'yes' }] });
       if (r === 'yes') { const ok = await W.saveDoc(); W.api.confirmClose(ok !== false); }
       else W.api.confirmClose(r === 'no');
     });

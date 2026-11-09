@@ -1,8 +1,8 @@
 {
   "name": "suite-bureautique-dark",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "description": "Suite bureautique : Word, Excel et PowerPoint (apparence Word, thème clair/sombre)",
-  "author": "Word Dark Edition",
+  "author": "Nocte Word",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -12,7 +12,7 @@
   },
   "build": {
     "appId": "com.worddark.suite",
-    "productName": "Suite Bureautique Dark",
+    "productName": "Nocte",
     "files": [
       "main.js",
       "google.js",
@@ -47,7 +47,7 @@
       "signAndEditExecutable": false
     },
     "portable": {
-      "artifactName": "SuiteBureautiqueDark-Portable.exe"
+      "artifactName": "Nocte-Portable.exe"
     },
     "fileAssociations": [
       {
@@ -80,7 +80,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": "always",
       "createStartMenuShortcut": true,
-      "shortcutName": "Suite Bureautique Dark",
+      "shortcutName": "Nocte",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "installerSidebar": "build/installerSidebar.bmp",
@@ -88,11 +88,11 @@
       "installerHeader": "build/installerHeader.bmp",
       "license": "build/license.txt",
       "language": "1036",
-      "artifactName": "SuiteBureautiqueDark-Setup-${version}.exe",
+      "artifactName": "Nocte-Setup-${version}.exe",
       "deleteAppDataOnUninstall": false,
       "runAfterFinish": true,
       "differentialPackage": false,
-      "uninstallDisplayName": "Suite Bureautique Dark",
+      "uninstallDisplayName": "Nocte",
       "menuCategory": false,
       "installerLanguages": [
         "fr_FR"

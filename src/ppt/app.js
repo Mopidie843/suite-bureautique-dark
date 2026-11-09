@@ -1,5 +1,5 @@
 'use strict';
-/* ===== PowerPoint Dark : diapositives, objets, diaporama, fichiers ===== */
+/* ===== Nocte PowerPoint : diapositives, objets, diaporama, fichiers ===== */
 (function () {
   const { $, $$, esc, ACT } = A, api = A.api;
   const store = A.store('ppt-dark'), W0 = 960, H0 = 540;
@@ -299,10 +299,10 @@
     if (!path) { const r = await api.pickSavePath({ defaultName: A.safeName(deck.title) + '.pptx', filters: [{ name: 'Présentation PowerPoint', extensions: ['pptx'] }] }); if (!r || r.canceled) return false; path = /\.pptx$/i.test(r.path) ? r.path : r.path + '.pptx'; }
     const res = await api.pptxWrite({ path, deck: payload() });
     if (!res || !res.ok) { A.toast('Échec de l\'enregistrement : ' + (res && res.error), 'err'); return false; }
-    deck.path = path; deck.title = A.baseName(path); $('#doc-title').value = deck.title; document.title = deck.title + ' - PowerPoint Dark'; await doSave(); dirty = false; setBadge('saved'); A.toast('Enregistré : ' + path.replace(/^.*[\\/]/, ''), 'ok'); return true;
+    deck.path = path; deck.title = A.baseName(path); $('#doc-title').value = deck.title; document.title = deck.title + ' - Nocte PowerPoint'; await doSave(); dirty = false; setBadge('saved'); A.toast('Enregistré : ' + path.replace(/^.*[\\/]/, ''), 'ok'); return true;
   };
   ACT.saveAs = () => ACT.save(null, null, true);
-  function load(d) { deck = d; cur = 0; selId = null; editingId = null; undoStack = []; redoStack = []; $('#doc-title').value = d.title; document.title = d.title + ' - PowerPoint Dark'; renderAll(); setBadge('saved'); dirty = false; }
+  function load(d) { deck = d; cur = 0; selId = null; editingId = null; undoStack = []; redoStack = []; $('#doc-title').value = d.title; document.title = d.title + ' - Nocte PowerPoint'; renderAll(); setBadge('saved'); dirty = false; }
   ACT.newDeck = async () => { await doSave(); load(newDeck()); };
   ACT.open = async () => { if (!api) { A.toast('Ouvrir des fichiers nécessite l\'application Windows.'); return; } const f = await api.openFiles({ filters: [{ name: 'Présentations', extensions: ['pptx'] }] }); if (f && f[0]) openFile(f[0]); };
   async function importPptx(bytes) {
@@ -353,10 +353,10 @@
     const v = await A.dialog({ title: 'Fichier', width: 420, body, buttons: [{ label: 'Fermer', value: null }], onOpen: (b, fin) => { b.querySelectorAll('[data-a]').forEach(x => x.onclick = () => fin({ a: x.dataset.a })); b.querySelectorAll('[data-d]').forEach(x => x.onclick = () => fin({ d: x.dataset.d })); } });
     if (!v) return; if (v.a) ACT[v.a](); else if (v.d) { await doSave(); const rec = await store.get(v.d); if (rec) load(rec); }
   };
-  $('#doc-title').addEventListener('change', e => { deck.title = e.target.value.trim() || 'Présentation1'; e.target.value = deck.title; document.title = deck.title + ' - PowerPoint Dark'; dirty = true; autosave(); });
+  $('#doc-title').addEventListener('change', e => { deck.title = e.target.value.trim() || 'Présentation1'; e.target.value = deck.title; document.title = deck.title + ' - Nocte PowerPoint'; dirty = true; autosave(); });
   window.addEventListener('beforeunload', () => { doSave(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) doSave(); });
-  if (api && api.onBeforeClose) api.onBeforeClose(async () => { commitEdit(); if (dirty && !A.settings.get('autosave', true)) { if (await A.confirmBox('PowerPoint Dark', 'Enregistrer les modifications de « ' + deck.title + ' » ?', 'Enregistrer')) await ACT.save(); } await doSave(); api.confirmClose(true); });
+  if (api && api.onBeforeClose) api.onBeforeClose(async () => { commitEdit(); if (dirty && !A.settings.get('autosave', true)) { if (await A.confirmBox('Nocte PowerPoint', 'Enregistrer les modifications de « ' + deck.title + ' » ?', 'Enregistrer')) await ACT.save(); } await doSave(); api.confirmClose(true); });
   if (api && api.onOpenFile) api.onOpenFile(f => openFile(f));
 
   (async function boot() {
