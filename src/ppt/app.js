@@ -19,7 +19,7 @@
   const find = id => sl().objs.find(o => o.id === id);
 
   /* ---------- Modèle ---------- */
-  function text(x, y, w, h, t, o) { return Object.assign({ id: A.uid(), type: 'text', x, y, w, h, text: t, fs: 24, color: themeOf().text, al: 'left', ff: 'Calibri' }, o); }
+  function text(x, y, w, h, t, o) { return Object.assign({ id: A.uid(), type: 'text', x, y, w, h, text: t, fs: 24, color: themeOf().text, al: 'left', ff: A.settings.get('defFont', '') || 'Calibri' }, o); }
   function makeSlide(layout) {
     const th = themeOf(), objs = [];
     if (layout === 'title') { objs.push(text(80, 170, 800, 110, 'Titre de la présentation', { fs: 54, b: true, color: th.title, al: 'center' }), text(160, 300, 640, 70, 'Sous-titre', { fs: 28, al: 'center' })); }
@@ -179,7 +179,7 @@
     paste: () => { if (!clip) return; const c = JSON.parse(JSON.stringify(clip)); c.id = A.uid(); c.x += 20; c.y += 20; add(c); },
     del: () => { const o = selObj(); if (o) mutate(() => { sl().objs.splice(sl().objs.indexOf(o), 1); selId = null; }); }
   });
-  $('#sel-font').addEventListener('change', e => edit({ ff: e.target.value }));
+  $('#sel-font').addEventListener('change', e => { A.settings.set('defFont', e.target.value); edit({ ff: e.target.value }); });
   $('#sel-size').addEventListener('change', e => edit({ fs: +e.target.value }));
   $('#in-color').addEventListener('input', e => { $('#bar-color').style.background = e.target.value; const o = selObj(); if (o) { o.color = e.target.value; changed(true); renderStage(); } });
   $('#in-fill').addEventListener('input', e => { $('#bar-fill').style.background = e.target.value; const o = selObj(); if (o) { o.fill = e.target.value; changed(true); renderStage(); } });

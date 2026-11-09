@@ -175,7 +175,7 @@
       orientation: land ? 'landscape' : 'portrait',
       pageSize: { width: P.tw[0], height: P.tw[1] },
       margins: { top: Math.round(p.mt * 15), right: Math.round(p.mr * 15), bottom: Math.round(p.mb * 15), left: Math.round(p.ml * 15), header: 720, footer: 720, gutter: 0 },
-      title: W.doc.title, creator: W.settings.get('userName', 'Utilisateur'), font: 'Calibri', fontSize: 22,
+      title: W.doc.title, creator: W.settings.get('userName', 'Utilisateur'), font: W.settings.get('defFont', '') || 'Calibri', fontSize: Math.round((W.settings.get('defSize', 0) || 11) * 2),
       header: !!p.header, footer: !!(p.footer || p.numbers !== 'none'), pageNumber: p.numbers !== 'none'
     };
   };

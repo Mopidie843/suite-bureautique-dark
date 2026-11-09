@@ -39,3 +39,9 @@ COMPTE GOOGLE (3.5)
 - Connexion en un clic si les identifiants sont intégrés (secrets GitHub GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET, ou fichier google-default.json à la racine avant de construire).
 - Plusieurs comptes, copie automatique de chaque document dans Drive (« Suite Bureautique »), ouvrir depuis Drive, brouillon Gmail avec pièce jointe, réglages restaurés à la connexion, verrouillage par compte, auteur des documents = compte actif.
 - Page de confidentialité : docs/index.html (activer GitHub Pages sur le dossier /docs).
+
+3.6
+---
+- Police et taille par défaut dans Word : mémorisées en permanence (curseur seul ou tout le texte sélectionné), aussi pour l'export .docx. PowerPoint : la dernière police choisie est utilisée pour les nouveaux textes.
+- IA : Claude via votre abonnement Pro/Max grâce à Claude Code installé sur le PC (aucune clé API). Fenêtre IA de PowerPoint > « Me connecter » puis « Tester mon abonnement ».
+- Google plus rapide : copie vers Drive en arrière-plan et regroupée, identifiants de fichiers mémorisés (1 requête au lieu de 2), liste Drive en cache 60 s, fichiers Drive déjà téléchargés non retéléchargés, dossier préparé dès la connexion, bouton de compte affiché instantanément.

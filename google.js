@@ -84,10 +84,11 @@ async function signIn(extraScope, hint) {
     const tr = await fetch(URLS.token, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ code, client_id: cl.id, client_secret: cl.secret, redirect_uri: redirect, grant_type: 'authorization_code', code_verifier: verifier }) });
     const tj = await tr.json(); if (!tr.ok) throw new Error(tj.error_description || tj.error || 'Échec de l\'échange du code.');
     const ur = await fetch(URLS.info, { headers: { authorization: 'Bearer ' + tj.access_token } }); const uj = await ur.json(); if (!ur.ok) throw new Error('Profil Google illisible.');
-    let picture = ''; try { if (uj.picture) { const pr = await fetch(uj.picture); picture = 'data:' + (pr.headers.get('content-type') || 'image/jpeg') + ';base64,' + Buffer.from(await pr.arrayBuffer()).toString('base64'); } } catch (e) { /* photo facultative */ }
+    let picture = ''; try { if (uj.picture) { const pr = await fetch(uj.picture.replace(/=s\d+(-c)?$/, '') + (/googleusercontent/.test(uj.picture) ? '=s96-c' : '')); picture = 'data:' + (pr.headers.get('content-type') || 'image/jpeg') + ';base64,' + Buffer.from(await pr.arrayBuffer()).toString('base64'); } } catch (e) { /* photo facultative */ }
     const g = read(); g.accounts = g.accounts || {}; const old = g.accounts[uj.email] || {};
     g.accounts[uj.email] = { user: { name: uj.name || uj.email, email: uj.email, picture, given: uj.given_name || (uj.name || uj.email).split(' ')[0] }, refresh: tj.refresh_token ? enc(tj.refresh_token) : old.refresh, gmail: !!old.gmail || !!extraScope, folder: old.folder };
-    g.active = uj.email; write(g); delete cache[uj.email];
+    g.active = uj.email; write(g); cache[uj.email] = { at: tj.access_token, exp: Date.now() + (tj.expires_in || 3600) * 1000 };
+    folderId(uj.email).catch(() => {}); // préchauffage : le dossier existe déjà au premier enregistrement
     return { ok: true, status: pub() };
   } catch (e) { return { ok: false, error: e.message }; }
 }
@@ -107,24 +108,31 @@ function multipart(meta, buf, mime) {
   const body = Buffer.concat([Buffer.from('--' + bd + '\r\ncontent-type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(meta) + '\r\n--' + bd + '\r\ncontent-type: ' + mime + '\r\n\r\n'), buf, Buffer.from('\r\n--' + bd + '--')]);
   return { body, headers: { 'content-type': 'multipart/related; boundary=' + bd } };
 }
+let listCache = null;
+const idCache = {}; // email -> { nom -> id } : évite une recherche Drive à chaque enregistrement
 async function driveUpload(email, name, buf, mime, opt) {
   opt = opt || {};
-  const parent = opt.appData ? 'appDataFolder' : await folderId(email);
+  const parent = opt.appData ? 'appDataFolder' : await folderId(email), key = (opt.appData ? 'app:' : 'dir:') + name, ids = idCache[email] = idCache[email] || {};
+  const patch = async id => { const m = multipart({}, buf, mime); return (await gapi(email, URLS.upload + '/files/' + id + '?uploadType=multipart&fields=id', { method: 'PATCH', body: m.body, headers: m.headers })).id; };
+  if (ids[key]) { try { return await patch(ids[key]); } catch (e) { delete ids[key]; /* fichier supprimé côté Drive : on recrée */ } }
   const ex = await gapi(email, URLS.drive + '/files?' + new URLSearchParams({ q: "name='" + q(name) + "' and '" + parent + "' in parents and trashed=false", fields: 'files(id)', spaces: opt.appData ? 'appDataFolder' : 'drive' }));
-  const id = ex.files && ex.files[0] && ex.files[0].id;
-  if (id) { const m = multipart({}, buf, mime); const r = await gapi(email, URLS.upload + '/files/' + id + '?uploadType=multipart&fields=id', { method: 'PATCH', body: m.body, headers: m.headers }); return r.id; }
-  const m = multipart({ name, parents: [parent] }, buf, mime);
-  return (await gapi(email, URLS.upload + '/files?uploadType=multipart&fields=id', { method: 'POST', body: m.body, headers: m.headers })).id;
+  let id = ex.files && ex.files[0] && ex.files[0].id;
+  if (id) id = await patch(id); else { const m = multipart({ name, parents: [parent] }, buf, mime); id = (await gapi(email, URLS.upload + '/files?uploadType=multipart&fields=id', { method: 'POST', body: m.body, headers: m.headers })).id; }
+  ids[key] = id; listCache = null; return id;
 }
 let lastSyncTimer = null;
 function noteSync(name, ok, err) { const g = read(); g.lastSync = { name, ok, at: Date.now(), error: err || null }; write(g); clearTimeout(lastSyncTimer); }
-/* appelé après chaque enregistrement d'un fichier local */
-async function afterWrite(p) {
-  try {
-    const s = pub(); if (!s.driveSync || !s.active) return;
-    const ext = path.extname(p).slice(1).toLowerCase(); if (!MIME[ext]) return;
-    await driveUpload(s.active, path.basename(p), await fsp.readFile(p), MIME[ext]); noteSync(path.basename(p), true);
-  } catch (e) { noteSync(path.basename(p), false, e.message); }
+/* appelé après chaque enregistrement : envoi en arrière-plan, regroupé (2 s) et en file pour ne jamais ralentir l'enregistrement */
+const pending = new Map(); let chain = Promise.resolve();
+function afterWrite(p) {
+  const s = pub(); if (!s.driveSync || !s.active) return;
+  clearTimeout(pending.get(p)); pending.set(p, setTimeout(() => {
+    pending.delete(p);
+    chain = chain.then(async () => {
+      const cur = pub(); if (!cur.driveSync || !cur.active) return; const ext = path.extname(p).slice(1).toLowerCase(); if (!MIME[ext]) return;
+      try { await driveUpload(cur.active, path.basename(p), await fsp.readFile(p), MIME[ext]); noteSync(path.basename(p), true); } catch (e) { noteSync(path.basename(p), false, e.message); }
+    });
+  }, TEST ? 100 : 2000));
 }
 
 /* ---------- Gmail ---------- */
@@ -150,14 +158,16 @@ function register(opts) {
   });
   ipcMain.handle('google:set', (_e, o) => { const g = read(); if ('driveSync' in o) g.driveSync = !!o.driveSync; if ('lock' in o) g.lock = !!o.lock; write(g); return pub(); });
   ipcMain.handle('google:drive-list', async () => {
-    try { const e = activeEmail(); if (!e) return { ok: false, error: 'Connectez-vous d\'abord.' }; const id = await folderId(e);
+    try { const e = activeEmail(); if (!e) return { ok: false, error: 'Connectez-vous d\'abord.' };
+      if (listCache && listCache.e === e && Date.now() - listCache.t < 60000) return listCache.v; const id = await folderId(e);
       const r = await gapi(e, URLS.drive + '/files?' + new URLSearchParams({ q: "'" + id + "' in parents and trashed=false", fields: 'files(id,name,modifiedTime,size)', orderBy: 'modifiedTime desc', pageSize: '100' }));
-      return { ok: true, files: (r.files || []).filter(f => MIME[path.extname(f.name).slice(1).toLowerCase()]) }; } catch (e) { return { ok: false, error: e.message }; }
+      const v = { ok: true, files: (r.files || []).filter(f => MIME[path.extname(f.name).slice(1).toLowerCase()]) }; listCache = { e, t: Date.now(), v }; return v; } catch (e) { return { ok: false, error: e.message }; }
   });
-  ipcMain.handle('google:drive-open', async (_e, { id, name }) => {
-    try { const e = activeEmail(); const r = await gapi(e, URLS.drive + '/files/' + encodeURIComponent(id) + '?alt=media', { raw: true });
-      const dir = path.join(app.getPath('userData'), 'drive-cache'); await fsp.mkdir(dir, { recursive: true });
-      const safe = path.basename(String(name)).replace(/[^\w.\- ()]/g, '_'), p = path.join(dir, safe); await fsp.writeFile(p, Buffer.from(await r.arrayBuffer()));
+  ipcMain.handle('google:drive-open', async (_e, { id, name, modifiedTime }) => {
+    try { const e = activeEmail(); const dir = path.join(app.getPath('userData'), 'drive-cache'); await fsp.mkdir(dir, { recursive: true });
+      const safe = path.basename(String(name)).replace(/[^\w.\- ()]/g, '_'), p = path.join(dir, safe), stamp = p + '.stamp';
+      let fresh = false; try { fresh = modifiedTime && (await fsp.readFile(stamp, 'utf8')) === id + '|' + modifiedTime && fs.existsSync(p); } catch (x) { /* pas de cache */ }
+      if (!fresh) { const r = await gapi(e, URLS.drive + '/files/' + encodeURIComponent(id) + '?alt=media', { raw: true }); await fsp.writeFile(p, Buffer.from(await r.arrayBuffer())); if (modifiedTime) await fsp.writeFile(stamp, id + '|' + modifiedTime); }
       return { ok: true, path: p, ext: path.extname(safe).slice(1).toLowerCase() }; } catch (e) { return { ok: false, error: e.message }; }
   });
   ipcMain.handle('google:drive-upload', async (_e, p) => { try { const e = activeEmail(); if (!e) return { ok: false, error: 'Connectez-vous d\'abord.' }; const ext = path.extname(p).slice(1).toLowerCase(); await driveUpload(e, path.basename(p), await fsp.readFile(p), MIME[ext] || 'application/octet-stream'); return { ok: true }; } catch (e) { return { ok: false, error: e.message }; } });

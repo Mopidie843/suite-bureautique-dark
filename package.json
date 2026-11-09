@@ -1,6 +1,6 @@
 {
   "name": "suite-bureautique-dark",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "description": "Suite bureautique : Word, Excel et PowerPoint (apparence Word, thème clair/sombre)",
   "author": "Word Dark Edition",
   "main": "main.js",

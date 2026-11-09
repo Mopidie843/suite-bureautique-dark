@@ -33,6 +33,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   settingsPull: () => ipcRenderer.invoke('google:settings-pull'),
   gmailDraft: o => ipcRenderer.invoke('google:gmail-draft', o),
   aiStatus: () => ipcRenderer.invoke('ai:status'),
+  aiCliTest: () => ipcRenderer.invoke('ai:cli-test'),
+  aiCliLogin: () => ipcRenderer.invoke('ai:cli-login'),
   aiSetKey: k => ipcRenderer.invoke('ai:set-key', k),
   aiAsk: o => ipcRenderer.invoke('ai:ask', o),
   openHub: () => ipcRenderer.invoke('app:open-hub'),

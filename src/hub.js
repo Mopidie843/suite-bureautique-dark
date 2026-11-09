@@ -9,7 +9,7 @@
   const open = async kind => { if (!api) return; const r = await api.openApp(kind); if (r && r.locked) A.toast('Connectez-vous pour utiliser l\'application.', 'err'); };
   document.querySelectorAll('.tile').forEach(t => t.addEventListener('click', () => { A.settings.set(KINDS[t.dataset.app].key, null); open(t.dataset.app); }));
   /* ---------- Compte Google ---------- */
-  const SYNC_KEYS = ['look', 'wstyles', 'userName', 'recentTpl'];
+  const SYNC_KEYS = ['look', 'wstyles', 'userName', 'recentTpl', 'defFont', 'defSize'];
   let ST = null;
   const setAcc = s => {
     ST = s; const b = $('#btn-account'), u = s && s.user; $('#acc-label').textContent = u ? u.name : 'Se connecter avec Google';
@@ -18,7 +18,8 @@
     const h = $('#hello'); h.textContent = 'Bonjour' + (u ? ', ' + (u.given || u.name) : (A.settings.get('userName', '') ? ', ' + A.settings.get('userName', '') : ''));
     $('#lock').classList.toggle('hidden', !(s && s.lock && !u));
   };
-  const refreshAcc = async () => { if (api && api.googleStatus) setAcc(await api.googleStatus()); };
+  const refreshAcc = async () => { if (api && api.googleStatus) { const s = await api.googleStatus(); setAcc(s); try { A.settings.set('gcache', { user: s.user, lock: s.lock }); } catch (e) { /* cache facultatif */ } } };
+  try { const c = A.settings.get('gcache', null); if (c && c.user) setAcc({ user: c.user, lock: c.lock }); } catch (e) { /* cache facultatif */ }
   async function configGoogle(cur) {
     const body = document.createElement('div');
     body.innerHTML = '<p style="margin-top:0">Cette version n\'a pas d\'identifiants Google intégrés. Créez-les gratuitement (une seule fois) :</p><ol style="padding-left:18px;line-height:1.6"><li>Ouvrez <b>console.cloud.google.com</b> › nouveau projet, et activez les API <b>Google Drive</b> et <b>Gmail</b>.</li><li><b>Écran de consentement</b> : type « Externe », ajoutez votre adresse comme utilisateur test.</li><li><b>Identifiants › Créer › ID client OAuth</b> : type <b>Application de bureau</b>.</li><li>Copiez l\'ID client et le code secret ci-dessous.</li></ol><label class="field">ID client<input type="text" id="g-id" value="' + esc(cur.clientId || '') + '"></label><label class="field">Code secret du client<input type="password" id="g-sec" placeholder="' + (cur.clientId ? '(déjà enregistré)' : '') + '"></label>';
@@ -65,7 +66,7 @@
     body.innerHTML = r.files.length ? '<div class="drive-list">' + r.files.map((f, i) => '<button type="button" class="drive-it" data-i="' + i + '"><b>' + esc(f.name) + '</b><small>' + new Date(f.modifiedTime).toLocaleString('fr-FR') + '</small></button>').join('') + '</div><div class="muted" style="margin-top:8px">Dossier « Suite Bureautique » de votre Drive. Seuls les fichiers créés par cette application y apparaissent.</div>' : '<p>Aucun document dans le dossier « Suite Bureautique » pour le moment. Activez la copie automatique dans « Comptes Google » : vos prochains enregistrements y apparaîtront.</p>';
     const i = await A.dialog({ title: 'Ouvrir depuis Google Drive', width: 520, body, buttons: [{ label: 'Fermer', value: null }], onOpen: (b, fin) => b.querySelectorAll('.drive-it').forEach(x => x.onclick = () => fin(+x.dataset.i)) });
     if (i === null || i === undefined) return; const f = r.files[i]; A.toast('Téléchargement…');
-    const d = await api.driveOpen({ id: f.id, name: f.name }); if (!d.ok) { A.toast(d.error, 'err'); return; } api.openApp(/^(xlsx|csv)$/.test(d.ext) ? 'excel' : d.ext === 'pptx' ? 'ppt' : 'word', d.path);
+    const d = await api.driveOpen({ id: f.id, name: f.name, modifiedTime: f.modifiedTime }); if (!d.ok) { A.toast(d.error, 'err'); return; } api.openApp(/^(xlsx|csv)$/.test(d.ext) ? 'excel' : d.ext === 'pptx' ? 'ppt' : 'word', d.path);
   });
   $('#btn-mail').addEventListener('click', async () => {
     if (!api || !api.gmailDraft) { A.toast('Gmail nécessite l\'application Windows.'); return; }

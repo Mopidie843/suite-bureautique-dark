@@ -5,7 +5,9 @@ const files = {}; let n = 0, logins = 0; const log = [];
 const send = (res, o, code) => { res.writeHead(code || 200, { 'content-type': 'application/json' }); res.end(JSON.stringify(o)); };
 http.createServer((req, res) => {
   const u = new URL(req.url, 'http://x'); const chunks = []; req.on('data', c => chunks.push(c)); req.on('end', () => {
-    const body = Buffer.concat(chunks); const p = u.pathname; log.push(req.method + ' ' + p);
+    const body = Buffer.concat(chunks); const p = u.pathname; log.push(req.method + ' ' + p); if (+process.env.FAKE_DELAY && p !== '/__log') return setTimeout(() => handle(req, res, u, body, p), +process.env.FAKE_DELAY); handle(req, res, u, body, p); });
+}).listen(port, '127.0.0.1', () => console.log('fake google on', port));
+function handle(req, res, u, body, p) { {
     if (p === '/token') { const f = new URLSearchParams(body.toString()); if (f.get('grant_type') === 'authorization_code') { logins++; return send(res, { access_token: 'at' + logins, refresh_token: 'rt' + logins, expires_in: 3600 }); } return send(res, { access_token: 'atr', expires_in: 3600 }); }
     if (p === '/userinfo') { const k = String(logins <= 1 ? 1 : 2); return send(res, { email: 'user' + k + '@gmail.com', name: 'Utilisateur ' + k + ' Test', given_name: 'Utilisateur' + k }); }
     if (p === '/revoke') return send(res, {});
@@ -26,5 +28,4 @@ http.createServer((req, res) => {
     if ((m = /^\/drive\/v3\/files\/(\w+)$/.exec(p)) && u.searchParams.get('alt') === 'media') { const f = files[m[1]]; if (!f) return send(res, { error: { message: 'nf' } }, 404); res.writeHead(200); return res.end(f.data); }
     if (p === '/gmail/v1/users/me/drafts' && req.method === 'POST') { const raw = JSON.parse(body.toString()).message.raw; files['draft' + (++n)] = { name: '__draft', parents: [], data: Buffer.from(raw, 'base64'), mime: 'message/rfc822' }; return send(res, { id: 'd' + n }); }
     send(res, { error: { message: 'inconnu ' + p } }, 404);
-  });
-}).listen(port, '127.0.0.1', () => console.log('fake google on', port));
+} }

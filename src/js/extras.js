@@ -59,4 +59,15 @@
     const div = document.createElement('div'); div.appendChild(sel.getRangeAt(0).cloneContents());
     W.insertHTML('<span style="font-family:' + esc(s.ff) + ';font-size:' + s.fs + ';color:' + s.color + ';font-weight:' + (s.b ? 700 : 400) + ';font-style:' + (s.i ? 'italic' : 'normal') + ';text-decoration:' + (s.u ? 'underline' : 'none') + '">' + div.innerHTML + '</span>');
   };
+
+  /* police par défaut : mémorisée en permanence, change seulement quand on la change (curseur seul ou tout sélectionné) */
+  function applyDefaults() {
+    const f = W.settings.get('defFont', ''), s = W.settings.get('defSize', 0);
+    ed.style.fontFamily = f ? '"' + f + '",Calibri,Carlito,"Segoe UI",Arial,sans-serif' : ''; ed.style.fontSize = s ? s + 'pt' : '';
+  }
+  const wholeDoc = () => { const sel = getSelection(); if (!sel.rangeCount) return false; if (sel.isCollapsed) return true; const t = (sel.toString() || '').replace(/\s+/g, ''); return !!t && t === (ed.textContent || '').replace(/\s+/g, ''); };
+  const SF = document.getElementById('sel-font'), SS = document.getElementById('sel-size');
+  const keep = (el, key, conv) => el.addEventListener('change', () => { const w = wholeDoc(), v = el.value; if (!w) return; W.settings.set(key, conv(v)); applyDefaults(); if (W.paginate) W.paginate(); }, true); // capture : lit la valeur avant la resynchronisation de la barre
+  if (SF) keep(SF, 'defFont', v => v); if (SS) keep(SS, 'defSize', v => parseFloat(v) || 0);
+  applyDefaults(); W.applyDefaults = applyDefaults;
 })();

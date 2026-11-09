@@ -14,8 +14,10 @@ const L = async () => (await fetch('http://127.0.0.1:9400/__log')).json();
   console.log('write', JSON.stringify(await ev(b => electronAPI.xlsxWrite({ path: '/tmp/gtest.xlsx', book: b }), book))); await hub.waitForTimeout(1500);
   const lg = await L(); console.log('drive files', JSON.stringify(Object.values(lg.files).map(f => f.name + ':' + f.size)));
   console.log('status sync', JSON.stringify((await ev(() => electronAPI.googleStatus())).lastSync && { ok: (await ev(() => electronAPI.googleStatus())).lastSync.ok }));
-  // 2e enregistrement = mise à jour (pas de doublon)
+  // 2e enregistrement = mise à jour (pas de doublon, sans recherche)
+  const n0 = (await L()).log.length;
   await ev(b => electronAPI.xlsxWrite({ path: '/tmp/gtest.xlsx', book: b }), book); await hub.waitForTimeout(1200);
+  console.log('requêtes 2e save', JSON.stringify((await L()).log.slice(n0)));
   console.log('after update', JSON.stringify(Object.values((await L()).files).filter(f => f.name === 'gtest.xlsx').length));
   const ls = await ev(() => electronAPI.driveList()); console.log('list', ls.ok, ls.files.map(f => f.name));
   const dl = await ev(f => electronAPI.driveOpen({ id: f.id, name: f.name }), ls.files[0]); console.log('download', dl.ok, dl.ext, fs.existsSync(dl.path) && fs.statSync(dl.path).size > 1000);

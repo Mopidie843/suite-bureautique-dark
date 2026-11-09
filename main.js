@@ -260,14 +260,43 @@ function setupUpdater() {
     setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 8000);
   } catch (e) { /* module absent : pas de mise à jour automatique */ }
 }
-ipcMain.handle('ai:status', () => ({ on: !!aiKey() }));
+/* ----- IA connectée : clé API OU abonnement Claude via Claude Code (CLI officiel installé sur le PC) ----- */
+const { execFile, spawn } = require('child_process');
+let cliCache = null;
+function cliInfo(force) {
+  if (cliCache && !force) return cliCache;
+  return (cliCache = new Promise(res => { try { execFile('claude', ['--version'], { shell: true, windowsHide: true, timeout: 15000 }, (err, out) => res(err ? { installed: false } : { installed: true, version: String(out).trim().split('\n')[0] })); } catch (e) { res({ installed: false }); } }));
+}
+function cliAsk(system, prompt) {
+  return new Promise(resolve => {
+    const dir = path.join(app.getPath('userData'), 'ai-cwd'); try { fs.mkdirSync(dir, { recursive: true }); } catch (e) { /* existe déjà */ }
+    let out = '', err = '', done = false; const fin = r => { if (!done) { done = true; clearTimeout(to); resolve(r); } };
+    let p; try { p = spawn('claude', ['-p', '--output-format', 'text', '--max-turns', '1'], { cwd: dir, shell: true, windowsHide: true }); } catch (e) { return resolve({ ok: false, error: 'Claude Code introuvable.' }); }
+    const to = setTimeout(() => { try { p.kill(); } catch (e) { /* déjà terminé */ } fin({ ok: false, error: 'Délai dépassé (3 min).' }); }, 180000);
+    p.stdout.on('data', d => { out += d; }); p.stderr.on('data', d => { err += d; });
+    p.on('error', e => fin({ ok: false, error: e.message }));
+    p.on('close', code => {
+      const txt = out.trim(), msg = (txt + ' ' + err).toLowerCase();
+      if (code === 0 && txt) return fin({ ok: true, text: txt });
+      if (/log ?in|not logged|authenticat|\/login|oauth|credential/.test(msg)) return fin({ ok: false, error: 'Claude Code n\'est pas connecté : ouvrez le terminal de connexion (bouton dans la fenêtre IA).' });
+      if (/limit|quota|usage/.test(msg)) return fin({ ok: false, error: 'Limite d\'utilisation de votre abonnement atteinte, réessayez plus tard.' });
+      fin({ ok: false, error: (err.trim() || txt || 'Claude Code a échoué (code ' + code + ').').slice(0, 300) });
+    });
+    p.stdin.on('error', () => { /* fermé tôt */ });
+    p.stdin.end((system ? 'Consignes à respecter strictement :\n' + system + '\n\n' : '') + 'Tâche :\n' + prompt + '\n\nRéponds uniquement avec le résultat demandé, sans commentaire ni outils.');
+  });
+}
+ipcMain.handle('ai:status', async () => { const k = !!aiKey(), c = await cliInfo(); return { on: k || c.installed, mode: k ? 'key' : c.installed ? 'cli' : 'off', key: k, cli: !!c.installed, cliVersion: c.version || '' }; });
+ipcMain.handle('ai:cli-test', async () => { const c = await cliInfo(true); if (!c.installed) return { ok: false, installed: false, error: 'Claude Code n\'est pas installé.' }; const r = await cliAsk('', 'Réponds exactement : ok'); return Object.assign({ installed: true }, r); });
+ipcMain.handle('ai:cli-login', () => { try { if (process.platform === 'win32') spawn('cmd.exe', ['/c', 'start', '"Connexion Claude"', 'cmd', '/k', 'claude'], { detached: true, windowsHide: false, stdio: 'ignore' }).unref(); else if (process.platform === 'darwin') spawn('open', ['-a', 'Terminal'], { detached: true, stdio: 'ignore' }).unref(); else spawn('x-terminal-emulator', ['-e', 'claude'], { detached: true, stdio: 'ignore' }).unref(); return { ok: true }; } catch (e) { return { ok: false, error: e.message }; } });
 ipcMain.handle('ai:set-key', (_e, k) => {
   try { k = String(k || '').trim(); if (!k) { try { fs.unlinkSync(keyFile()); } catch (e) { /* absent */ } return { ok: true, on: false }; }
     const { safeStorage } = require('electron'); fs.writeFileSync(keyFile(), safeStorage.isEncryptionAvailable() ? safeStorage.encryptString(k) : Buffer.from(k, 'utf8')); return { ok: true, on: true }; }
   catch (e) { return { ok: false, error: e.message }; }
 });
 ipcMain.handle('ai:ask', async (_e, { system, prompt }) => {
-  const key = aiKey(); if (!key) return { ok: false, error: 'Aucune clé API enregistrée.' };
+  const key = aiKey();
+  if (!key) { const c = await cliInfo(); if (c.installed) return cliAsk(system, prompt); return { ok: false, error: 'Aucune clé API ni Claude Code détecté.' }; }
   try {
     const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 60000);
     const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: AI_MODEL, max_tokens: 2500, system: String(system || '').slice(0, 4000), messages: [{ role: 'user', content: String(prompt || '').slice(0, 20000) }] }) });
