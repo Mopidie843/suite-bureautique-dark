@@ -30,7 +30,8 @@ const write = o => fs.writeFileSync(file(), JSON.stringify(o));
 function client() {
   const g = read();
   if (g.clientId && g.secret) return { id: g.clientId, secret: dec(g.secret), custom: true };
-  try { const d = JSON.parse(fs.readFileSync(path.join(__dirname, 'google-default.json'), 'utf8')); if (d.clientId && d.clientSecret) return { id: d.clientId, secret: d.clientSecret, custom: false }; } catch (e) { /* pas d'identifiants intégrés */ }
+  const cands = [path.join(__dirname, 'google-default.json'), path.join(process.resourcesPath || '', 'google-default.json'), path.join(path.dirname(process.execPath), 'google-default.json'), path.join(app.getPath('userData'), 'google-default.json')];
+  for (const f of cands) { try { const d = JSON.parse(fs.readFileSync(f, 'utf8')); if (d.clientId && d.clientSecret) return { id: d.clientId, secret: d.clientSecret, custom: false }; } catch (e) { /* suivant */ } }
   return null;
 }
 function pub() {

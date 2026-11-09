@@ -53,3 +53,15 @@ COMPTE GOOGLE (3.5)
 - Excel : listes déroulantes dans les cellules (Données), noms définis, protection de feuille, graphiques conservés dans le .xlsx (en image).
 - Word : Révision > Comparer avec… (crée un document qui montre les différences en suivi des modifications).
 - Non fait : onglets multi-documents, groupement d'objets / masque des diapos PowerPoint, animations PowerPoint dans le .pptx.
+
+3.9
+---
+- Connexion Google : plus de formulaire d'identifiants pour l'utilisateur (le développeur place google-default.json à côté de l'application ou via les secrets GitHub).
+- Word : gras / italique / souligné / barré mémorisés comme la police.
+- Word : Révision > Demander à Claude / Connecter Claude (abonnement Claude via Claude Code).
+- Word : plein écran d'écriture (F11, Échap pour sortir).
+- Barres de défilement redessinées.
+- Word : animation d'apparition des lettres à la frappe (Affichage > Anim. frappe pour la couper).
+- Bascule clair/sombre instantanée (plus de délai).
+- Barre d'onglets : indicateur dégradé lumineux qui glisse d'un onglet à l'autre.
+- Petits sons (synthétisés) : clics, onglets, notifications, ouverture de fenêtres, case à cocher ; Sons (accueil) ou Affichage > Sons pour les couper.

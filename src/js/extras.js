@@ -63,12 +63,19 @@
   /* police par défaut : mémorisée en permanence, change seulement quand on la change (curseur seul ou tout sélectionné) */
   function applyDefaults() {
     const f = W.settings.get('defFont', ''), s = W.settings.get('defSize', 0);
+    const fm = W.settings.get('defFmt', {}) || {};
+    ed.style.fontWeight = fm.b ? '700' : ''; ed.style.fontStyle = fm.i ? 'italic' : ''; ed.style.textDecoration = (fm.u || fm.s) ? ((fm.u ? 'underline ' : '') + (fm.s ? 'line-through' : '')).trim() : '';
     ed.style.fontFamily = f ? '"' + f + '",Calibri,Carlito,"Segoe UI",Arial,sans-serif' : ''; ed.style.fontSize = s ? s + 'pt' : '';
   }
   const wholeDoc = () => { const sel = getSelection(); if (!sel.rangeCount) return false; if (sel.isCollapsed) return true; const t = (sel.toString() || '').replace(/\s+/g, ''); return !!t && t === (ed.textContent || '').replace(/\s+/g, ''); };
   const SF = document.getElementById('sel-font'), SS = document.getElementById('sel-size');
   const keep = (el, key, conv) => el.addEventListener('change', () => { const w = wholeDoc(), v = el.value; if (!w) return; W.settings.set(key, conv(v)); applyDefaults(); if (W.paginate) W.paginate(); }, true); // capture : lit la valeur avant la resynchronisation de la barre
   if (SF) keep(SF, 'defFont', v => v); if (SS) keep(SS, 'defSize', v => parseFloat(v) || 0);
+  /* gras / italique / souligné / barré : même logique que la police (mémorisés tant qu'on ne les change pas) */
+  [['bold', 'b'], ['italic', 'i'], ['underline', 'u'], ['strike', 's']].forEach(([act, k]) => {
+    const btn = document.querySelector('[data-act="' + act + '"]'); if (!btn) return;
+    btn.addEventListener('click', () => { const w = wholeDoc(); setTimeout(() => { if (!w) return; const q = { b: 'bold', i: 'italic', u: 'underline', s: 'strikeThrough' }[k]; const fm = Object.assign({}, W.settings.get('defFmt', {})); fm[k] = document.queryCommandState(q); W.settings.set('defFmt', fm); applyDefaults(); }, 0); }, true);
+  });
   applyDefaults(); W.applyDefaults = applyDefaults;
 
   /* ---- comparer avec un autre document : crée un nouveau document avec les différences en suivi des modifications ---- */

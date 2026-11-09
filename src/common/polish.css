@@ -1,8 +1,6 @@
 /* ===== Habillage Nocte : verre, lueurs, dégradés, animations douces ===== */
 :root{--nx-accent:#6aa7ff;--nx-ease:cubic-bezier(.2,.8,.2,1)}
 ::selection{background:rgba(106,167,255,.35)}
-*{scrollbar-width:thin;scrollbar-color:rgba(130,150,190,.45) transparent}
-::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(130,150,190,.4);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-thumb:hover{background:rgba(130,150,190,.7);background-clip:padding-box;border:2px solid transparent}
 :focus-visible{outline:2px solid var(--nx-accent);outline-offset:2px;border-radius:6px}
 button,.btn,.tool,.office-select,select,input[type=text],input[type=password],textarea{border-radius:7px}
 /* fenêtres de dialogue : verre dépoli */
@@ -47,3 +45,24 @@ body:not(.look-word) .tile{background:linear-gradient(160deg,rgba(60,66,84,.55),
 #status,.status-bar{backdrop-filter:blur(6px)}
 .stab{border-radius:8px 8px 0 0}
 .thumb{border-radius:8px;transition:transform .25s var(--nx-ease),box-shadow .25s}
+
+/* barres de défilement : fines, arrondies, sans flèches, qui grossissent au survol */
+::-webkit-scrollbar{width:12px;height:12px;background:transparent}
+::-webkit-scrollbar-button{display:none;width:0;height:0}
+::-webkit-scrollbar-corner{background:transparent}
+::-webkit-scrollbar-track{background:rgba(130,150,190,.08);border-radius:10px;margin:2px}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8fa3d8,#6f86c9);border-radius:10px;border:3px solid transparent;background-clip:padding-box;min-width:40px;min-height:40px;transition:background .2s}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#a9b9ea,#869bdc);background-clip:padding-box;border:2px solid transparent}
+::-webkit-scrollbar-thumb:active{background:#5d77c4;background-clip:padding-box;border:2px solid transparent}
+/* plein écran d'écriture (Word) */
+body.zen #titlebar,body.zen #ribbon-tabs,body.zen #ribbon,body.zen #statusbar{display:none!important}
+body.zen #workspace{height:100vh!important;top:0!important}
+
+/* indicateur d'onglet animé (remplace le trait fixe) */
+.ribbon-tab::after{display:none!important}
+.tab-ind{position:absolute;left:0;bottom:1px;height:3px;width:0;border-radius:3px;pointer-events:none;background:linear-gradient(90deg,#6aa7ff,#b48cff,#ff8fd0,#6aa7ff);background-size:200% 100%;box-shadow:0 0 10px rgba(140,150,255,.8),0 0 22px rgba(180,140,255,.45);transition:transform .45s cubic-bezier(.3,1.35,.4,1),width .45s cubic-bezier(.3,1.35,.4,1),opacity .2s;animation:tabFlow 3s linear infinite;z-index:3}
+.tab-ind.go{animation:tabFlow 3s linear infinite,tabStretch .45s ease-out}
+@keyframes tabFlow{to{background-position:200% 0}}
+@keyframes tabStretch{0%{height:3px}40%{height:5px;filter:brightness(1.4)}100%{height:3px}}
+.ribbon-tab.active{text-shadow:0 0 12px rgba(140,160,255,.45)}
+@media (prefers-reduced-motion:reduce){.tab-ind{animation:none}}

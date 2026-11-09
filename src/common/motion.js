@@ -10,7 +10,7 @@
   }, true);
   document.addEventListener('click', e => {
     if (!e.target.closest('[data-act="toggleLook"],#btn-look')) return;
-    document.body.classList.add('look-switching'); setTimeout(() => document.body.classList.remove('look-switching'), 700);
+    document.body.classList.add('look-switching'); setTimeout(() => document.body.classList.remove('look-switching'), 250);
   }, true);
   const obs = new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.classList && n.classList.contains('toast')) setTimeout(() => n.classList.add('out'), 2800); })));
   const th = () => { const h = document.getElementById('toast-host'); if (h) obs.observe(h, { childList: true }); else setTimeout(th, 500); }; th();

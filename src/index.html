@@ -266,6 +266,11 @@
 
   <!-- RÉVISION -->
   <div class="ribbon-panel hidden" id="ribbon-revision">
+    <div class="group" data-label="Claude">
+      <div class="btn big" data-act="claude"><i class="fa-solid fa-wand-magic-sparkles c-orange"></i><span>Demander à Claude</span></div>
+      <div class="btn big" data-act="claudeConnect"><i class="fa-solid fa-plug c-green"></i><span>Connecter Claude</span></div>
+    </div>
+    <div class="divider"></div>
     <div class="group" data-label="Vérification">
       <div class="btn big" data-act="spell" id="btn-spell"><i class="fa-solid fa-spell-check c-green"></i><span>Orthographe</span></div>
       <div class="group col">
@@ -307,6 +312,9 @@
   <!-- AFFICHAGE -->
   <div class="ribbon-panel hidden" id="ribbon-affichage">
     <div class="group" data-label="Affichage">
+      <div class="btn big" data-act="typeAnim" title="Animation d'apparition des lettres"><i class="fa-solid fa-wand-sparkles c-orange"></i><span>Anim. frappe</span></div>
+      <div class="btn big" data-act="soundToggle" title="Activer / couper les sons"><i class="fa-solid fa-volume-high c-green"></i><span>Sons</span></div>
+      <div class="btn big" data-act="zen" title="Plein écran pour écrire (F11)"><i class="fa-solid fa-expand c-purple"></i><span>Plein écran</span></div>
       <div class="btn big" data-act="viewPrint"><i class="fa-regular fa-file-lines c-blue"></i><span>Mode page</span></div>
       <div class="btn big" data-act="viewWeb"><i class="fa-solid fa-globe c-green"></i><span>Disposition Web</span></div>
     </div>
@@ -389,6 +397,7 @@
   <div class="sb-right">
     <div class="sb-views">
       <button data-act="focus" title="Mode Focus"><i class="fa-solid fa-maximize"></i><span class="hide-sm"> Focus</span></button>
+      <button data-act="zen" title="Plein écran (F11)"><i class="fa-solid fa-expand"></i></button>
       <button data-act="viewPrint" id="sb-print" title="Mode page"><i class="fa-solid fa-file-lines"></i></button>
       <button data-act="viewWeb" id="sb-web" title="Disposition Web"><i class="fa-solid fa-globe"></i></button>
     </div>
@@ -496,8 +505,10 @@
 <script src="common/templates.js"></script>
 <script src="js/objects.js"></script>
 <script src="js/extras.js"></script>
+<script src="js/claude.js"></script>
 <script src="js/main.js"></script>
 <script src="common/motion.js"></script>
+<script src="common/sound.js"></script>
 <script src="common/palette.js"></script>
 </body>
 </html>

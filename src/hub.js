@@ -22,8 +22,14 @@
   try { const c = A.settings.get('gcache', null); if (c && c.user) setAcc({ user: c.user, lock: c.lock }); } catch (e) { /* cache facultatif */ }
   async function configGoogle(cur) {
     const body = document.createElement('div');
-    body.innerHTML = '<p style="margin-top:0">Cette version n\'a pas d\'identifiants Google intégrés. Créez-les gratuitement (une seule fois) :</p><ol style="padding-left:18px;line-height:1.6"><li>Ouvrez <b>console.cloud.google.com</b> › nouveau projet, et activez les API <b>Google Drive</b> et <b>Gmail</b>.</li><li><b>Écran de consentement</b> : type « Externe », ajoutez votre adresse comme utilisateur test.</li><li><b>Identifiants › Créer › ID client OAuth</b> : type <b>Application de bureau</b>.</li><li>Copiez l\'ID client et le code secret ci-dessous.</li></ol><label class="field">ID client<input type="text" id="g-id" value="' + esc(cur.clientId || '') + '"></label><label class="field">Code secret du client<input type="password" id="g-sec" placeholder="' + (cur.clientId ? '(déjà enregistré)' : '') + '"></label>';
-    const r = await A.dialog({ title: 'Identifiants Google', width: 540, body, buttons: [{ label: 'Annuler', value: null }, { label: 'Enregistrer', primary: true, collect: b => ({ clientId: b.querySelector('#g-id').value, clientSecret: b.querySelector('#g-sec').value }) }] });
+    body.innerHTML = '<p style="margin-top:0">La connexion Google n\'est pas encore activée dans cette version de Nocte.</p><p class="muted">Elle sera disponible dans une prochaine mise à jour : il suffira de cliquer sur « Se connecter avec Google » et de choisir votre compte Gmail, sans rien configurer.</p>';
+    const r = await A.dialog({ title: 'Connexion Google', width: 460, body, buttons: [{ label: 'Fermer', primary: true, value: null }, { label: 'Je suis le développeur…', value: 'dev' }] });
+    if (r !== 'dev') return false; return configGoogleDev(cur);
+  }
+  async function configGoogleDev(cur) {
+    const body = document.createElement('div');
+    body.innerHTML = '<p style="margin-top:0">Réservé au développeur : collez l\'ID client OAuth (type « Application de bureau ») créé sur console.cloud.google.com. Pour que tout le monde se connecte sans rien saisir, placez plutôt un fichier <b>google-default.json</b> à côté de l\'application (ou via les secrets GitHub).</p><label class="field">ID client<input type="text" id="g-id" value="' + esc(cur.clientId || '') + '"></label><label class="field">Code secret du client<input type="password" id="g-sec"></label>';
+    const r = await A.dialog({ title: 'Identifiants Google (développeur)', width: 540, body, buttons: [{ label: 'Annuler', value: null }, { label: 'Enregistrer', primary: true, collect: b => ({ clientId: b.querySelector('#g-id').value, clientSecret: b.querySelector('#g-sec').value }) }] });
     if (!r) return false; const s = await api.googleConfig(r); setAcc(s); return s.configured;
   }
   const settingsObj = () => { const o = {}; SYNC_KEYS.forEach(k => { const v = A.settings.get(k, undefined); if (v !== undefined) o[k] = v; }); return o; };
@@ -41,7 +47,7 @@
       + '<button type="button" class="mini big" id="acc-add"><i class="fa-solid fa-plus"></i> Ajouter un compte Google</button>'
       + (s.user ? '<label class="chk"><input type="checkbox" id="o-sync"' + (s.driveSync ? ' checked' : '') + '> Enregistrer une copie de chaque document dans mon Google Drive (dossier « Nocte »)</label><label class="chk"><input type="checkbox" id="o-lock"' + (s.lock ? ' checked' : '') + '> Verrouiller l\'application tant qu\'aucun compte n\'est connecté</label>'
         + '<div class="muted" style="margin-top:8px">' + (s.lastSync ? 'Dernière copie : ' + esc(s.lastSync.name) + (s.lastSync.ok ? ' ✓' : ' ✗ ' + esc(s.lastSync.error || '')) : 'Aucune copie envoyée pour l\'instant.') + '</div>' : '')
-      + '<div class="muted" style="margin-top:6px"><a href="#" id="acc-cfg">Identifiants Google…</a></div>';
+      + '<div class="muted" style="margin-top:6px"><a href="#" id="acc-cfg">Développeur…</a></div>';
     const r = await A.dialog({ title: 'Comptes Google', width: 520, body, buttons: [{ label: 'Fermer', primary: true, collect: b => ({ sync: b.querySelector('#o-sync') && b.querySelector('#o-sync').checked, lock: b.querySelector('#o-lock') && b.querySelector('#o-lock').checked }) }],
       onOpen: (b, fin) => {
         b.querySelectorAll('[data-sw]').forEach(x => x.onclick = async () => { setAcc(await api.googleSwitch(x.dataset.sw)); await pullSettings(); fin({ again: true }); });
@@ -49,7 +55,7 @@
         b.querySelector('#acc-add').onclick = () => fin({ add: true }); b.querySelector('#acc-cfg').onclick = e => { e.preventDefault(); fin({ cfg: true }); };
       } });
     if (!r) return;
-    if (r.again) return accountPanel(); if (r.add) return addAccount(); if (r.cfg) { await configGoogle(s); return; }
+    if (r.again) return accountPanel(); if (r.add) return addAccount(); if (r.cfg) { await configGoogleDev(s); return; }
     if (s.user && r.sync !== undefined && r.sync !== null) { setAcc(await api.googleSet({ driveSync: r.sync, lock: r.lock })); if (r.sync) await api.settingsPush(settingsObj()); }
   }
   $('#btn-account').addEventListener('click', async () => {

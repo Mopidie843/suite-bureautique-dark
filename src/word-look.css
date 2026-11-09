@@ -6,9 +6,6 @@ body.look-word{
   background:#e6e6e6;color:#262626;
   font-family:'Segoe UI','Segoe UI Variable',Inter,-apple-system,Roboto,Arial,sans-serif;
 }
-.look-word ::-webkit-scrollbar-track{background:#f0f0f0}
-.look-word ::-webkit-scrollbar-thumb{background:#c1c1c1;border:2px solid #f0f0f0}
-.look-word ::-webkit-scrollbar-thumb:hover{background:#a0a0a0}
 
 /* couleurs d'icônes adaptées au fond clair */
 .look-word .c-yellow{color:#d19a00}.look-word .c-blue{color:#2b6cb8}.look-word .c-green{color:#2f8f46}.look-word .c-red{color:#d13438}
@@ -162,5 +159,5 @@ body.look-word{
 
 .look-word .bs-side i,.look-word .bs-side .c-blue,.look-word .bs-side .c-green,.look-word .bs-side .c-purple,.look-word .bs-side .c-yellow,.look-word .bs-side .c-red,.look-word .bs-side .c-gray,.look-word .bs-side .c-orange,.look-word .bs-side .c-pink{color:#fff}
 .look-word .tpl .th{height:170px}
-.look-word #ribbon::-webkit-scrollbar{height:6px}
-.look-word #ribbon::-webkit-scrollbar-thumb{border:0;border-radius:3px}
+.look-word #ribbon::-webkit-scrollbar{height:8px}
+.look-word #ribbon::-webkit-scrollbar-thumb{border-width:2px}
