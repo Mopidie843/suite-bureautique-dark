@@ -45,3 +45,11 @@ COMPTE GOOGLE (3.5)
 - Police et taille par défaut dans Word : mémorisées en permanence (curseur seul ou tout le texte sélectionné), aussi pour l'export .docx. PowerPoint : la dernière police choisie est utilisée pour les nouveaux textes.
 - IA : Claude via votre abonnement Pro/Max grâce à Claude Code installé sur le PC (aucune clé API). Fenêtre IA de PowerPoint > « Me connecter » puis « Tester mon abonnement ».
 - Google plus rapide : copie vers Drive en arrière-plan et regroupée, identifiants de fichiers mémorisés (1 requête au lieu de 2), liste Drive en cache 60 s, fichiers Drive déjà téléchargés non retéléchargés, dossier préparé dès la connexion, bouton de compte affiché instantanément.
+
+3.8
+---
+- Nouveau nom : Nocte. Nouvelle icône (lune) et nouvel installateur.
+- Habillage : verre dépoli, lueurs, dégradés, animations de l'accueil, trait animé sous les onglets ; icônes colorées dans tous les thèmes.
+- Excel : listes déroulantes dans les cellules (Données), noms définis, protection de feuille, graphiques conservés dans le .xlsx (en image).
+- Word : Révision > Comparer avec… (crée un document qui montre les différences en suivi des modifications).
+- Non fait : onglets multi-documents, groupement d'objets / masque des diapos PowerPoint, animations PowerPoint dans le .pptx.

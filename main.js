@@ -159,7 +159,11 @@ async function xlsxBuild(book) {
       if (s.al || s.wrap) cell.alignment = { horizontal: s.al || undefined, wrapText: !!s.wrap };
       if (s.bd) { const b = { style: 'thin', color: { argb: 'FF000000' } }; cell.border = { top: b, left: b, bottom: b, right: b }; }
     }
+    for (const g of (sh.dv || [])) { const f = ['"' + g.list.map(v => String(v).replace(/"/g, '""').replace(/,/g, ' ')).join(',') + '"']; let n = 0; for (let r = g.r0; r <= g.r1 && n < 5000; r++) for (let c = g.c0; c <= g.c1 && n < 5000; c++, n++) ws.getCell(r + 1, c + 1).dataValidation = { type: 'list', allowBlank: true, showErrorMessage: true, formulae: f }; }
+    if (sh.prot) { try { await ws.protect('', { selectLockedCells: true, selectUnlockedCells: true }); } catch (e) { /* protection ignorée */ } }
   }
+  for (const im of (book.images || [])) { try { const id = wb.addImage({ base64: im.png, extension: 'png' }); wb.worksheets[im.sheet].addImage(id, { tl: { col: im.col, row: im.row }, ext: { width: im.w, height: im.h } }); } catch (e) { /* image ignorée */ } }
+  for (const [n, ref] of Object.entries(book.names || {})) { try { wb.definedNames.add(String(ref).replace(/(\$?)([A-Z]+)(\$?)(\d+)/g, '$$$2$$$4'), n); } catch (e) { /* nom ignoré */ } }
   return Buffer.from(await wb.xlsx.writeBuffer());
 }
 function nfBack(f) {
@@ -193,13 +197,16 @@ async function xlsxParse(bytes) {
     const A1 = k => { const q = /^([A-Z]+)(\d+)$/.exec(k); if (!q) return null; let c = 0; for (const ch of q[1]) c = c * 26 + ch.charCodeAt(0) - 64; return { c: c - 1, r: +q[2] - 1 }; };
     const merges = ((ws.model && ws.model.merges) || []).map(x => { const [a, b] = String(x).split(':'), p = A1(a), q = A1(b || a); return p && q ? { r0: p.r, c0: p.c, r1: q.r, c1: q.c } : null; }).filter(g => g && g.r1 < 2000 && g.c1 < 26 && (g.r1 > g.r0 || g.c1 > g.c0));
     const vw = ws.views && ws.views[0], freeze = vw && vw.state === 'frozen' ? { r: vw.ySplit || 0, c: vw.xSplit || 0 } : undefined;
-    sheets.push({ name: ws.name, cells, colW, merges, freeze });
+    const dv = [], dvm = (ws.dataValidations && ws.dataValidations.model) || {};
+    Object.entries(dvm).forEach(([k, d]) => { if (!d || d.type !== 'list' || !d.formulae || !/^"/.test(d.formulae[0] || '')) return; const q = k.split(':'), p = A1(q[0]), p2 = A1(q[1] || q[0]); if (!p || !p2) return; const list = d.formulae[0].replace(/^"|"$/g, '').split(',').map(s => s.trim()).filter(Boolean); if (list.length && !dv.some(g => g.r0 === p.r && g.c0 === p.c && g.r1 === p2.r && g.c1 === p2.c)) dv.push({ r0: p.r, c0: p.c, r1: p2.r, c1: p2.c, list }); });
+    sheets.push({ name: ws.name, cells, colW, merges, freeze, dv: dv.slice(0, 200), prot: !!(ws.sheetProtection && ws.sheetProtection.sheet) });
   });
+  try { const nm = {}; ((wb.definedNames && wb.definedNames.model) || []).forEach(d => { if (d.name && d.ranges && d.ranges[0] && /^[A-Za-zÀ-ÿ_][\wÀ-ÿ.]*$/.test(d.name)) nm[d.name] = String(d.ranges[0]).replace(/\$/g, ''); }); sheets.names = nm; } catch (e) { sheets.names = {}; }
   return sheets;
 }
 ipcMain.handle('versions:open', async () => { const d = path.join(app.getPath('userData'), 'versions'); await fsp.mkdir(d, { recursive: true }); shell.openPath(d); return d; });
 ipcMain.handle('xlsx:write', async (_e, { path: p, book }) => { try { await writeAtomic(p, await xlsxBuild(book)); return { ok: true }; } catch (e) { return { ok: false, error: e.message }; } });
-ipcMain.handle('xlsx:parse', async (_e, bytes) => { try { return { ok: true, sheets: await xlsxParse(bytes) }; } catch (e) { return { ok: false, error: e.message }; } });
+ipcMain.handle('xlsx:parse', async (_e, bytes) => { try { { const sh = await xlsxParse(bytes); return { ok: true, sheets: sh, names: sh.names || {} }; } } catch (e) { return { ok: false, error: e.message }; } });
 
 /* ----- PowerPoint (pptxgenjs) ----- */
 async function pptxBuild(deck) {

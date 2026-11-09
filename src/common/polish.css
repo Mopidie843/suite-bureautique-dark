@@ -1,0 +1,49 @@
+/* ===== Habillage Nocte : verre, lueurs, dégradés, animations douces ===== */
+:root{--nx-accent:#6aa7ff;--nx-ease:cubic-bezier(.2,.8,.2,1)}
+::selection{background:rgba(106,167,255,.35)}
+*{scrollbar-width:thin;scrollbar-color:rgba(130,150,190,.45) transparent}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(130,150,190,.4);border-radius:8px;border:2px solid transparent;background-clip:padding-box}::-webkit-scrollbar-thumb:hover{background:rgba(130,150,190,.7);background-clip:padding-box;border:2px solid transparent}
+:focus-visible{outline:2px solid var(--nx-accent);outline-offset:2px;border-radius:6px}
+button,.btn,.tool,.office-select,select,input[type=text],input[type=password],textarea{border-radius:7px}
+/* fenêtres de dialogue : verre dépoli */
+.dlg-back,.modal-back,#dlg-back{backdrop-filter:blur(6px) saturate(1.1);-webkit-backdrop-filter:blur(6px) saturate(1.1);animation:mFade .2s backwards}
+.dlg,.dialog,.modal{border-radius:14px!important;box-shadow:0 24px 70px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06)!important}
+.toast{border-radius:12px!important;backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,.35)!important}
+/* ruban : trait animé sous l'onglet actif, boutons en verre */
+.ribbon-tab{position:relative;border-bottom-color:transparent!important;border-radius:8px 8px 0 0}
+.ribbon-tab::after{content:"";position:absolute;left:12%;right:12%;bottom:0;height:3px;border-radius:3px;background:linear-gradient(90deg,#6aa7ff,#b48cff);transform:scaleX(0);transition:transform .35s var(--nx-ease)}
+.ribbon-tab.active::after{transform:scaleX(1)}.ribbon-tab:hover:not(.active)::after{transform:scaleX(.45);opacity:.6}
+.btn:hover,.tool:hover{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05))!important;box-shadow:0 6px 16px rgba(0,0,0,.25),inset 0 0 0 1px rgba(255,255,255,.08)!important}
+.group{transition:background-color .3s}.group:hover{background:rgba(255,255,255,.03)}
+/* ===== Accueil ===== */
+body.hub{position:relative}
+.hub-side{background:linear-gradient(185deg,#10162a 0%,#1d2f63 100%)!important;box-shadow:6px 0 30px rgba(10,16,40,.35);z-index:2}
+body.look-word .hub-side{background:linear-gradient(185deg,#1a2c5c 0%,#2b579a 100%)!important}
+.brand-logo{animation:mFloat 5s ease-in-out infinite}
+.hub-nav{position:relative;border-radius:10px;transition:background-color .25s,transform .25s var(--nx-ease),padding .25s var(--nx-ease)}
+.hub-nav::before{content:"";position:absolute;left:0;top:22%;bottom:22%;width:3px;border-radius:3px;background:#8fc0ff;transform:scaleY(0);transition:transform .3s var(--nx-ease)}
+.hub-nav:hover{transform:translateX(4px)}.hub-nav:hover::before,.hub-nav.on::before{transform:scaleY(1)}
+.hub-main{position:relative;background:radial-gradient(900px 420px at 85% -10%,rgba(106,167,255,.18),transparent 60%),radial-gradient(700px 380px at 0% 110%,rgba(180,140,255,.13),transparent 60%),#fff}
+body:not(.look-word) .hub-main{background:radial-gradient(900px 420px at 85% -10%,rgba(106,167,255,.16),transparent 60%),radial-gradient(700px 380px at 0% 110%,rgba(180,140,255,.12),transparent 60%),#16181d}
+@keyframes nxAurora{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.hub-main h1{font-weight:600;font-size:36px;letter-spacing:-.01em;background:linear-gradient(90deg,#4d8dff,#b48cff,#4d8dff);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:nxAurora 8s ease-in-out infinite,mFadeUp .6s backwards}
+.hub-main h2{animation:mFadeUp .5s backwards}
+.tile{border-radius:16px!important;border:1px solid rgba(120,140,190,.25)!important;background:linear-gradient(160deg,rgba(255,255,255,.75),rgba(235,240,252,.55))!important;backdrop-filter:blur(8px);position:relative;overflow:hidden;transition:transform .35s var(--nx-ease),box-shadow .35s,border-color .3s!important}
+body:not(.look-word) .tile{background:linear-gradient(160deg,rgba(60,66,84,.55),rgba(34,38,50,.55))!important}
+.tile::after{content:"";position:absolute;inset:-40%;background:radial-gradient(circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.35),transparent 45%);opacity:0;transition:opacity .35s;pointer-events:none}
+.tile:hover::after{opacity:1}
+.tile:hover{transform:translateY(-6px) scale(1.02)!important;box-shadow:0 18px 40px rgba(30,60,140,.28)!important}
+.tile.word:hover{box-shadow:0 18px 40px rgba(43,87,154,.4)!important}.tile.excel:hover{box-shadow:0 18px 40px rgba(33,115,70,.4)!important}.tile.ppt:hover{box-shadow:0 18px 40px rgba(183,71,42,.4)!important}
+.tile i{transition:transform .5s cubic-bezier(.3,1.6,.5,1)}.tile:hover i{transform:scale(1.15) rotate(-8deg)}
+.tile{animation:mGrow .55s var(--nx-ease) backwards}.tile:nth-child(2){animation-delay:.08s}.tile:nth-child(3){animation-delay:.16s}
+.tpl-card{border-radius:12px!important;transition:transform .3s var(--nx-ease),box-shadow .3s!important;animation:mFadeUp .5s var(--nx-ease) backwards}
+.tpl-card:nth-child(1){animation-delay:.05s}.tpl-card:nth-child(2){animation-delay:.1s}.tpl-card:nth-child(3){animation-delay:.15s}.tpl-card:nth-child(4){animation-delay:.2s}.tpl-card:nth-child(5){animation-delay:.25s}.tpl-card:nth-child(6){animation-delay:.3s}.tpl-card:nth-child(n+7){animation-delay:.35s}
+.tpl-card:hover{transform:translateY(-5px) scale(1.03)!important}
+.recent-box{border-radius:14px!important;box-shadow:0 6px 24px rgba(20,30,70,.08)}
+.recent-box tr{transition:background-color .2s,transform .2s}.recent-box tr:hover td{background:rgba(106,167,255,.14)!important}
+.drive-it,.acc-row{transition:transform .25s var(--nx-ease),background-color .2s,border-color .2s}.drive-it:hover,.acc-row:hover{transform:translateX(3px)}
+#lock{backdrop-filter:blur(14px)}
+/* ===== Applications : barre d'état, feuilles, miniatures ===== */
+#status,.status-bar{backdrop-filter:blur(6px)}
+.stab{border-radius:8px 8px 0 0}
+.thumb{border-radius:8px;transition:transform .25s var(--nx-ease),box-shadow .25s}

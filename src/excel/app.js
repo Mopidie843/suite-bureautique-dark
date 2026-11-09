@@ -94,11 +94,13 @@
     const c = cellAt(act.c, act.r), s = (c && c.s) || {};
     $('#t-bold').classList.toggle('on', !!s.b); $('#t-italic').classList.toggle('on', !!s.i); $('#t-underline').classList.toggle('on', !!s.u); $('#t-wrap').classList.toggle('on', !!s.wrap); $('#t-borders').classList.toggle('on', !!s.bd);
     $('#sel-nf').value = s.nf || 'g'; $('#sel-size').value = String(s.sz || 11);
+    if (window.XLX && XLX.onSel) XLX.onSel();
   }
 
   /* ---------- Modèle : modifications, annuler/rétablir, sauvegarde ---------- */
   const snap = () => JSON.stringify({ s: wb.sheets, cur: wb.cur });
   function mutate(fn, opt) {
+    if (sh().prot && !(opt && opt.force)) { A.toast('Feuille protégée : retirez la protection (Données > Déprotéger) pour modifier.', 'err'); return; }
     stopEdit(true);
     undoStack.push(snap()); if (undoStack.length > 100) undoStack.shift(); redoStack = [];
     fn(); afterChange(opt);
@@ -125,6 +127,7 @@
     return { v: txt };
   }
   function setRaw(c, r, txt) {
+    if (window.XLX && XLX.dvCheck && !XLX.dvCheck(c, r, txt)) return;
     const k = E.key(c, r), cell = sh().cells[k], p = parseInput(txt, cell);
     if (p.v === '' && !(cell && cell.s)) { delete sh().cells[k]; return; }
     const n = cell || (sh().cells[k] = {}); n.v = p.v; if (p.nf && (!n.s || !n.s.nf)) { n.s = Object.assign({}, n.s, { nf: p.nf }, p.dp != null ? { dp: p.dp } : {}); }
@@ -346,7 +349,7 @@
 
   /* ---------- Fichiers ---------- */
   function exportPayload() {
-    return { title: wb.title, sheets: wb.sheets.map((s, si) => { calc = new E.Calc(wb); return { name: s.name, colW: s.colW, merges: s.merges || [], freeze: s.freeze, cells: Object.keys(s.cells).filter(k => s.cells[k].v !== '' || s.cells[k].s).map(k => { const c = s.cells[k], isF = typeof c.v === 'string' && c.v[0] === '='; let res = null; if (isF) { const v = calc.value(si, k); res = v instanceof Error ? E.errText(v) : v; } return { k, v: c.v, s: c.s || null, res }; }) }; }) };
+    return { title: wb.title, names: wb.names || {}, sheets: wb.sheets.map((s, si) => { calc = new E.Calc(wb); return { name: s.name, colW: s.colW, merges: s.merges || [], freeze: s.freeze, dv: s.dv || [], prot: !!s.prot, cells: Object.keys(s.cells).filter(k => s.cells[k].v !== '' || s.cells[k].s).map(k => { const c = s.cells[k], isF = typeof c.v === 'string' && c.v[0] === '='; let res = null; if (isF) { const v = calc.value(si, k); res = v instanceof Error ? E.errText(v) : v; } return { k, v: c.v, s: c.s || null, res }; }) }; }) };
   }
   const csvCell = t => /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
   function toCSV() { const g = usedRange(); const rows = []; for (let r = 0; r <= g.r; r++) { const row = []; for (let c = 0; c <= g.c; c++) row.push(csvCell(display(calc.value(wb.cur, E.key(c, r)), (cellAt(c, r) || {}).s))); rows.push(row.join(';')); } return '﻿' + rows.join('\r\n'); }
@@ -361,7 +364,8 @@
     if (!api) { A.toast('L\'enregistrement .xlsx nécessite l\'application Windows ; une copie est conservée dans la bibliothèque.'); await doSave(); setBadge('saved'); return false; }
     let path = saveAs ? null : wb.path;
     if (!path) { const r = await api.pickSavePath({ defaultName: A.safeName(wb.title) + '.xlsx', filters: [{ name: 'Classeur Excel', extensions: ['xlsx'] }] }); if (!r || r.canceled) return false; path = /\.xlsx$/i.test(r.path) ? r.path : r.path + '.xlsx'; }
-    const res = await api.xlsxWrite({ path, book: exportPayload() });
+    const book = exportPayload(); try { book.images = window.XLX && XLX.chartImages ? await XLX.chartImages() : []; } catch (e) { book.images = []; }
+    const res = await api.xlsxWrite({ path, book });
     if (!res || !res.ok) { A.toast('Échec de l\'enregistrement : ' + (res && res.error), 'err'); return false; }
     wb.path = path; wb.title = A.baseName(path); $('#doc-title').value = wb.title; document.title = wb.title + ' - Nocte Excel'; await doSave(); dirty = false; setBadge('saved'); A.toast('Enregistré : ' + path.replace(/^.*[\\/]/, ''), 'ok'); return true;
   };
@@ -371,7 +375,7 @@
   async function openFile(f) {
     const ext = (f.ext || '').toLowerCase(); let b;
     try {
-      if (ext === 'xlsx') { const r = await api.xlsxParse(f.bytes); if (!r.ok) throw new Error(r.error); b = Object.assign(newBook(), { title: A.baseName(f.name), path: f.path || null, sheets: r.sheets.map(s => ({ name: s.name, cells: s.cells, colW: s.colW || {}, rowH: {}, merges: s.merges || [], freeze: s.freeze })), cur: 0 }); }
+      if (ext === 'xlsx') { const r = await api.xlsxParse(f.bytes); if (!r.ok) throw new Error(r.error); b = Object.assign(newBook(), { title: A.baseName(f.name), path: f.path || null, sheets: r.sheets.map(s => ({ name: s.name, cells: s.cells, colW: s.colW || {}, rowH: {}, merges: s.merges || [], freeze: s.freeze, dv: s.dv || [], prot: !!s.prot })), names: r.names || {}, cur: 0 }); }
       else if (ext === 'csv' || ext === 'txt') { const text = typeof f.text === 'string' ? f.text : new TextDecoder().decode(f.bytes); const rows = parseCsv(text); const s = newSheet('Feuil1'); rows.forEach((row, r) => row.forEach((t, c) => { if (c < COLS && t !== '') { const p = parseInput(t); s.cells[E.key(c, r)] = { v: p.v, ...(p.nf ? { s: { nf: p.nf } } : {}) }; } })); b = Object.assign(newBook(), { title: A.baseName(f.name), sheets: [s] }); }
       else throw new Error('format non pris en charge');
     } catch (e) { A.toast('Impossible d\'ouvrir : ' + e.message, 'err'); return; }

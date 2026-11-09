@@ -70,4 +70,31 @@
   const keep = (el, key, conv) => el.addEventListener('change', () => { const w = wholeDoc(), v = el.value; if (!w) return; W.settings.set(key, conv(v)); applyDefaults(); if (W.paginate) W.paginate(); }, true); // capture : lit la valeur avant la resynchronisation de la barre
   if (SF) keep(SF, 'defFont', v => v); if (SS) keep(SS, 'defSize', v => parseFloat(v) || 0);
   applyDefaults(); W.applyDefaults = applyDefaults;
+
+  /* ---- comparer avec un autre document : crée un nouveau document avec les différences en suivi des modifications ---- */
+  const blocksOf = html => { const d = document.createElement('div'); d.innerHTML = html; const out = []; d.querySelectorAll('p,h1,h2,h3,h4,h5,h6,li,td,th').forEach(e => { if (e.querySelector('p,h1,h2,h3,h4,h5,h6,li')) return; const t = (e.textContent || '').replace(/\s+/g, ' ').trim(); if (t) out.push({ tag: /^(h[1-6])$/i.test(e.tagName) ? e.tagName.toLowerCase() : 'p', text: t }); }); return out; };
+  function lcs(a, b, eq) { const n = a.length, m = b.length, L = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1)); for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = eq(a[i], b[j]) ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]); const out = []; let i = 0, j = 0; while (i < n && j < m) { if (eq(a[i], b[j])) { out.push([i, j]); i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++; } return out; }
+  const wordDiff = (a, b) => { const A = a.split(/(\s+)/).filter(s => s !== ''), B = b.split(/(\s+)/).filter(s => s !== ''), m = lcs(A, B, (x, y) => x === y); let i = 0, j = 0, h = ''; const del = s => s ? '<del class="rev">' + esc(s) + '</del>' : '', ins = s => s ? '<ins class="rev">' + esc(s) + '</ins>' : ''; m.concat([[A.length, B.length]]).forEach(([p, q]) => { h += del(A.slice(i, p).join('')) + ins(B.slice(j, q).join('')); if (p < A.length) h += esc(A[p]); i = p + 1; j = q + 1; }); return h; };
+  W.compareHtml = (oldHtml, newHtml) => {
+    const A = blocksOf(oldHtml), B = blocksOf(newHtml), m = lcs(A, B, (x, y) => x.text === y.text); let i = 0, j = 0, out = '', stats = { ins: 0, del: 0, mod: 0 };
+    const tagp = (t, h) => '<' + t + '>' + h + '</' + t + '>';
+    m.concat([[A.length, B.length]]).forEach(([p, q]) => {
+      const olds = A.slice(i, p), news = B.slice(j, q), k = Math.max(olds.length, news.length);
+      for (let n = 0; n < k; n++) { const o = olds[n], w = news[n];
+        if (o && w) { out += tagp(w.tag, wordDiff(o.text, w.text)); stats.mod++; }
+        else if (o) { out += tagp(o.tag, '<del class="rev">' + esc(o.text) + '</del>'); stats.del++; }
+        else { out += tagp(w.tag, '<ins class="rev">' + esc(w.text) + '</ins>'); stats.ins++; } }
+      if (p < A.length) out += tagp(B[q].tag, esc(B[q].text)); i = p + 1; j = q + 1;
+    });
+    return { html: out, stats };
+  };
+  ACT.compareDocs = async () => {
+    if (!W.api || !W.api.openDialog) { W.toast('La comparaison nécessite l\'application Windows.'); return; }
+    const files = await W.api.openDialog(); if (!files || !files[0]) return; const f = files[0];
+    let other; try { other = await W.fileToHtml(f); } catch (e) { W.toast('Lecture impossible : ' + e.message, 'err'); return; }
+    const r = W.compareHtml(other, W.cleanHTML ? W.cleanHTML() : ed.innerHTML);
+    if (!r.stats.ins && !r.stats.del && !r.stats.mod) { W.toast('Les deux documents ont le même texte.', 'ok'); return; }
+    await W.saveLibrary(); W.loadDoc({ title: 'Comparaison - ' + (W.doc.title || 'Document'), html: r.html, page: W.defaultPage() }); W.doc.dirty = true;
+    W.toast(r.stats.mod + ' paragraphe(s) modifié(s), ' + r.stats.ins + ' ajouté(s), ' + r.stats.del + ' supprimé(s). Acceptez ou refusez dans Révision.', 'ok');
+  };
 })();

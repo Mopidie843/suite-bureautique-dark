@@ -92,6 +92,13 @@
 
   /* ---------- Importation ---------- */
   const baseName = n => String(n).replace(/^.*[\\/]/, '').replace(/\.[^.]+$/, '');
+  W.fileToHtml = async function (f) {
+    const ext = (f.ext || (f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase().replace('.', '');
+    if (ext === 'docx') { if (!window.mammoth) throw new Error('Module DOCX indisponible'); const ab = f.bytes instanceof ArrayBuffer ? f.bytes : f.bytes.buffer.slice(f.bytes.byteOffset, f.bytes.byteOffset + f.bytes.byteLength); return (await mammoth.convertToHtml({ arrayBuffer: ab })).value; }
+    if (ext === 'wordweb') return JSON.parse(typeof f.text === 'string' ? f.text : new TextDecoder().decode(f.bytes)).html || '';
+    if (ext === 'html' || ext === 'htm') return typeof f.text === 'string' ? f.text : new TextDecoder().decode(f.bytes);
+    return W.textToHTML(typeof f.text === 'string' ? f.text : new TextDecoder().decode(f.bytes));
+  };
   W.importFile = async function (f) {
     const ext = (f.ext || (f.name.match(/\.([^.]+)$/) || [])[1] || '').toLowerCase().replace('.', '');
     let html, title = baseName(f.name), page = null, comments = [];

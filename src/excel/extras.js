@@ -189,6 +189,6 @@
     X.mutate(() => { sh().cf = keep; }); A.toast('Règles effacées.', 'ok');
   };
 
-  window.XLX = { cf, refresh() { if (sh().flt) applyFilter(); paintRows(); drawCharts(); } };
+  window.XLX = { cf, render, refresh() { if (sh().flt) applyFilter(); paintRows(); drawCharts(); } };
   XLX.refresh();
 })();

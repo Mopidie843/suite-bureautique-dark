@@ -2,7 +2,7 @@ body.hub{flex-direction:row;overflow:hidden}
 .hub-side{width:230px;background:var(--blue,#2b579a);color:#fff;display:flex;flex-direction:column;padding:16px 10px;gap:4px}
 body:not(.look-word) .hub-side{background:#252526}
 .brand{display:flex;align-items:center;gap:12px;padding:6px 10px 20px}
-.brand i{font-size:28px}.brand b{display:block;font-size:14px}.brand small{opacity:.8;font-size:11px}
+.brand-logo{width:38px;height:38px;border-radius:9px;box-shadow:0 4px 14px rgba(40,70,160,.45)}.brand b{display:block;font-size:14px}.brand small{opacity:.8;font-size:11px}
 .hub-nav{display:flex;align-items:center;gap:12px;background:none;border:0;color:#fff;padding:10px 12px;border-radius:2px;cursor:pointer;text-align:left;font-size:13px}
 .hub-nav i{width:18px;text-align:center}
 .hub-nav:hover{background:rgba(255,255,255,.16)}.hub-nav.on{background:rgba(0,0,0,.25);font-weight:600}

@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../common/suite.css">
 <link rel="stylesheet" href="excel.css">
 <link rel="stylesheet" href="../common/motion.css">
+<link rel="stylesheet" href="../common/polish.css">
 </head>
 <body class="look-word app-excel">
 <header id="titlebar">
@@ -141,6 +142,13 @@
       <div class="btn big" data-act="exportPdf"><i class="fa-solid fa-file-pdf c-red"></i><span>Imprimer / PDF</span></div>
     </div>
     <div class="divider"></div>
+    <div class="group" data-label="Données et protection">
+      <div class="btn big" data-act="dvAdd"><i class="fa-solid fa-caret-down c-green"></i><span>Liste déroulante</span></div>
+      <div class="btn big" data-act="dvClear"><i class="fa-solid fa-ban c-red"></i><span>Retirer la liste</span></div>
+      <div class="btn big" data-act="names"><i class="fa-solid fa-tag c-blue"></i><span>Noms définis</span></div>
+      <div class="btn big" data-act="protect"><i class="fa-solid fa-lock c-amber"></i><span>Protéger la feuille</span></div>
+    </div>
+    <div class="divider"></div>
     <div class="group" data-label="Feuilles">
       <div class="btn big" data-act="addSheet"><i class="fa-solid fa-plus c-green"></i><span>Nouvelle feuille</span></div>
       <div class="btn big" data-act="renameSheet"><i class="fa-solid fa-pen c-blue"></i><span>Renommer</span></div>
@@ -177,6 +185,7 @@
 <script src="app.js"></script>
 <script src="extras.js"></script>
 <script src="extras2.js"></script>
+<script src="extras3.js"></script>
 <script src="../common/motion.js"></script>
 <script src="../common/palette.js"></script>
 </body>

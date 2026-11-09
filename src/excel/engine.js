@@ -180,7 +180,13 @@ function matchCrit(v, crit) {
 E.Calc = function (wb) {
   const cache = new Map(), busy = new Set(), parsed = new Map();
   const sheetIdx = name => { const i = wb.sheets.findIndex(s => s.name.toLowerCase() === name.toLowerCase()); if (i < 0) throw new Error('#REF!'); return i; };
-  function parseCached(f) { let a = parsed.get(f); if (!a) { a = parse(tokenize(f)); parsed.set(f, a); } return a; }
+  /* noms définis : « Ventes » -> 'Feuille1'!B2:B9 (hors textes entre guillemets) */
+  const nameKeys = Object.keys(wb.names || {});
+  function applyNames(f) {
+    if (!nameKeys.length) return f;
+    return f.split(/("(?:[^"]|"")*")/).map((part, i) => i % 2 ? part : part.replace(/[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_.]*(?!\s*\()/g, w => { const k = nameKeys.find(n => n.toLowerCase() === w.toLowerCase()); return k ? wb.names[k] : w; })).join('');
+  }
+  function parseCached(f) { let a = parsed.get(f); if (!a) { a = parse(tokenize(applyNames(f))); parsed.set(f, a); } return a; }
   const self = {
     value(si, key) {
       const id = si + '!' + key; if (cache.has(id)) return cache.get(id);
