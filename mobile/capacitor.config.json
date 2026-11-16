@@ -1,0 +1,8 @@
+{
+  "appId": "fr.nocte.suite",
+  "appName": "Nocte",
+  "webDir": "www",
+  "backgroundColor": "#0f1424",
+  "android": { "allowMixedContent": false },
+  "plugins": { "StatusBar": { "style": "DARK", "backgroundColor": "#0f1424" } }
+}

@@ -78,8 +78,8 @@ body:not(.look-word) .ai-m.bot{background:#2b2b2b;color:#ddd}
 @keyframes tCurtain{from{clip-path:inset(0 50% 0 50%)}to{clip-path:inset(0 0 0 0)}}
 .pslide.tr-flip{animation:tFlip .7s both}.pslide.tr-rotate{animation:tRotate .7s both}.pslide.tr-blur{animation:tBlur .7s both}.pslide.tr-bounce{animation:tBounce .8s both}.pslide.tr-curtain{animation:tCurtain .7s both}
 /* changement de diapositive dans l'éditeur */
-@keyframes sIn{from{opacity:0;transform:scale(.97) translateY(8px)}to{opacity:1;transform:none}}
-#stage.switching{animation:sIn .3s both}
+@keyframes sIn{from{opacity:0;translate:0 8px}to{opacity:1;translate:0 0}}
+#stage.switching{animation:sIn .3s backwards}
 #present #pres-slide{will-change:transform}
 #ai-mode{margin-left:auto;margin-right:6px;font-size:11px;padding:2px 8px;border-radius:10px}#ai-mode.on{background:#2f8f46;color:#fff}
 

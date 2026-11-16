@@ -2,3 +2,6 @@ node_modules/
 dist/
 *.log
 google-default.json
+mobile/www/
+mobile/.gen/
+mobile/android/

@@ -1,0 +1,25 @@
+{
+  "name": "nocte-mobile",
+  "version": "3.9.0",
+  "private": true,
+  "description": "Nocte pour Android (Capacitor)",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/cli": "^7.4.0",
+    "@capacitor/core": "^7.4.0",
+    "@capacitor/filesystem": "^7.1.0",
+    "@capacitor/share": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0",
+    "buffer": "^6.0.3",
+    "esbuild": "^0.25.0",
+    "esbuild-plugin-polyfill-node": "^0.3.0",
+    "exceljs": "^4.4.0",
+    "html-to-docx": "^1.8.0",
+    "jszip": "^3.10.2",
+    "pptxgenjs": "^4.0.1"
+  }
+}

@@ -5,7 +5,14 @@
   const api = window.electronAPI;
   const toHtml = t => t.split(/\n{2,}/).map(p => '<p>' + esc(p.trim()).replace(/\n/g, '<br>') + '</p>').join('');
   async function status() { try { return (api && api.aiStatus) ? await api.aiStatus() : { on: false, mode: 'off' }; } catch (e) { return { on: false, mode: 'off' }; } }
+  async function connectMobile() {
+    const body = document.createElement('div');
+    body.innerHTML = '<p style="margin-top:0">Sur téléphone, Claude fonctionne avec une <b>clé API</b> (console.anthropic.com). L\'abonnement Claude Pro/Max passe par Claude Code, disponible seulement sur PC.</p><label class="field">Clé API<input type="password" id="cl-key" placeholder="sk-ant-…"></label>';
+    const r = await W.dialog({ title: 'Connecter Claude', width: 460, body, buttons: [{ label: 'Retirer la clé', value: 'del' }, { label: 'Annuler', value: null }, { label: 'Enregistrer', primary: true, collect: b => ({ key: b.querySelector('#cl-key').value }) }] });
+    if (r === 'del') { await api.aiSetKey(''); W.toast('Clé retirée.'); } else if (r && r.key) { await api.aiSetKey(r.key); W.toast('Clé enregistrée ✓'); }
+  }
   async function connect() {
+    if (window.__NOCTE_MOBILE) return connectMobile();
     const st = await status();
     const body = document.createElement('div');
     body.innerHTML = '<p style="margin-top:0">Utilisez votre abonnement <b>Claude Pro / Max</b>, sans clé API :</p><ol style="padding-left:18px;line-height:1.7"><li>Installez <b>Claude Code</b> (gratuit, une seule fois).</li><li>Cliquez sur « Me connecter » : une fenêtre s\'ouvre, connectez-vous avec votre compte Claude.</li><li>Revenez ici et cliquez sur « Tester ».</li></ol><p>État : ' + (st.cli ? '<span style="color:#3fa66b">Claude Code détecté ' + esc(st.cliVersion || '') + '</span>' : '<span style="color:#d08a2e">Claude Code non installé</span>') + '</p>';
