@@ -1,0 +1,551 @@
+(node:2269) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+www prêt
+✔ Adding native android project in android in 28.14ms
+✔ add in 28.47ms
+✔ Copying web assets from www to android/app/src/main/assets/public in 8.27ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 386.79μs
+✔ copy android in 17.34ms
+✔ Updating Android plugins in 1.29ms
+[info] Found 4 Capacitor plugins for android:
+       @capacitor/app@7.1.2
+       @capacitor/filesystem@7.1.9
+       @capacitor/share@7.0.4
+       @capacitor/status-bar@7.0.6
+✔ update android in 24.77ms
+✔ Syncing Gradle in 158.03μs
+[success] android platform added!
+Follow the Developer Workflow guide to get building:
+https://capacitorjs.com/docs/basics/workflow
+✔ Copying web assets from www to android/app/src/main/assets/public in 15.77ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 1.15ms
+✔ copy android in 24.78ms
+✔ Updating Android plugins in 1.31ms
+[info] Found 4 Capacitor plugins for android:
+       @capacitor/app@7.1.2
+       @capacitor/filesystem@7.1.9
+       @capacitor/share@7.0.4
+       @capacitor/status-bar@7.0.6
+✔ update android in 27.90ms
+[info] Sync finished in 0.072s
+Preconfiguring packages ...
+Selecting previously unselected package poppler-data.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 213946 files and directories currently installed.)
+Preparing to unpack .../00-poppler-data_0.4.12-1build1_all.deb ...
+Unpacking poppler-data (0.4.12-1build1) ...
+Selecting previously unselected package fonts-droid-fallback.
+Preparing to unpack .../01-fonts-droid-fallback_1%3a8.1.0r7-1~1.gbp36536bbuild1_all.deb ...
+Unpacking fonts-droid-fallback (1:8.1.0r7-1~1.gbp36536bbuild1) ...
+Selecting previously unselected package fonts-noto-mono.
+Preparing to unpack .../02-fonts-noto-mono_20201225-2build1_all.deb ...
+Unpacking fonts-noto-mono (20201225-2build1) ...
+Selecting previously unselected package xfonts-encodings.
+Preparing to unpack .../03-xfonts-encodings_1%3a1.0.5-0ubuntu3_all.deb ...
+Unpacking xfonts-encodings (1:1.0.5-0ubuntu3) ...
+Selecting previously unselected package xfonts-utils.
+Preparing to unpack .../04-xfonts-utils_1%3a7.7+7build1_amd64v3.deb ...
+Unpacking xfonts-utils (1:7.7+7build1) ...
+Selecting previously unselected package fonts-urw-base35.
+Preparing to unpack .../05-fonts-urw-base35_20200910-8build1_all.deb ...
+Unpacking fonts-urw-base35 (20200910-8build1) ...
+Selecting previously unselected package libgs-common.
+Preparing to unpack .../06-libgs-common_10.06.0~dfsg-3ubuntu1.2_all.deb ...
+Unpacking libgs-common (10.06.0~dfsg-3ubuntu1.2) ...
+Selecting previously unselected package libgs10-common.
+Preparing to unpack .../07-libgs10-common_10.06.0~dfsg-3ubuntu1.2_all.deb ...
+Unpacking libgs10-common (10.06.0~dfsg-3ubuntu1.2) ...
+Selecting previously unselected package libidn12:amd64.
+Preparing to unpack .../08-libidn12_1.43-2ubuntu0.26.04.1_amd64v3.deb ...
+Unpacking libidn12:amd64 (1.43-2ubuntu0.26.04.1) ...
+Selecting previously unselected package libijs-0.35:amd64.
+Preparing to unpack .../09-libijs-0.35_0.35-16_amd64v3.deb ...
+Unpacking libijs-0.35:amd64 (0.35-16) ...
+Selecting previously unselected package libjbig2dec0:amd64.
+Preparing to unpack .../10-libjbig2dec0_0.20-1ubuntu0.26.04.1_amd64v3.deb ...
+Unpacking libjbig2dec0:amd64 (0.20-1ubuntu0.26.04.1) ...
+Selecting previously unselected package libpaper2:amd64.
+Preparing to unpack .../11-libpaper2_2.2.5-0.3maysync1_amd64v3.deb ...
+Unpacking libpaper2:amd64 (2.2.5-0.3maysync1) ...
+Selecting previously unselected package libgs10:amd64.
+Preparing to unpack .../12-libgs10_10.06.0~dfsg-3ubuntu1.2_amd64v3.deb ...
+Unpacking libgs10:amd64 (10.06.0~dfsg-3ubuntu1.2) ...
+Selecting previously unselected package ghostscript.
+Preparing to unpack .../13-ghostscript_10.06.0~dfsg-3ubuntu1.2_amd64v3.deb ...
+Unpacking ghostscript (10.06.0~dfsg-3ubuntu1.2) ...
+Selecting previously unselected package imagemagick-7.q16.
+Preparing to unpack .../14-imagemagick-7.q16_8%3a7.1.2.18+dfsg1-1_amd64v3.deb ...
+Unpacking imagemagick-7.q16 (8:7.1.2.18+dfsg1-1) ...
+Selecting previously unselected package imagemagick.
+Preparing to unpack .../15-imagemagick_8%3a7.1.2.18+dfsg1-1_amd64v3.deb ...
+Unpacking imagemagick (8:7.1.2.18+dfsg1-1) ...
+Selecting previously unselected package libdjvulibre-text.
+Preparing to unpack .../16-libdjvulibre-text_3.5.29-1_all.deb ...
+Unpacking libdjvulibre-text (3.5.29-1) ...
+Selecting previously unselected package libdjvulibre21:amd64.
+Preparing to unpack .../17-libdjvulibre21_3.5.29-1_amd64v3.deb ...
+Unpacking libdjvulibre21:amd64 (3.5.29-1) ...
+Selecting previously unselected package libjxr0t64:amd64.
+Preparing to unpack .../18-libjxr0t64_1.2~git20170615.f752187-5.3build1_amd64v3.deb ...
+Unpacking libjxr0t64:amd64 (1.2~git20170615.f752187-5.3build1) ...
+Selecting previously unselected package libjxr-tools.
+Preparing to unpack .../19-libjxr-tools_1.2~git20170615.f752187-5.3build1_amd64v3.deb ...
+Unpacking libjxr-tools (1.2~git20170615.f752187-5.3build1) ...
+Selecting previously unselected package libopenexr-3-1-30:amd64.
+Preparing to unpack .../20-libopenexr-3-1-30_3.1.13-2build1_amd64v3.deb ...
+Unpacking libopenexr-3-1-30:amd64 (3.1.13-2build1) ...
+Selecting previously unselected package libwmflite-0.2-7:amd64.
+Preparing to unpack .../21-libwmflite-0.2-7_0.2.14-1_amd64v3.deb ...
+Unpacking libwmflite-0.2-7:amd64 (0.2.14-1) ...
+Selecting previously unselected package libmagickcore-7.q16-10-extra:amd64.
+Preparing to unpack .../22-libmagickcore-7.q16-10-extra_8%3a7.1.2.18+dfsg1-1_amd64v3.deb ...
+Unpacking libmagickcore-7.q16-10-extra:amd64 (8:7.1.2.18+dfsg1-1) ...
+Selecting previously unselected package libnetpbm11t64:amd64.
+Preparing to unpack .../23-libnetpbm11t64_2%3a11.10.02-1build1_amd64.deb ...
+Unpacking libnetpbm11t64:amd64 (2:11.10.02-1build1) ...
+Selecting previously unselected package libpaper-utils.
+Preparing to unpack .../24-libpaper-utils_2.2.5-0.3maysync1_amd64v3.deb ...
+Unpacking libpaper-utils (2.2.5-0.3maysync1) ...
+Selecting previously unselected package netpbm.
+Preparing to unpack .../25-netpbm_2%3a11.10.02-1build1_amd64.deb ...
+Unpacking netpbm (2:11.10.02-1build1) ...
+Setting up imagemagick-7.q16 (8:7.1.2.18+dfsg1-1) ...
+update-alternatives: using /usr/bin/compare-im7.q16 to provide /usr/bin/compare (compare) in auto mode
+update-alternatives: using /usr/bin/compare-im7.q16 to provide /usr/bin/compare-im7 (compare-im7) in auto mode
+update-alternatives: using /usr/bin/animate-im7.q16 to provide /usr/bin/animate (animate) in auto mode
+update-alternatives: using /usr/bin/animate-im7.q16 to provide /usr/bin/animate-im7 (animate-im7) in auto mode
+update-alternatives: using /usr/bin/convert-im7.q16 to provide /usr/bin/convert (convert) in auto mode
+update-alternatives: using /usr/bin/convert-im7.q16 to provide /usr/bin/convert-im7 (convert-im7) in auto mode
+update-alternatives: using /usr/bin/composite-im7.q16 to provide /usr/bin/composite (composite) in auto mode
+update-alternatives: using /usr/bin/composite-im7.q16 to provide /usr/bin/composite-im7 (composite-im7) in auto mode
+update-alternatives: using /usr/bin/conjure-im7.q16 to provide /usr/bin/conjure (conjure) in auto mode
+update-alternatives: using /usr/bin/conjure-im7.q16 to provide /usr/bin/conjure-im7 (conjure-im7) in auto mode
+update-alternatives: using /usr/bin/import-im7.q16 to provide /usr/bin/import (import) in auto mode
+update-alternatives: using /usr/bin/import-im7.q16 to provide /usr/bin/import-im7 (import-im7) in auto mode
+update-alternatives: using /usr/bin/identify-im7.q16 to provide /usr/bin/identify (identify) in auto mode
+update-alternatives: using /usr/bin/identify-im7.q16 to provide /usr/bin/identify-im7 (identify-im7) in auto mode
+update-alternatives: using /usr/bin/stream-im7.q16 to provide /usr/bin/stream (stream) in auto mode
+update-alternatives: using /usr/bin/stream-im7.q16 to provide /usr/bin/stream-im7 (stream-im7) in auto mode
+update-alternatives: using /usr/bin/display-im7.q16 to provide /usr/bin/display (display) in auto mode
+update-alternatives: using /usr/bin/display-im7.q16 to provide /usr/bin/display-im7 (display-im7) in auto mode
+update-alternatives: using /usr/bin/montage-im7.q16 to provide /usr/bin/montage (montage) in auto mode
+update-alternatives: using /usr/bin/montage-im7.q16 to provide /usr/bin/montage-im7 (montage-im7) in auto mode
+update-alternatives: using /usr/bin/mogrify-im7.q16 to provide /usr/bin/mogrify (mogrify) in auto mode
+update-alternatives: using /usr/bin/mogrify-im7.q16 to provide /usr/bin/mogrify-im7 (mogrify-im7) in auto mode
+update-alternatives: using /usr/bin/magick-im7.q16 to provide /usr/bin/magick (magick) in auto mode
+update-alternatives: warning: skip creation of /usr/share/man/man1/magick.1.gz because associated file /usr/share/man/man1/magick-im7.q16.1.gz (of link group magick) does not exist
+update-alternatives: using /usr/bin/magick-im7.q16 to provide /usr/bin/magick-im7 (magick-im7) in auto mode
+update-alternatives: warning: skip creation of /usr/share/man/man1/magick-im7.1.gz because associated file /usr/share/man/man1/magick-im7.q16.1.gz (of link group magick-im7) does not exist
+update-alternatives: using /usr/bin/magick-script-im7.q16 to provide /usr/bin/magick-script (magick-script) in auto mode
+update-alternatives: warning: skip creation of /usr/share/man/man1/magick-script.1.gz because associated file /usr/share/man/man1/magick-script-im7.q16.1.gz (of link group magick-script) does not exist
+update-alternatives: using /usr/bin/magick-script-im7.q16 to provide /usr/bin/magick-script-im7 (magick-script-im7) in auto mode
+update-alternatives: warning: skip creation of /usr/share/man/man1/magick-script-im7.1.gz because associated file /usr/share/man/man1/magick-script-im7.q16.1.gz (of link group magick-script-im7) does not exist
+Setting up fonts-noto-mono (20201225-2build1) ...
+Setting up libwmflite-0.2-7:amd64 (0.2.14-1) ...
+Setting up libijs-0.35:amd64 (0.35-16) ...
+Setting up libgs-common (10.06.0~dfsg-3ubuntu1.2) ...
+Setting up libnetpbm11t64:amd64 (2:11.10.02-1build1) ...
+Setting up poppler-data (0.4.12-1build1) ...
+Setting up libjxr0t64:amd64 (1.2~git20170615.f752187-5.3build1) ...
+Setting up libjbig2dec0:amd64 (0.20-1ubuntu0.26.04.1) ...
+Setting up xfonts-encodings (1:1.0.5-0ubuntu3) ...
+Setting up libopenexr-3-1-30:amd64 (3.1.13-2build1) ...
+Setting up libidn12:amd64 (1.43-2ubuntu0.26.04.1) ...
+Setting up netpbm (2:11.10.02-1build1) ...
+Setting up imagemagick (8:7.1.2.18+dfsg1-1) ...
+Setting up fonts-droid-fallback (1:8.1.0r7-1~1.gbp36536bbuild1) ...
+Setting up libpaper2:amd64 (2.2.5-0.3maysync1) ...
+Setting up libdjvulibre-text (3.5.29-1) ...
+Setting up libjxr-tools (1.2~git20170615.f752187-5.3build1) ...
+Setting up libdjvulibre21:amd64 (3.5.29-1) ...
+Setting up libpaper-utils (2.2.5-0.3maysync1) ...
+Setting up xfonts-utils (1:7.7+7build1) ...
+Setting up libmagickcore-7.q16-10-extra:amd64 (8:7.1.2.18+dfsg1-1) ...
+Setting up fonts-urw-base35 (20200910-8build1) ...
+Setting up libgs10-common (10.06.0~dfsg-3ubuntu1.2) ...
+Setting up libgs10:amd64 (10.06.0~dfsg-3ubuntu1.2) ...
+Setting up ghostscript (10.06.0~dfsg-3ubuntu1.2) ...
+Processing triggers for fontconfig (2.17.1-3ubuntu1) ...
+Processing triggers for hicolor-icon-theme (0.18-2build1) ...
+Processing triggers for libc-bin (2.43-2ubuntu2.4) ...
+Processing triggers for man-db (2.13.1-1build1) ...
+Not building database; man-db/auto-update is not 'true'.
+
+Running kernel seems to be up-to-date.
+
+Restarting services...
+
+Service restarts being deferred:
+ systemctl restart hosted-compute-agent.service
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+Downloading https://services.gradle.org/distributions/gradle-8.11.1-all.zip
+.....................10%......................20%......................30%......................40%......................50%......................60%......................70%......................80%......................90%......................100%
+
+Welcome to Gradle 8.11.1!
+
+Here are the highlights of this release:
+ - Parallel load and store for Configuration Cache
+ - Java compilation errors at the end of the build output
+ - Consolidated report for warnings and deprecations
+
+For more details see https://docs.gradle.org/8.11.1/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :capacitor-cordova-android-plugins
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :capacitor-android:preBuild UP-TO-DATE
+> Task :capacitor-android:preReleaseBuild UP-TO-DATE
+> Task :capacitor-android:writeReleaseAarMetadata
+> Task :app:javaPreCompileRelease
+> Task :capacitor-app:preBuild UP-TO-DATE
+> Task :capacitor-app:preReleaseBuild UP-TO-DATE
+> Task :capacitor-app:writeReleaseAarMetadata
+> Task :capacitor-cordova-android-plugins:preBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:preReleaseBuild UP-TO-DATE
+> Task :capacitor-filesystem:preBuild UP-TO-DATE
+> Task :capacitor-filesystem:preReleaseBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:writeReleaseAarMetadata
+> Task :capacitor-share:preBuild UP-TO-DATE
+> Task :capacitor-share:preReleaseBuild UP-TO-DATE
+> Task :capacitor-filesystem:writeReleaseAarMetadata
+> Task :capacitor-status-bar:preBuild UP-TO-DATE
+> Task :capacitor-status-bar:preReleaseBuild UP-TO-DATE
+> Task :capacitor-share:writeReleaseAarMetadata
+> Task :capacitor-status-bar:writeReleaseAarMetadata
+> Task :app:generateReleaseResValues
+> Task :capacitor-android:generateReleaseResValues
+> Task :app:checkReleaseAarMetadata
+> Task :capacitor-android:generateReleaseResources
+> Task :capacitor-android:packageReleaseResources
+> Task :capacitor-app:generateReleaseResValues
+> Task :capacitor-app:generateReleaseResources
+> Task :capacitor-app:packageReleaseResources
+> Task :capacitor-cordova-android-plugins:generateReleaseResValues
+> Task :capacitor-cordova-android-plugins:generateReleaseResources
+> Task :capacitor-cordova-android-plugins:packageReleaseResources
+> Task :capacitor-filesystem:generateReleaseResValues
+> Task :capacitor-filesystem:generateReleaseResources
+> Task :capacitor-filesystem:packageReleaseResources
+> Task :capacitor-share:generateReleaseResValues
+> Task :capacitor-share:generateReleaseResources
+> Task :capacitor-share:packageReleaseResources
+> Task :capacitor-status-bar:generateReleaseResValues
+> Task :capacitor-status-bar:generateReleaseResources
+> Task :capacitor-status-bar:packageReleaseResources
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :app:packageReleaseResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :capacitor-android:extractDeepLinksRelease
+> Task :capacitor-app:extractDeepLinksRelease
+> Task :app:parseReleaseLocalResources
+> Task :capacitor-cordova-android-plugins:extractDeepLinksRelease
+> Task :capacitor-android:processReleaseManifest
+> Task :capacitor-cordova-android-plugins:processReleaseManifest
+> Task :capacitor-app:processReleaseManifest
+> Task :capacitor-filesystem:extractDeepLinksRelease
+> Task :capacitor-share:extractDeepLinksRelease
+> Task :capacitor-filesystem:processReleaseManifest
+> Task :capacitor-share:processReleaseManifest
+> Task :capacitor-status-bar:extractDeepLinksRelease
+> Task :capacitor-status-bar:processReleaseManifest
+> Task :capacitor-android:compileReleaseLibraryResources
+> Task :app:mergeReleaseResources
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :app:processReleaseManifestForPackage
+> Task :capacitor-android:parseReleaseLocalResources
+> Task :capacitor-app:compileReleaseLibraryResources
+> Task :capacitor-app:parseReleaseLocalResources
+> Task :capacitor-cordova-android-plugins:compileReleaseLibraryResources
+> Task :capacitor-cordova-android-plugins:parseReleaseLocalResources
+> Task :capacitor-filesystem:compileReleaseLibraryResources
+> Task :capacitor-android:generateReleaseRFile
+> Task :capacitor-app:generateReleaseRFile
+> Task :capacitor-cordova-android-plugins:generateReleaseRFile
+> Task :capacitor-filesystem:parseReleaseLocalResources
+> Task :capacitor-share:compileReleaseLibraryResources
+> Task :capacitor-filesystem:generateReleaseRFile
+> Task :capacitor-status-bar:compileReleaseLibraryResources
+> Task :capacitor-share:parseReleaseLocalResources
+> Task :capacitor-status-bar:parseReleaseLocalResources
+> Task :capacitor-android:javaPreCompileRelease
+> Task :capacitor-share:generateReleaseRFile
+> Task :capacitor-status-bar:generateReleaseRFile
+
+> Task :capacitor-android:compileReleaseJavaWithJavac
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :capacitor-app:javaPreCompileRelease
+> Task :capacitor-filesystem:checkKotlinGradlePluginConfigurationErrors
+> Task :capacitor-cordova-android-plugins:javaPreCompileRelease
+> Task :capacitor-filesystem:javaPreCompileRelease
+> Task :capacitor-cordova-android-plugins:compileReleaseJavaWithJavac NO-SOURCE
+> Task :capacitor-cordova-android-plugins:bundleLibCompileToJarRelease
+> Task :capacitor-share:javaPreCompileRelease
+> Task :capacitor-status-bar:javaPreCompileRelease
+> Task :capacitor-android:bundleLibCompileToJarRelease
+> Task :app:extractProguardFiles
+> Task :capacitor-app:compileReleaseJavaWithJavac
+> Task :capacitor-app:bundleLibCompileToJarRelease
+> Task :app:processReleaseResources
+> Task :capacitor-share:compileReleaseJavaWithJavac
+> Task :capacitor-share:bundleLibCompileToJarRelease
+
+> Task :capacitor-status-bar:compileReleaseJavaWithJavac
+Note: /home/runner/work/suite-bureautique-dark/suite-bureautique-dark/mobile/node_modules/@capacitor/status-bar/android/src/main/java/com/capacitorjs/plugins/statusbar/StatusBar.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :capacitor-status-bar:bundleLibCompileToJarRelease
+> Task :capacitor-android:bundleLibRuntimeToJarRelease
+> Task :capacitor-android:processReleaseJavaRes NO-SOURCE
+> Task :capacitor-android:createFullJarRelease
+> Task :capacitor-android:extractProguardFiles
+> Task :capacitor-android:generateReleaseLintModel
+> Task :capacitor-android:prepareLintJarForPublish
+> Task :capacitor-app:processReleaseJavaRes NO-SOURCE
+> Task :capacitor-app:bundleLibRuntimeToJarRelease
+> Task :capacitor-app:extractProguardFiles
+> Task :capacitor-app:createFullJarRelease
+> Task :capacitor-app:generateReleaseLintModel
+> Task :capacitor-app:prepareLintJarForPublish
+> Task :capacitor-cordova-android-plugins:bundleLibRuntimeToJarRelease
+> Task :capacitor-cordova-android-plugins:processReleaseJavaRes NO-SOURCE
+> Task :capacitor-cordova-android-plugins:createFullJarRelease
+> Task :capacitor-cordova-android-plugins:extractProguardFiles
+> Task :capacitor-cordova-android-plugins:generateReleaseLintModel
+> Task :capacitor-cordova-android-plugins:prepareLintJarForPublish
+> Task :capacitor-filesystem:extractProguardFiles
+> Task :capacitor-filesystem:prepareLintJarForPublish
+> Task :capacitor-share:processReleaseJavaRes NO-SOURCE
+> Task :capacitor-share:bundleLibRuntimeToJarRelease
+> Task :capacitor-share:extractProguardFiles
+> Task :capacitor-share:createFullJarRelease
+> Task :capacitor-share:generateReleaseLintModel
+> Task :capacitor-share:prepareLintJarForPublish
+> Task :capacitor-status-bar:bundleLibRuntimeToJarRelease
+> Task :capacitor-status-bar:processReleaseJavaRes NO-SOURCE
+> Task :capacitor-status-bar:createFullJarRelease
+> Task :capacitor-status-bar:extractProguardFiles
+> Task :capacitor-status-bar:generateReleaseLintModel
+> Task :capacitor-status-bar:prepareLintJarForPublish
+> Task :capacitor-app:mergeReleaseJniLibFolders
+> Task :capacitor-app:mergeReleaseNativeLibs NO-SOURCE
+> Task :capacitor-app:stripReleaseDebugSymbols NO-SOURCE
+> Task :capacitor-app:copyReleaseJniLibsProjectAndLocalJars
+> Task :capacitor-app:extractDeepLinksForAarRelease
+> Task :capacitor-app:extractReleaseAnnotations
+> Task :capacitor-app:mergeReleaseGeneratedProguardFiles
+> Task :capacitor-app:mergeReleaseConsumerProguardFiles
+> Task :capacitor-app:mergeReleaseShaders
+> Task :capacitor-app:compileReleaseShaders NO-SOURCE
+> Task :capacitor-app:generateReleaseAssets UP-TO-DATE
+> Task :capacitor-app:packageReleaseAssets
+> Task :capacitor-app:prepareReleaseArtProfile
+> Task :capacitor-filesystem:mergeReleaseJniLibFolders
+> Task :capacitor-filesystem:mergeReleaseNativeLibs NO-SOURCE
+> Task :capacitor-filesystem:stripReleaseDebugSymbols NO-SOURCE
+> Task :capacitor-filesystem:copyReleaseJniLibsProjectAndLocalJars
+> Task :capacitor-filesystem:extractDeepLinksForAarRelease
+> Task :capacitor-filesystem:mergeReleaseShaders
+> Task :capacitor-filesystem:compileReleaseShaders NO-SOURCE
+> Task :capacitor-filesystem:generateReleaseAssets UP-TO-DATE
+> Task :capacitor-filesystem:packageReleaseAssets
+> Task :capacitor-filesystem:prepareReleaseArtProfile
+> Task :capacitor-share:mergeReleaseJniLibFolders
+> Task :capacitor-share:mergeReleaseNativeLibs NO-SOURCE
+> Task :capacitor-share:stripReleaseDebugSymbols NO-SOURCE
+> Task :capacitor-share:copyReleaseJniLibsProjectAndLocalJars
+> Task :capacitor-share:extractDeepLinksForAarRelease
+> Task :capacitor-share:extractReleaseAnnotations
+> Task :capacitor-share:mergeReleaseGeneratedProguardFiles
+> Task :capacitor-share:mergeReleaseConsumerProguardFiles
+> Task :capacitor-share:mergeReleaseShaders
+> Task :capacitor-share:compileReleaseShaders NO-SOURCE
+> Task :capacitor-share:generateReleaseAssets UP-TO-DATE
+> Task :capacitor-share:packageReleaseAssets
+> Task :capacitor-share:prepareReleaseArtProfile
+> Task :capacitor-status-bar:mergeReleaseJniLibFolders
+> Task :capacitor-status-bar:mergeReleaseNativeLibs NO-SOURCE
+> Task :capacitor-status-bar:stripReleaseDebugSymbols NO-SOURCE
+> Task :capacitor-status-bar:copyReleaseJniLibsProjectAndLocalJars
+> Task :capacitor-status-bar:extractDeepLinksForAarRelease
+> Task :capacitor-share:mergeReleaseJavaResource
+> Task :capacitor-app:mergeReleaseJavaResource
+> Task :capacitor-status-bar:extractReleaseAnnotations
+> Task :capacitor-app:syncReleaseLibJars
+> Task :capacitor-app:bundleReleaseLocalLintAar
+> Task :capacitor-share:syncReleaseLibJars
+> Task :capacitor-share:bundleReleaseLocalLintAar
+> Task :capacitor-status-bar:mergeReleaseGeneratedProguardFiles
+> Task :capacitor-status-bar:mergeReleaseConsumerProguardFiles
+> Task :capacitor-status-bar:mergeReleaseShaders
+> Task :capacitor-status-bar:compileReleaseShaders NO-SOURCE
+> Task :capacitor-status-bar:generateReleaseAssets UP-TO-DATE
+> Task :capacitor-status-bar:packageReleaseAssets
+> Task :capacitor-status-bar:prepareReleaseArtProfile
+> Task :capacitor-status-bar:mergeReleaseJavaResource
+> Task :capacitor-android:mergeReleaseJniLibFolders
+> Task :capacitor-status-bar:syncReleaseLibJars
+> Task :capacitor-status-bar:bundleReleaseLocalLintAar
+> Task :capacitor-android:mergeReleaseNativeLibs NO-SOURCE
+> Task :capacitor-android:stripReleaseDebugSymbols NO-SOURCE
+> Task :capacitor-android:copyReleaseJniLibsProjectAndLocalJars
+> Task :capacitor-android:extractDeepLinksForAarRelease
+> Task :capacitor-android:extractReleaseAnnotations
+> Task :capacitor-android:mergeReleaseGeneratedProguardFiles
+> Task :capacitor-android:mergeReleaseConsumerProguardFiles
+> Task :capacitor-android:mergeReleaseShaders
+> Task :capacitor-android:compileReleaseShaders NO-SOURCE
+> Task :capacitor-android:generateReleaseAssets UP-TO-DATE
+> Task :capacitor-android:packageReleaseAssets
+> Task :capacitor-android:prepareReleaseArtProfile
+> Task :capacitor-android:mergeReleaseJavaResource
+> Task :capacitor-cordova-android-plugins:mergeReleaseJniLibFolders
+> Task :capacitor-android:syncReleaseLibJars
+> Task :capacitor-android:bundleReleaseLocalLintAar
+> Task :capacitor-cordova-android-plugins:mergeReleaseNativeLibs NO-SOURCE
+> Task :capacitor-cordova-android-plugins:stripReleaseDebugSymbols NO-SOURCE
+> Task :capacitor-cordova-android-plugins:copyReleaseJniLibsProjectAndLocalJars
+> Task :capacitor-cordova-android-plugins:extractDeepLinksForAarRelease
+> Task :capacitor-cordova-android-plugins:extractReleaseAnnotations
+> Task :capacitor-cordova-android-plugins:mergeReleaseGeneratedProguardFiles
+> Task :capacitor-cordova-android-plugins:mergeReleaseConsumerProguardFiles
+> Task :capacitor-cordova-android-plugins:mergeReleaseShaders
+> Task :capacitor-cordova-android-plugins:compileReleaseShaders NO-SOURCE
+> Task :capacitor-cordova-android-plugins:generateReleaseAssets UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:packageReleaseAssets
+> Task :capacitor-cordova-android-plugins:prepareReleaseArtProfile
+> Task :capacitor-cordova-android-plugins:mergeReleaseJavaResource
+> Task :capacitor-cordova-android-plugins:syncReleaseLibJars
+> Task :capacitor-cordova-android-plugins:bundleReleaseLocalLintAar
+> Task :capacitor-android:writeReleaseLintModelMetadata
+> Task :capacitor-app:writeReleaseLintModelMetadata
+> Task :capacitor-cordova-android-plugins:writeReleaseLintModelMetadata
+> Task :capacitor-filesystem:writeReleaseLintModelMetadata
+> Task :capacitor-share:writeReleaseLintModelMetadata
+> Task :capacitor-status-bar:writeReleaseLintModelMetadata
+> Task :capacitor-android:generateReleaseLintVitalModel
+> Task :capacitor-app:generateReleaseLintVitalModel
+> Task :capacitor-cordova-android-plugins:generateReleaseLintVitalModel
+> Task :capacitor-share:generateReleaseLintVitalModel
+> Task :capacitor-status-bar:generateReleaseLintVitalModel
+> Task :app:mergeReleaseJniLibFolders
+> Task :capacitor-android:copyReleaseJniLibsProjectOnly
+> Task :capacitor-app:copyReleaseJniLibsProjectOnly
+> Task :capacitor-cordova-android-plugins:copyReleaseJniLibsProjectOnly
+> Task :capacitor-filesystem:copyReleaseJniLibsProjectOnly
+> Task :capacitor-share:copyReleaseJniLibsProjectOnly
+> Task :capacitor-status-bar:copyReleaseJniLibsProjectOnly
+> Task :app:mergeReleaseNativeLibs NO-SOURCE
+> Task :app:stripReleaseDebugSymbols NO-SOURCE
+> Task :app:extractReleaseNativeSymbolTables NO-SOURCE
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:desugarReleaseFileDependencies
+> Task :app:mergeReleaseStartupProfile
+
+> Task :capacitor-filesystem:compileReleaseKotlin
+w: file:///home/runner/work/suite-bureautique-dark/suite-bureautique-dark/mobile/node_modules/@capacitor/filesystem/android/src/main/kotlin/com/capacitorjs/plugins/filesystem/FilesystemPlugin.kt:335:31 'downloadFile(PluginCall): Unit' is deprecated. Use @capacitor/file-transfer plugin instead
+w: file:///home/runner/work/suite-bureautique-dark/suite-bureautique-dark/mobile/node_modules/@capacitor/filesystem/android/src/main/kotlin/com/capacitorjs/plugins/filesystem/LegacyFilesystemImplementation.kt:66:29 Type mismatch: inferred type is String? but String was expected
+w: file:///home/runner/work/suite-bureautique-dark/suite-bureautique-dark/mobile/node_modules/@capacitor/filesystem/android/src/main/kotlin/com/capacitorjs/plugins/filesystem/LegacyFilesystemImplementation.kt:143:25 Unnecessary non-null assertion (!!) on a non-null receiver of type Boolean
+w: file:///home/runner/work/suite-bureautique-dark/suite-bureautique-dark/mobile/node_modules/@capacitor/filesystem/android/src/main/kotlin/com/capacitorjs/plugins/filesystem/LegacyFilesystemImplementation.kt:152:21 Unnecessary non-null assertion (!!) on a non-null receiver of type Boolean
+
+> Task :capacitor-app:lintVitalAnalyzeRelease
+> Task :capacitor-android:lintVitalAnalyzeRelease
+> Task :capacitor-filesystem:compileReleaseJavaWithJavac NO-SOURCE
+> Task :capacitor-filesystem:bundleLibRuntimeToJarRelease
+> Task :capacitor-filesystem:bundleLibCompileToJarRelease
+> Task :capacitor-filesystem:processReleaseJavaRes
+> Task :app:compileReleaseJavaWithJavac
+> Task :capacitor-filesystem:createFullJarRelease
+> Task :capacitor-filesystem:generateReleaseLintModel
+> Task :app:generateReleaseLintVitalReportModel
+> Task :capacitor-filesystem:extractReleaseAnnotations
+> Task :capacitor-filesystem:mergeReleaseGeneratedProguardFiles
+> Task :capacitor-filesystem:mergeReleaseConsumerProguardFiles
+> Task :capacitor-filesystem:mergeReleaseJavaResource
+> Task :capacitor-filesystem:syncReleaseLibJars
+> Task :capacitor-filesystem:bundleReleaseLocalLintAar
+> Task :capacitor-filesystem:generateReleaseLintVitalModel
+> Task :app:dexBuilderRelease
+> Task :capacitor-cordova-android-plugins:lintVitalAnalyzeRelease
+> Task :app:mergeReleaseArtProfile
+> Task :app:mergeExtDexRelease
+> Task :app:mergeReleaseGlobalSynthetics
+> Task :app:mergeReleaseShaders
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :capacitor-share:lintVitalAnalyzeRelease
+> Task :app:mergeReleaseAssets
+> Task :capacitor-status-bar:lintVitalAnalyzeRelease
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:processReleaseJavaRes NO-SOURCE
+> Task :app:compressReleaseAssets
+> Task :app:mergeDexRelease
+> Task :app:optimizeReleaseResources
+> Task :app:collectReleaseDependencies
+> Task :app:sdkReleaseDependencyData
+> Task :app:writeReleaseAppMetadata
+> Task :app:mergeReleaseJavaResource
+> Task :app:writeReleaseSigningConfigVersions
+> Task :capacitor-android:bundleReleaseAar
+> Task :capacitor-android:mapReleaseSourceSetPaths
+> Task :app:compileReleaseArtProfile
+> Task :capacitor-android:mergeReleaseResources
+> Task :capacitor-app:bundleReleaseAar
+> Task :capacitor-app:mapReleaseSourceSetPaths
+> Task :capacitor-app:mergeReleaseResources
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :capacitor-cordova-android-plugins:bundleReleaseAar
+> Task :capacitor-android:verifyReleaseResources
+> Task :capacitor-cordova-android-plugins:mapReleaseSourceSetPaths
+> Task :capacitor-android:assembleRelease
+> Task :capacitor-app:verifyReleaseResources
+> Task :capacitor-cordova-android-plugins:mergeReleaseResources
+> Task :capacitor-app:assembleRelease
+> Task :capacitor-filesystem:bundleReleaseAar
+> Task :capacitor-filesystem:mapReleaseSourceSetPaths
+> Task :capacitor-filesystem:mergeReleaseResources
+> Task :capacitor-share:bundleReleaseAar
+> Task :capacitor-share:mapReleaseSourceSetPaths
+> Task :capacitor-filesystem:lintVitalAnalyzeRelease
+> Task :capacitor-cordova-android-plugins:verifyReleaseResources
+> Task :capacitor-share:mergeReleaseResources
+> Task :capacitor-cordova-android-plugins:assembleRelease
+> Task :capacitor-status-bar:bundleReleaseAar
+> Task :capacitor-status-bar:mapReleaseSourceSetPaths
+> Task :capacitor-filesystem:verifyReleaseResources
+> Task :capacitor-share:verifyReleaseResources
+> Task :capacitor-status-bar:mergeReleaseResources
+> Task :capacitor-filesystem:assembleRelease
+> Task :capacitor-share:assembleRelease
+> Task :capacitor-status-bar:verifyReleaseResources
+> Task :capacitor-status-bar:assembleRelease
+> Task :app:lintVitalAnalyzeRelease
+> Task :app:lintVitalReportRelease
+> Task :app:lintVitalRelease
+> Task :app:assembleRelease
+[Incubating] Problems report is available at: file:///home/runner/work/suite-bureautique-dark/suite-bureautique-dark/mobile/android/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 1m 51s
+265 actionable tasks: 265 executed
+V3.0 Signer: certificate DN: CN=Nocte, O=Nocte, C=FR
+V3.0 Signer: certificate SHA-256 digest: fee09b3129bdaf6fc41642e3898f0cb23ba2510f677dbb7cc4e23a324a5a0163
+V3.0 Signer: certificate SHA-1 digest: 2db2ee99f38774c224b982a6351d6744939836e9
+-rw-r--r-- 1 runner runner 4857171 Nov 17 10:12 dist/Nocte.apk
