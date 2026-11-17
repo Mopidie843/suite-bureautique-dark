@@ -214,8 +214,9 @@ async function pptxBuild(deck) {
   p.defineLayout({ name: 'W169', width: 13.333, height: 7.5 }); p.layout = 'W169'; p.title = deck.title; p.author = G.authorName() || 'Nocte PowerPoint';
   const I = n => Math.round(n / 72 * 1000) / 1000, col = c => String(c || '#000000').replace('#', '').toUpperCase();
   const master = (deck.master && deck.master.objs) || [], animsBySlide = [];
+  const KP = { roundRect: 'roundRect', diamond: 'diamond', pentagon: 'pentagon', hexagon: 'hexagon', octagon: 'octagon', star5: 'star5', star4: 'star4', chevron: 'chevron', rightArrow: 'rightArrow', leftArrow: 'leftArrow', upArrow: 'upArrow', downArrow: 'downArrow', heart: 'heart', callout: 'wedgeRoundRectCallout', plus: 'mathPlus', parallelogram: 'parallelogram', trapezoid: 'trapezoid', rtTriangle: 'rtTriangle', bolt: 'lightningBolt', line: 'line' }, CPAL = ['4E79A7', 'F28E2B', '59A14F', 'E15759', '76B7B2', 'EDC948', 'B07AA1', '9C755F'];
   for (const [si, sd] of deck.slides.entries()) {
-    const s = p.addSlide(); s.background = { color: col(sd.bg || '#ffffff') }; const anims = []; animsBySlide.push(anims);
+    const s = p.addSlide(); s.background = { color: col(sd.bg || '#ffffff') }; if (sd.hidden) s.hidden = true; const anims = []; animsBySlide.push(anims);
     const own = new Set(sd.objs), all = (sd.hideMaster ? [] : master).concat(sd.objs);
     for (const o0 of all) {
       let o = o0; if (o.type === 'text' && /\{n\}/.test(o.text || '')) o = Object.assign({}, o, { text: o.text.replace(/\{n\}/g, String(si + 1)) });
@@ -224,14 +225,24 @@ async function pptxBuild(deck) {
         const bc = col(o.line || '#8a8a8a'), rowsT = o.cells.map((row, r) => row.map(v => ({ text: String(v || ''), options: o.hdr && r === 0 ? { bold: true, color: 'FFFFFF', fill: { color: col(o.fill || '#2b579a') } } : { color: col(o.color || '#262626'), fill: o.hdr && r % 2 === 0 ? { color: 'EDEDED' } : undefined } })));
         s.addTable(rowsT, { ...pos, fontSize: Math.round((o.fs || 20) * 0.75), fontFace: o.ff || 'Calibri', border: { type: 'solid', color: bc, pt: 1 }, valign: 'middle', margin: 0.06 }); continue;
       }
-      const fx = {}; if (o.rot) fx.rotate = o.rot; if (o.shadow) fx.shadow = { type: 'outer', color: '000000', opacity: 0.45, blur: 8, offset: 6, angle: 45 };
-      if (o.type === 'image') { if (/^data:image\//.test(o.src || '')) s.addImage({ data: o.src.replace(/^data:/, ''), ...pos, ...(o.rot ? { rotate: o.rot } : {}) }); continue; }
+      const fx = {}; if (o.rot) fx.rotate = o.rot; if (o.flipH) fx.flipH = true; if (o.flipV) fx.flipV = true; if (o.link) fx.hyperlink = { url: o.link }; if (o.shadow) fx.shadow = { type: 'outer', color: '000000', opacity: 0.45, blur: 8, offset: 6, angle: 45 };
+      if (o.type === 'chart') {
+        const pie = o.ctype === 'pie' || o.ctype === 'doughnut', ser = (o.series || []).filter(x => x && Array.isArray(x.values)), data = (pie ? ser.slice(0, 1) : ser).map(x => ({ name: x.name || 'Série', labels: (o.labels || []).map(String), values: x.values.map(v => Number(v) || 0) }));
+        if (!data.length) continue; const tc = col(o.color || '#262626'), CT = { bar: p.charts.BAR, line: p.charts.LINE, pie: p.charts.PIE, area: p.charts.AREA, doughnut: p.charts.DOUGHNUT }[o.ctype] || p.charts.BAR;
+        s.addChart(CT, data, { x: pos.x, y: pos.y, w: pos.w, h: pos.h, chartColors: (pie ? (o.labels || []) : data).map((_, i) => CPAL[i % CPAL.length]), showLegend: pie || data.length > 1, legendPos: 'b', legendColor: tc, legendFontSize: 12, showTitle: !!o.title, title: o.title || '', titleColor: tc, titleFontSize: 16, catAxisLabelColor: tc, valAxisLabelColor: tc, catAxisLabelFontSize: 11, valAxisLabelFontSize: 11, valGridLine: { color: 'BFBFBF', size: 0.5 }, showPercent: pie, showValue: false, dataLabelColor: pie ? 'FFFFFF' : tc, dataLabelFontBold: true, barDir: 'col', barGrouping: 'clustered', lineSize: 3, lineDataSymbolSize: 8 }); continue;
+      }
+      if (o.type === 'image') { if (/^data:image\//.test(o.src || '')) s.addImage({ data: o.src.replace(/^data:/, ''), ...pos, ...(o.rot ? { rotate: o.rot } : {}), ...(o.flipH ? { flipH: true } : {}), ...(o.flipV ? { flipV: true } : {}), ...(o.link ? { hyperlink: { url: o.link } } : {}), ...(o.op != null && o.op < 1 ? { transparency: Math.round((1 - o.op) * 100) } : {}) }); continue; }
       if (o.type === 'arrow') { s.addShape(p.ShapeType.line, { ...pos, y: pos.y + pos.h / 2, h: 0, line: { color: col(o.line || '#ffffff'), width: o.lw || 4, endArrowType: 'triangle' }, ...fx }); continue; }
-      const fill = o.fill ? { color: col(o.fill) } : undefined, line = o.line ? { color: col(o.line), width: o.lw || 1 } : undefined;
-      const txt = { fontSize: o.fs || 18, bold: !!o.b, italic: !!o.i, underline: o.u ? { style: 'sng' } : undefined, color: col(o.color || '#000000'), align: o.al || 'left', valign: 'top', fontFace: o.ff || 'Calibri' };
+      const fill = o.fill ? { color: col(o.fill), ...(o.op != null && o.op < 1 ? { transparency: Math.round((1 - o.op) * 100) } : {}) } : undefined, line = o.line ? { color: col(o.line), width: o.lw || 1, ...(o.dash === 'dash' ? { dashType: 'dash' } : o.dash === 'dot' ? { dashType: 'sysDot' } : {}) } : undefined;
+      const txt = { fontSize: o.fs || 18, bold: !!o.b, italic: !!o.i, underline: o.u ? { style: 'sng' } : undefined, color: col(o.color || '#000000'), align: o.al || 'left', valign: o.va || 'top', fontFace: o.ff || 'Calibri', ...(o.ls ? { lineSpacingMultiple: o.ls / 1.2 } : {}) };
       if (o.type === 'text') s.addText(o.text || '', { ...pos, ...txt, fill, line, margin: 4, fit: 'none', ...fx });
-      else s.addShape(o.type === 'ellipse' ? p.ShapeType.ellipse : o.type === 'triangle' ? p.ShapeType.triangle : p.ShapeType.rect, { ...pos, fill: fill || { color: 'FFFFFF' }, line, ...fx });
-      if (o.type !== 'text' && o.text) s.addText(o.text, { ...pos, ...txt, valign: 'middle', align: o.al || 'center', ...(o.rot ? { rotate: o.rot } : {}) });
+      else if (o.type === 'poly') {
+        const pr = KP[o.kind] || 'rect';
+        if (pr === 'line') s.addShape(p.ShapeType.line, { ...pos, y: pos.y + pos.h / 2, h: 0, line: { color: col(o.line || o.fill || '#ffffff'), width: o.lw || 2, ...(o.dash === 'dash' ? { dashType: 'dash' } : o.dash === 'dot' ? { dashType: 'sysDot' } : {}) }, ...fx });
+        else s.addShape(p.ShapeType[pr], { ...pos, fill: fill || { color: 'FFFFFF', transparency: 100 }, line, ...fx });
+      }
+      else s.addShape(o.type === 'ellipse' ? p.ShapeType.ellipse : o.type === 'triangle' ? p.ShapeType.triangle : (o.type === 'rect' && o.cr ? p.ShapeType.roundRect : p.ShapeType.rect), { ...pos, fill: fill || { color: 'FFFFFF' }, line, ...(o.type === 'rect' && o.cr ? { rectRadius: Math.min(I(o.cr), Math.min(I(o.w), I(o.h)) / 2) } : {}), ...fx });
+      if (o.type !== 'text' && o.text) s.addText(o.text, { ...pos, ...txt, valign: o.va || 'middle', align: o.al || 'center', ...(o.rot ? { rotate: o.rot } : {}) });
     }
     if (sd.notes) s.addNotes(sd.notes);
   }

@@ -37,7 +37,9 @@
   <button class="ribbon-tab" data-tab="insertion">Insertion</button>
   <button class="ribbon-tab" data-tab="creation">Création</button>
   <button class="ribbon-tab" data-tab="transitions">Transitions</button>
+  <button class="ribbon-tab" data-tab="format">Format</button>
   <button class="ribbon-tab" data-tab="diaporama">Diaporama</button>
+  <button class="ribbon-tab" data-tab="affichage">Affichage</button>
 </nav>
 <div id="ribbon">
   <div class="ribbon-panel" id="ribbon-accueil">
@@ -104,6 +106,25 @@
       <div class="btn big" data-act="addArrow"><i class="fa-solid fa-arrow-right c-orange"></i><span>Flèche</span></div>
       <div class="btn big" data-act="addTriangle"><i class="fa-solid fa-play fa-rotate-270 c-yellow"></i><span>Triangle</span></div>
     </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Formes">
+      <div class="row"><select id="sel-shape" class="office-select" style="width:150px"><option value="">Plus de formes…</option><!--SHAPES--></select></div>
+      <div class="row"><div class="btn sm" data-act="addDate"><i class="fa-regular fa-calendar c-blue"></i> Date</div><div class="btn sm" data-act="footer"><i class="fa-solid fa-window-minimize c-purple"></i> Pied de page</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Graphiques">
+      <div class="btn big" data-act="chartBar"><i class="fa-solid fa-chart-column c-blue"></i><span>Histogramme</span></div>
+      <div class="btn big" data-act="chartLine"><i class="fa-solid fa-chart-line c-green"></i><span>Courbe</span></div>
+      <div class="btn big" data-act="chartPie"><i class="fa-solid fa-chart-pie c-orange"></i><span>Secteurs</span></div>
+      <div class="stack"><div class="btn sm" data-act="chartArea"><i class="fa-solid fa-chart-area c-purple"></i> Aire</div><div class="btn sm" data-act="chartDonut"><i class="fa-regular fa-circle-dot c-red"></i> Anneau</div><div class="btn sm" data-act="chartEdit"><i class="fa-solid fa-table-list"></i> Données…</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Liens">
+      <div class="btn big" data-act="linkSet"><i class="fa-solid fa-link c-blue"></i><span>Lien…</span></div>
+      <div class="btn big" data-act="linkDel"><i class="fa-solid fa-link-slash c-red"></i><span>Retirer le lien</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Rechercher"><div class="btn big" data-act="findOpen"><i class="fa-solid fa-magnifying-glass c-yellow"></i><span>Rechercher / Remplacer</span></div></div>
   </div>
   <div class="ribbon-panel hidden" id="ribbon-creation">
     <div class="group" data-label="Thèmes" id="themes"></div>
@@ -130,6 +151,33 @@
       <div class="row"><span class="muted" style="font-size:11px">Chaque animation se déclenche au clic en diaporama.</span></div>
     </div>
   </div>
+  <div class="ribbon-panel hidden" id="ribbon-format">
+    <div class="group col" data-label="Taille et position">
+      <div class="row"><label class="fld">X<input type="number" id="f-x" step="1"></label><label class="fld">Y<input type="number" id="f-y" step="1"></label><label class="fld">Rot.<input type="number" id="f-rot" step="5"></label></div>
+      <div class="row"><label class="fld">L<input type="number" id="f-w" step="1" min="10"></label><label class="fld">H<input type="number" id="f-h" step="1" min="10"></label></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Contour">
+      <div class="row"><select id="sel-lw" class="office-select" style="width:110px" title="Épaisseur"><option value="1">Fin (1)</option><option value="2">2 pt</option><option value="3">3 pt</option><option value="4">4 pt</option><option value="6">6 pt</option><option value="8">8 pt</option><option value="12">12 pt</option></select></div>
+      <div class="row"><select id="sel-dash" class="office-select" style="width:110px" title="Style"><option value="solid">Continu</option><option value="dash">Tirets</option><option value="dot">Pointillés</option></select></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Effets">
+      <div class="row"><select id="sel-op" class="office-select" style="width:120px" title="Opacité"><option value="1">Opacité 100 %</option><option value="0.9">90 %</option><option value="0.75">75 %</option><option value="0.5">50 %</option><option value="0.25">25 %</option><option value="0.1">10 %</option></select><select id="sel-cr" class="office-select" style="width:110px" title="Coins arrondis (rectangle)"><option value="0">Coins droits</option><option value="8">Coins 8</option><option value="16">Coins 16</option><option value="32">Coins 32</option><option value="60">Capsule</option></select></div>
+      <div class="row"><button class="tool" data-act="flipH" title="Retourner horizontalement"><i class="fa-solid fa-left-right"></i></button><button class="tool" data-act="flipV" title="Retourner verticalement"><i class="fa-solid fa-up-down"></i></button><button class="tool" data-act="shadow" title="Ombre"><i class="fa-solid fa-clone"></i></button><button class="tool" data-act="grad" title="Dégradé"><i class="fa-solid fa-droplet"></i></button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Texte">
+      <div class="row"><select id="sel-ls" class="office-select" style="width:110px" title="Interligne"><option value="1">Interligne 1</option><option value="1.2">1,2</option><option value="1.5">1,5</option><option value="2">2</option><option value="2.5">2,5</option></select><select id="sel-va" class="office-select" style="width:110px" title="Alignement vertical"><option value="top">En haut</option><option value="middle">Au milieu</option><option value="bottom">En bas</option></select></div>
+      <div class="row"><button class="tool" data-act="bullets" title="Puces"><i class="fa-solid fa-list-ul"></i></button><button class="tool" data-act="numbers" title="Numérotation"><i class="fa-solid fa-list-ol"></i></button><button class="tool" data-act="fsUp" title="Agrandir la police"><i class="fa-solid fa-text-height"></i>+</button><button class="tool" data-act="fsDown" title="Réduire la police"><i class="fa-solid fa-text-height"></i>−</button></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Organiser">
+      <div class="stack"><div class="btn sm" data-act="dupObj"><i class="fa-regular fa-clone c-blue"></i> Dupliquer</div><div class="btn sm" data-act="fmtPaint" title="Copier la mise en forme puis cliquer sur la cible"><i class="fa-solid fa-paintbrush c-orange"></i> Reproduire</div></div>
+      <div class="stack"><div class="btn sm" data-act="forward"><i class="fa-solid fa-angle-up"></i> Avancer</div><div class="btn sm" data-act="backward"><i class="fa-solid fa-angle-down"></i> Reculer</div></div>
+      <div class="stack"><div class="btn sm" data-act="distH"><i class="fa-solid fa-arrows-left-right-to-line"></i> Répartir H</div><div class="btn sm" data-act="distV"><i class="fa-solid fa-arrows-up-down"></i> Répartir V</div></div>
+    </div>
+  </div>
   <div class="ribbon-panel hidden" id="ribbon-diaporama">
     <div class="group" data-label="Démarrer">
       <div class="btn big" data-act="playFrom0"><i class="fa-solid fa-play c-orange"></i><span>Depuis le début</span></div>
@@ -140,6 +188,29 @@
     <div class="group" data-label="Exporter">
       <div class="btn big" data-act="exportPdf"><i class="fa-solid fa-file-pdf c-red"></i><span>Exporter en PDF</span></div>
       <div class="btn big" data-act="exportPng"><i class="fa-regular fa-file-image c-green"></i><span>Image de la diapo</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group col" data-label="Réglages">
+      <div class="row"><div class="btn sm" data-act="hideSlide"><i class="fa-solid fa-eye-slash c-orange"></i> Masquer la diapositive</div><div class="btn sm" data-act="loopToggle" id="b-loop"><i class="fa-solid fa-repeat c-blue"></i> En boucle</div></div>
+      <div class="row"><select id="sel-auto" class="office-select" style="width:210px" title="Avancer automatiquement"><option value="0">Avancer au clic seulement</option><option value="2">Avancer après 2 s</option><option value="3">Avancer après 3 s</option><option value="5">Avancer après 5 s</option><option value="10">Avancer après 10 s</option><option value="20">Avancer après 20 s</option><option value="30">Avancer après 30 s</option></select></div>
+    </div>
+  </div>
+  <div class="ribbon-panel hidden" id="ribbon-affichage">
+    <div class="group" data-label="Affichage">
+      <div class="btn big" data-act="sorter"><i class="fa-solid fa-table-cells c-blue"></i><span>Trieur de diapositives</span></div>
+      <div class="btn big" data-act="gridToggle" id="b-grid"><i class="fa-solid fa-border-all c-green"></i><span>Grille et aimantation</span></div>
+      <div class="btn big" data-act="notesToggle"><i class="fa-regular fa-note-sticky c-yellow"></i><span>Volet de notes</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Zoom">
+      <div class="btn big" data-act="zoomIn"><i class="fa-solid fa-magnifying-glass-plus c-blue"></i><span>Zoom +</span></div>
+      <div class="btn big" data-act="zoomOut"><i class="fa-solid fa-magnifying-glass-minus c-blue"></i><span>Zoom −</span></div>
+      <div class="btn big" data-act="zoomFit"><i class="fa-solid fa-expand c-purple"></i><span>Ajuster</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Fenêtre">
+      <div class="btn big" data-act="toggleLook"><i class="fa-solid fa-circle-half-stroke c-orange"></i><span>Clair / sombre</span></div>
+      <div class="btn big" data-act="masterToggle"><i class="fa-solid fa-layer-group c-purple"></i><span>Masque</span></div>
     </div>
   </div>
 </div>
@@ -159,7 +230,9 @@
 <script src="../common/lib.js"></script>
 <script src="../common/tabs.js"></script>
 <script src="../common/templates.js"></script>
+<script src="shapes.js"></script>
 <script src="app.js"></script>
+<script src="extras.js"></script>
 <script src="ai.js"></script>
 <script src="../common/motion.js"></script>
 <script src="../common/sound.js"></script>

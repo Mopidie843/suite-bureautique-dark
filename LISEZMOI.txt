@@ -73,3 +73,11 @@ COMPTE GOOGLE (3.5)
 - Onglets de documents (Word, Excel, PowerPoint) : Ctrl+T pour un nouvel onglet, clic milieu ou × pour fermer.
 - Accueil : documents récents séparés par compte Google.
 - Version Android (APK) : voir dossier mobile/.
+
+3.11
+----
+- PowerPoint : 19 nouvelles formes (étoiles, cœur, bulle, flèches pleines, hexagone, etc.) et ligne ; export .pptx avec formes natives.
+- PowerPoint : graphiques (histogramme, courbe, secteurs, aire, anneau) modifiables par double-clic, exportés en vrais graphiques PowerPoint.
+- PowerPoint : onglet Format (position, taille, rotation, contour, tirets, opacité, retourner, coins arrondis, interligne, alignement vertical, puces, numérotation, A+/A-), répartir, avancer/reculer, reproduire la mise en forme, dupliquer.
+- PowerPoint : liens hypertexte (cliquables en diaporama), rechercher / remplacer (Ctrl+F / Ctrl+H), pied de page + date + numéro, insertion de date.
+- PowerPoint : trieur de diapositives, grille avec aimantation, volet de notes, masquer une diapositive, avance automatique, diaporama en boucle.
