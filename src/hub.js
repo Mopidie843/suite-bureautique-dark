@@ -12,7 +12,7 @@
   const SYNC_KEYS = ['look', 'wstyles', 'userName', 'recentTpl', 'defFont', 'defSize'];
   let ST = null;
   const setAcc = s => {
-    ST = s; const b = $('#btn-account'), u = s && s.user; $('#acc-label').textContent = u ? u.name : 'Se connecter avec Google';
+    ST = s; const b = $('#btn-account'), u = s && s.user; try { localStorage.setItem('wd_owner', JSON.stringify(u ? u.email : '')); } catch (e) { /* ignore */ } if (typeof renderRecents === 'function') setTimeout(renderRecents, 0); $('#acc-label').textContent = u ? u.name : 'Se connecter avec Google';
     b.title = u ? u.email : 'Connexion avec un compte Google'; const old = b.querySelector('img.acc-pic'); if (old) old.remove();
     if (u && u.picture) { const im = document.createElement('img'); im.className = 'acc-pic'; im.src = u.picture; im.alt = ''; b.insertBefore(im, b.firstChild); b.querySelector('i').style.display = 'none'; } else b.querySelector('i').style.display = '';
     const h = $('#hello'); h.textContent = 'Bonjour' + (u ? ', ' + (u.given || u.name) : (A.settings.get('userName', '') ? ', ' + A.settings.get('userName', '') : ''));
@@ -100,12 +100,15 @@
   document.addEventListener('drop', e => { e.preventDefault(); document.body.classList.remove('dropping'); const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (!f || !api) return; const p = api.pathForFile(f), ext = (f.name.split('.').pop() || '').toLowerCase(); if (!p) { A.toast('Fichier illisible.', 'err'); return; } if (!/^(docx|wordweb|html|htm|txt|md|csv|xlsx|pptx)$/.test(ext)) { A.toast('Format non pris en charge : .' + ext, 'err'); return; } api.openApp(KIND_OF(ext), p); });
   function all(db) { return new Promise(res => { try { const r = indexedDB.open(db); r.onupgradeneeded = () => { r.transaction.abort(); res([]); }; r.onerror = () => res([]); r.onsuccess = () => { const d = r.result; if (!d.objectStoreNames.contains('docs')) { d.close(); return res([]); } const q = d.transaction('docs').objectStore('docs').getAll(); q.onsuccess = () => { d.close(); res(q.result || []); }; q.onerror = () => res([]); }; } catch (e) { res([]); } }); }
   const when = ts => { const d = new Date(ts); return d.toLocaleDateString('fr-FR') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
-  (async function () {
-    const rows = [];
-    for (const [k, v] of Object.entries(KINDS)) (await all(v.db)).forEach(d => { if (d.title) rows.push({ k, d }); });
+  let rows = [], recentBound = false;
+  const owner = () => { const u = ST && ST.user; return u ? u.email : ''; };
+  async function renderRecents() {
+    rows = [];
+    for (const [k, v] of Object.entries(KINDS)) (await all(v.db)).forEach(d => { if (d.title && (!d.owner || d.owner === owner())) rows.push({ k, d }); });
     rows.sort((a, b) => (b.d.modified || 0) - (a.d.modified || 0));
     $('#empty').style.display = rows.length ? 'none' : '';
     $('#recent').innerHTML = rows.slice(0, 15).map((r, i) => { const v = KINDS[r.k]; return '<tr data-i="' + i + '"><td><i class="fa-solid ' + v.icon + '" style="color:' + v.color + '"></i>' + esc(r.d.title) + '</td><td>' + v.label + '</td><td>' + (r.d.modified ? when(r.d.modified) : '') + '</td></tr>'; }).join('');
-    $('#recent').addEventListener('click', e => { const tr = e.target.closest('tr'); if (!tr) return; const r = rows[+tr.dataset.i]; A.settings.set(KINDS[r.k].key, r.d.id); open(r.k); });
-  })();
+    if (!recentBound) { recentBound = true; $('#recent').addEventListener('click', e => { const tr = e.target.closest('tr'); if (!tr) return; const r = rows[+tr.dataset.i]; A.settings.set(KINDS[r.k].key, r.d.id); open(r.k); }); }
+  }
+  renderRecents(); window.__hub = { setAcc, renderRecents };
 })();

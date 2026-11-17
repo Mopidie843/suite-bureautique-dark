@@ -4,7 +4,7 @@
   const { $, $$, esc, ACT } = A, api = A.api;
   const store = A.store('ppt-dark'), W0 = 960, H0 = 540;
   const stage = $('#stage'), thumbs = $('#thumbs'), notes = $('#notes');
-  let deck = null, cur = 0, selId = null, scale = 1, userZoom = 1, undoStack = [], redoStack = [], clip = null, editingId = null, dirty = false;
+  let deck = null, cur = 0, selId = null, extra = new Set(), masterMode = false, scale = 1, userZoom = 1, undoStack = [], redoStack = [], clip = null, editingId = null, dirty = false;
 
   const THEMES = [
     { n: 'Office', bg: '#ffffff', title: '#2b579a', text: '#262626', accent: '#2b579a' },
@@ -15,7 +15,11 @@
     { n: 'Ardoise', bg: '#eef1f5', title: '#1f3a5f', text: '#33415c', accent: '#3d5a80' }
   ];
   const themeOf = () => THEMES[deck.theme || 0];
-  const sl = () => deck.slides[cur];
+  const sl = () => (masterMode ? deck.master : deck.slides[cur]);
+  const grp = id => { const o = find(id); return o && o.gid ? sl().objs.filter(q => q.gid === o.gid).map(q => q.id) : [id]; };
+  /* sélection : objet principal + objets ajoutés (Maj+clic / lasso) + tous les membres de leurs groupes */
+  const selSet = () => { const r = new Set(); if (selId) grp(selId).forEach(i => r.add(i)); extra.forEach(i => grp(i).forEach(j => r.add(j))); return r; };
+  const selObjs = () => sl().objs.filter(o => selSet().has(o.id));
   const find = id => sl().objs.find(o => o.id === id);
 
   /* ---------- Modèle ---------- */
@@ -32,15 +36,15 @@
     else if (layout === 'quote') objs.push(text(100, 150, 760, 200, '« Une citation marquante »', { fs: 40, i: true, color: th.title, al: 'center' }), text(100, 370, 760, 50, '— Auteur', { fs: 24, al: 'right' }));
     return { id: A.uid(), bg: th.bg, objs, notes: '', tr: 'none' };
   }
-  const newDeck = () => { const d = { id: A.uid(), title: 'Présentation1', path: null, theme: 0, slides: [], created: Date.now() }; deck = d; d.slides.push(makeSlide('title')); return d; };
-  const snap = () => JSON.stringify({ s: deck.slides, c: cur, t: deck.theme });
+  const newDeck = () => { const d = { id: A.uid(), title: 'Présentation1', path: null, theme: 0, slides: [], master: { objs: [] }, created: Date.now() }; deck = d; d.slides.push(makeSlide('title')); return d; };
+  const snap = () => JSON.stringify({ s: deck.slides, c: cur, t: deck.theme, m: deck.master });
   function mutate(fn) { undoStack.push(snap()); if (undoStack.length > 80) undoStack.shift(); redoStack = []; fn(); changed(); }
   function changed(noRender) { dirty = true; setBadge('pending'); if (!noRender) renderAll(); else renderThumb(cur); autosave(); }
-  function restore(js) { const o = JSON.parse(js); deck.slides = o.s; cur = Math.min(o.c, o.s.length - 1); deck.theme = o.t; selId = null; editingId = null; renderAll(); dirty = true; autosave(); }
+  function restore(js) { const o = JSON.parse(js); deck.slides = o.s; cur = Math.min(o.c, o.s.length - 1); deck.theme = o.t; if (o.m) deck.master = o.m; selId = null; extra.clear(); editingId = null; renderAll(); dirty = true; autosave(); }
   ACT.undo = () => { if (!undoStack.length) return; redoStack.push(snap()); restore(undoStack.pop()); };
   ACT.redo = () => { if (!redoStack.length) return; undoStack.push(snap()); restore(redoStack.pop()); };
   function setBadge(k) { const b = $('#save-badge'); b.className = 'badge ' + (k === 'pending' ? 'dirty' : 'saved'); b.textContent = k === 'saved' ? 'Enregistré' : k === 'auto' ? 'Copie auto enregistrée' : 'Modifié'; }
-  const doSave = async () => { try { await store.put({ id: deck.id, title: deck.title, path: deck.path, theme: deck.theme, slides: deck.slides, created: deck.created, modified: Date.now() }); A.settings.set('lastPpt', deck.id); return true; } catch (e) { return false; } };
+  const doSave = async () => { try { await store.put({ id: deck.id, title: deck.title, path: deck.path, theme: deck.theme, slides: deck.slides, master: deck.master, created: deck.created, modified: Date.now() }); A.settings.set('lastPpt', deck.id); return true; } catch (e) { return false; } };
   const autosave = A.debounce(async () => { if (A.settings.get('autosave', true) && await doSave()) setBadge('auto'); }, 1200);
 
   /* ---------- Rendu ---------- */
@@ -69,11 +73,16 @@
     const span = document.createElement('span'); span.className = 'tx'; span.textContent = o.text || ''; span.style.position = 'relative'; span.style.width = '100%'; if (o.type === 'text') span.style.display = 'block'; d.appendChild(span);
     return d;
   }
-  function slideEl(sd, live) { const el = document.createElement('div'); el.className = 'pslide'; el.style.background = sd.bg || '#fff'; sd.objs.forEach(o => el.appendChild(objEl(o, live))); return el; }
+  function slideEl(sd, live) {
+    const el = document.createElement('div'), isM = sd === deck.master; el.className = 'pslide'; el.style.background = (isM ? deck.slides[cur].bg : sd.bg) || '#fff';
+    if (!isM && !sd.hideMaster && deck.master && deck.master.objs.length) { const n = deck.slides.indexOf(sd) + 1; deck.master.objs.forEach(o => { const c = o.type === 'text' && /\{n\}/.test(o.text || '') ? Object.assign({}, o, { text: o.text.replace(/\{n\}/g, n) }) : o; const d = objEl(c, false); d.classList.add('mobj'); d.removeAttribute('data-id'); el.appendChild(d); }); }
+    sd.objs.forEach(o => el.appendChild(objEl(o, live))); return el;
+  }
   function renderStage() {
-    stage.innerHTML = ''; const el = slideEl(sl(), true); stage.appendChild(el); stage.style.background = sl().bg;
-    $$('.pobj', el).forEach(d => { if (d.dataset.id === selId) { d.classList.add('selected'); addHandles(d); } if (d.dataset.id === editingId) startEditDom(d); });
-    $('#sb-slide').textContent = 'Diapositive ' + (cur + 1) + ' sur ' + deck.slides.length;
+    stage.innerHTML = ''; const el = slideEl(sl(), true); stage.appendChild(el); stage.style.background = masterMode ? deck.slides[cur].bg : sl().bg; const ss = selSet();
+    $$('.pobj', el).forEach(d => { const id = d.dataset.id; if (!id) return; if (id === selId) d.classList.add('selected'); else if (ss.has(id)) d.classList.add('msel'); if (id === selId && ss.size === 1) addHandles(d); if (id === editingId) startEditDom(d); });
+    banner();
+    $('#sb-slide').textContent = masterMode ? 'Masque des diapositives' : 'Diapositive ' + (cur + 1) + ' sur ' + deck.slides.length;
     notes.value = sl().notes || '';
     syncTools(); syncAnim();
   }
@@ -111,15 +120,25 @@
     if (e.target.isContentEditable) return;
     { const ae = document.activeElement; if (ae && ae.isContentEditable && ae.closest && ae.closest('.tbl')) ae.blur(); }
     if (editingId && !(d && d.dataset.id === editingId)) commitEdit();
-    if (!d) { selId = null; renderStage(); return; }
+    if (!d || !d.dataset.id) {
+      /* lasso : glisser sur le vide sélectionne les objets touchés */
+      const q0 = pt(e), box = document.createElement('div'); box.className = 'marquee'; let on = false;
+      const mvL = ev => { const q = pt(ev); if (!on && Math.abs(q.x - q0.x) + Math.abs(q.y - q0.y) < 6) return; if (!on) { on = true; stage.appendChild(box); } const x = Math.min(q.x, q0.x), y = Math.min(q.y, q0.y); box.style.cssText = 'left:' + x + 'px;top:' + y + 'px;width:' + Math.abs(q.x - q0.x) + 'px;height:' + Math.abs(q.y - q0.y) + 'px'; };
+      const upL = ev => { document.removeEventListener('mousemove', mvL); document.removeEventListener('mouseup', upL); box.remove(); const q = pt(ev), x1 = Math.min(q.x, q0.x), x2 = Math.max(q.x, q0.x), y1 = Math.min(q.y, q0.y), y2 = Math.max(q.y, q0.y);
+        if (!on) { selId = null; extra.clear(); renderStage(); return; }
+        const hit = sl().objs.filter(o => o.x < x2 && o.x + o.w > x1 && o.y < y2 && o.y + o.h > y1).map(o => o.id); selId = hit[0] || null; extra = new Set(hit.slice(1)); renderStage(); };
+      document.addEventListener('mousemove', mvL); document.addEventListener('mouseup', upL); e.preventDefault(); return;
+    }
     if (d.classList.contains('editing')) return;
-    const id = d.dataset.id; if (selId !== id) { selId = id; renderStage(); }
+    const id = d.dataset.id;
+    if (e.shiftKey && !h) { if (selId === id) { selId = [...extra][0] || null; extra.delete(selId); } else if (extra.has(id)) extra.delete(id); else if (selId) extra.add(id); else selId = id; renderStage(); return; }
+    if (!selSet().has(id)) { selId = id; extra.clear(); renderStage(); } else if (selId !== id && !h) { selId = id; extra = new Set([...selSet()].filter(i => i !== id)); renderStage(); }
     const o = find(id), p0 = pt(e), start = { x: o.x, y: o.y, w: o.w, h: o.h }; let moved = false, pushed = false;
-    const mode = h ? h.dataset.h : 'move';
+    const mode = h ? h.dataset.h : 'move', multi = mode === 'move' ? selObjs().map(q => ({ q, x: q.x, y: q.y })) : null;
     const mv = ev => {
       const p = pt(ev), dx = p.x - p0.x, dy = p.y - p0.y; if (!moved && Math.abs(dx) + Math.abs(dy) < 3) return; moved = true;
       if (!pushed) { undoStack.push(snap()); redoStack = []; pushed = true; }
-      if (mode === 'move') { o.x = Math.round(start.x + dx); o.y = Math.round(start.y + dy); snapTo(o, ev.altKey); }
+      if (mode === 'move') { o.x = Math.round(start.x + dx); o.y = Math.round(start.y + dy); if (multi.length < 2) snapTo(o, ev.altKey); else multi.forEach(m => { m.q.x = Math.round(m.x + dx); m.q.y = Math.round(m.y + dy); const e2 = stage.querySelector('[data-id="' + m.q.id + '"]'); if (e2) { e2.style.left = m.q.x + 'px'; e2.style.top = m.q.y + 'px'; } }); }
       else { let x = start.x, y = start.y, w = start.w, hh = start.h; if (mode.includes('e')) w = start.w + dx; if (mode.includes('s')) hh = start.h + dy; if (mode.includes('w')) { x = start.x + dx; w = start.w - dx; } if (mode.includes('n')) { y = start.y + dy; hh = start.h - dy; } if (w < 20) { if (mode.includes('w')) x -= 20 - w; w = 20; } if (hh < 20) { if (mode.includes('n')) y -= 20 - hh; hh = 20; } o.x = Math.round(x); o.y = Math.round(y); o.w = Math.round(w); o.h = Math.round(hh); }
       const el = stage.querySelector('[data-id="' + id + '"]'); el.style.left = o.x + 'px'; el.style.top = o.y + 'px'; el.style.width = o.w + 'px'; el.style.height = o.h + 'px';
     };
@@ -137,7 +156,7 @@
   notes.addEventListener('input', () => { sl().notes = notes.value; dirty = true; autosave(); });
 
   /* ---------- Diapositives ---------- */
-  thumbs.addEventListener('click', e => { const t = e.target.closest('.thumb'); if (!t) return; commitEdit(); cur = +t.dataset.i; selId = null; renderAll(); });
+  thumbs.addEventListener('click', e => { const t = e.target.closest('.thumb'); if (!t) return; commitEdit(); masterMode = false; cur = +t.dataset.i; selId = null; extra.clear(); renderAll(); });
   let dragI = null;
   thumbs.addEventListener('dragstart', e => { const t = e.target.closest('.thumb'); if (t) dragI = +t.dataset.i; });
   thumbs.addEventListener('dragover', e => e.preventDefault());
@@ -147,6 +166,15 @@
   ACT.delSlide = () => { if (deck.slides.length < 2) { A.toast('Une présentation doit contenir au moins une diapositive.'); return; } mutate(() => { deck.slides.splice(cur, 1); cur = Math.max(0, cur - 1); selId = null; }); };
 
   /* ---------- Objets ---------- */
+  function alignSel(k) {
+    const os = selObjs(); if (os.length < 2) { A.toast('Sélectionnez au moins 2 objets.'); return; }
+    const L = Math.min(...os.map(o => o.x)), R = Math.max(...os.map(o => o.x + o.w)), T = Math.min(...os.map(o => o.y)), B = Math.max(...os.map(o => o.y + o.h));
+    mutate(() => os.forEach(o => { if (k === 'l') o.x = L; else if (k === 'r') o.x = R - o.w; else if (k === 'c') o.x = Math.round((L + R) / 2 - o.w / 2); else if (k === 't') o.y = T; else if (k === 'b') o.y = B - o.h; else o.y = Math.round((T + B) / 2 - o.h / 2); }));
+  }
+  function banner() {
+    let b = $('#master-banner'); if (!masterMode) { if (b) b.remove(); return; }
+    if (!b) { b = document.createElement('div'); b.id = 'master-banner'; b.innerHTML = '<i class="fa-solid fa-layer-group"></i> Masque : ce que vous placez ici apparaît sur toutes les diapositives <button data-act="masterToggle">Fermer le masque</button>'; const sa = $('#stage-area'); sa.parentNode.insertBefore(b, sa); }
+  }
   const add = o => mutate(() => { sl().objs.push(o); selId = o.id; });
   ACT.addText = () => add(text(300, 200, 360, 80, 'Zone de texte', { fs: 28 }));
   const shape = (type, fill) => ({ id: A.uid(), type, x: 380, y: 190, w: 200, h: 140, fill, line: '#1f3a5f', text: '', fs: 24, color: '#ffffff', al: 'center' });
@@ -167,17 +195,23 @@
     add({ id: A.uid(), type: 'image', x: Math.round((W0 - w) / 2), y: Math.round((H0 - h) / 2), w, h, src: url });
   });
   const selObj = () => selId && find(selId);
-  const edit = patch => { const o = selObj(); if (!o) { A.toast('Sélectionnez d\'abord un objet.'); return; } mutate(() => Object.assign(o, patch)); };
+  const edit = patch => { const os = selObjs(); if (!os.length) { A.toast('Sélectionnez d\'abord un objet.'); return; } mutate(() => os.forEach(o => Object.assign(o, patch))); };
   const tog = k => { const o = selObj(); if (o) edit({ [k]: !o[k] }); else A.toast('Sélectionnez d\'abord un objet.'); };
   Object.assign(ACT, {
     bold: () => tog('b'), italic: () => tog('i'), underline: () => tog('u'), alignL: () => edit({ al: 'left' }), alignC: () => edit({ al: 'center' }), alignR: () => edit({ al: 'right' }),
     noFill: () => edit({ fill: '' }),
     toFront: () => { const o = selObj(); if (o) mutate(() => { sl().objs.splice(sl().objs.indexOf(o), 1); sl().objs.push(o); }); },
     toBack: () => { const o = selObj(); if (o) mutate(() => { sl().objs.splice(sl().objs.indexOf(o), 1); sl().objs.unshift(o); }); },
-    copy: () => { const o = selObj(); if (o) { clip = JSON.parse(JSON.stringify(o)); A.toast('Copié.'); } },
-    cut: () => { const o = selObj(); if (o) { clip = JSON.parse(JSON.stringify(o)); mutate(() => { sl().objs.splice(sl().objs.indexOf(o), 1); selId = null; }); } },
-    paste: () => { if (!clip) return; const c = JSON.parse(JSON.stringify(clip)); c.id = A.uid(); c.x += 20; c.y += 20; add(c); },
-    del: () => { const o = selObj(); if (o) mutate(() => { sl().objs.splice(sl().objs.indexOf(o), 1); selId = null; }); }
+    copy: () => { const os = selObjs(); if (os.length) { clip = JSON.parse(JSON.stringify(os)); A.toast(os.length > 1 ? os.length + ' objets copiés.' : 'Copié.'); } },
+    cut: () => { const os = selObjs(); if (os.length) { clip = JSON.parse(JSON.stringify(os)); mutate(() => { sl().objs = sl().objs.filter(o => !os.includes(o)); selId = null; extra.clear(); }); } },
+    paste: () => { if (!clip) return; const cs = JSON.parse(JSON.stringify(clip)), gm = {}; cs.forEach(c => { c.id = A.uid(); c.x += 20; c.y += 20; if (c.gid) c.gid = gm[c.gid] || (gm[c.gid] = A.uid()); }); mutate(() => { sl().objs.push(...cs); selId = cs[0].id; extra = new Set(cs.slice(1).map(c => c.id)); }); },
+    del: () => { const os = selObjs(); if (os.length) mutate(() => { sl().objs = sl().objs.filter(o => !os.includes(o)); selId = null; extra.clear(); }); },
+    group: () => { const os = selObjs(); if (os.length < 2) { A.toast('Sélectionnez au moins 2 objets (Maj+clic ou glisser sur le vide).'); return; } const g = A.uid(); mutate(() => os.forEach(o => { o.gid = g; })); A.toast('Objets groupés.'); },
+    ungroup: () => { const os = selObjs().filter(o => o.gid); if (!os.length) { A.toast('Aucun groupe sélectionné.'); return; } mutate(() => os.forEach(o => { delete o.gid; })); A.toast('Groupe dissocié.'); },
+    alignLeft: () => alignSel('l'), alignCenter: () => alignSel('c'), alignRight: () => alignSel('r'), alignTop: () => alignSel('t'), alignMiddle: () => alignSel('m'), alignBottom: () => alignSel('b'),
+    masterToggle: () => { commitEdit(); masterMode = !masterMode; selId = null; extra.clear(); renderAll(); },
+    masterHide: () => { if (masterMode) return; mutate(() => { sl().hideMaster = !sl().hideMaster; }); A.toast(sl().hideMaster ? 'Masque caché sur cette diapositive.' : 'Masque affiché.'); },
+    masterNum: () => { if (!masterMode) { masterMode = true; selId = null; extra.clear(); } mutate(() => { const t = text(820, 495, 110, 32, '{n}', { fs: 16, al: 'right', color: themeOf().text }); sl().objs.push(t); selId = t.id; }); A.toast('« {n} » sera remplacé par le numéro de chaque diapositive.'); }
   });
   $('#sel-font').addEventListener('change', e => { A.settings.set('defFont', e.target.value); edit({ ff: e.target.value }); });
   $('#sel-size').addEventListener('change', e => edit({ fs: +e.target.value }));
@@ -257,7 +291,7 @@
   ACT.presenter = () => { pres.classList.toggle('presenter'); showSlide(); };
   function play(i) { commitEdit(); t0 = Date.now(); clearInterval(tmr); tmr = setInterval(() => { const e = $('#pres-timer'); if (e) e.textContent = fmt(Date.now() - t0); }, 500); pi = i; pres.classList.remove('hidden'); showSlide(true); if (pres.requestFullscreen) pres.requestFullscreen().catch(() => {}); }
   function stopPlay() { clearInterval(tmr); pres.classList.add('hidden'); pres.classList.remove('presenter'); if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); cur = pi; selId = null; renderAll(); }
-  ACT.playFrom0 = () => play(0); ACT.playFromCur = () => play(cur);
+  ACT.playFrom0 = () => { masterMode = false; play(0); }; ACT.playFromCur = () => { masterMode = false; play(cur); };
   const nextS = () => {
     if (steps.length) { const o = steps.shift(), x = $('#pres-slide [data-id="' + o.id + '"]'); if (x) { x.classList.remove('anim-wait'); x.classList.add('anim-' + o.anim); } return; }
     if (pi < deck.slides.length - 1) { pi++; showSlide(true); } else stopPlay();
@@ -291,7 +325,7 @@
   };
 
   /* ---------- Fichiers ---------- */
-  function payload() { return { title: deck.title, slides: deck.slides.map(s => ({ bg: s.bg, notes: s.notes, tr: s.tr, objs: s.objs })) }; }
+  function payload() { return { title: deck.title, master: { objs: (deck.master && deck.master.objs) || [] }, slides: deck.slides.map(s => ({ bg: s.bg, notes: s.notes, tr: s.tr, hideMaster: !!s.hideMaster, objs: s.objs })) }; }
   ACT.save = async (e, t, saveAs) => {
     commitEdit();
     if (!api) { A.toast('L\'enregistrement .pptx nécessite l\'application Windows ; une copie est conservée dans la bibliothèque.'); await doSave(); setBadge('saved'); return false; }
@@ -302,7 +336,7 @@
     deck.path = path; deck.title = A.baseName(path); $('#doc-title').value = deck.title; document.title = deck.title + ' - Nocte PowerPoint'; await doSave(); dirty = false; setBadge('saved'); A.toast('Enregistré : ' + path.replace(/^.*[\\/]/, ''), 'ok'); return true;
   };
   ACT.saveAs = () => ACT.save(null, null, true);
-  function load(d) { deck = d; cur = 0; selId = null; editingId = null; undoStack = []; redoStack = []; $('#doc-title').value = d.title; document.title = d.title + ' - Nocte PowerPoint'; renderAll(); setBadge('saved'); dirty = false; }
+  function load(d) { deck = d; if (!deck.master) deck.master = { objs: [] }; masterMode = false; extra.clear(); cur = 0; selId = null; editingId = null; undoStack = []; redoStack = []; $('#doc-title').value = d.title; document.title = d.title + ' - Nocte PowerPoint'; renderAll(); setBadge('saved'); dirty = false; if (window.NxTabs) NxTabs.sync(); }
   ACT.newDeck = async () => { await doSave(); load(newDeck()); };
   ACT.open = async () => { if (!api) { A.toast('Ouvrir des fichiers nécessite l\'application Windows.'); return; } const f = await api.openFiles({ filters: [{ name: 'Présentations', extensions: ['pptx'] }] }); if (f && f[0]) openFile(f[0]); };
   async function importPptx(bytes) {
@@ -354,6 +388,7 @@
     if (!v) return; if (v.a) ACT[v.a](); else if (v.d) { await doSave(); const rec = await store.get(v.d); if (rec) load(rec); }
   };
   $('#doc-title').addEventListener('change', e => { deck.title = e.target.value.trim() || 'Présentation1'; e.target.value = deck.title; document.title = deck.title + ' - Nocte PowerPoint'; dirty = true; autosave(); });
+  if (window.NxTabs) NxTabs.init({ current: () => ({ id: deck.id, title: deck.title }), exists: async id => !!(await store.get(id)), save: doSave, open: async id => { await doSave(); const rec = await store.get(id); if (!rec) throw new Error('absent'); load(rec); }, create: ACT.newDeck });
   window.addEventListener('beforeunload', () => { doSave(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) doSave(); });
   if (api && api.onBeforeClose) api.onBeforeClose(async () => { commitEdit(); if (dirty && !A.settings.get('autosave', true)) { if (await A.confirmBox('Nocte PowerPoint', 'Enregistrer les modifications de « ' + deck.title + ' » ?', 'Enregistrer')) await ACT.save(); } await doSave(); api.confirmClose(true); });

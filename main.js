@@ -213,10 +213,13 @@ async function pptxBuild(deck) {
   const PptxGenJS = require('pptxgenjs'), p = new PptxGenJS();
   p.defineLayout({ name: 'W169', width: 13.333, height: 7.5 }); p.layout = 'W169'; p.title = deck.title; p.author = G.authorName() || 'Nocte PowerPoint';
   const I = n => Math.round(n / 72 * 1000) / 1000, col = c => String(c || '#000000').replace('#', '').toUpperCase();
-  for (const sd of deck.slides) {
-    const s = p.addSlide(); s.background = { color: col(sd.bg || '#ffffff') };
-    for (const o of sd.objs) {
-      const pos = { x: I(o.x), y: I(o.y), w: I(o.w), h: I(o.h) };
+  const master = (deck.master && deck.master.objs) || [], animsBySlide = [];
+  for (const [si, sd] of deck.slides.entries()) {
+    const s = p.addSlide(); s.background = { color: col(sd.bg || '#ffffff') }; const anims = []; animsBySlide.push(anims);
+    const own = new Set(sd.objs), all = (sd.hideMaster ? [] : master).concat(sd.objs);
+    for (const o0 of all) {
+      let o = o0; if (o.type === 'text' && /\{n\}/.test(o.text || '')) o = Object.assign({}, o, { text: o.text.replace(/\{n\}/g, String(si + 1)) });
+      const pos = { x: I(o.x), y: I(o.y), w: I(o.w), h: I(o.h), objectName: 'nocte-' + o.id }; if (own.has(o0) && o.anim && o.anim !== 'none') anims.push({ id: o.id, kind: o.anim });
       if (o.type === 'table' && Array.isArray(o.cells)) {
         const bc = col(o.line || '#8a8a8a'), rowsT = o.cells.map((row, r) => row.map(v => ({ text: String(v || ''), options: o.hdr && r === 0 ? { bold: true, color: 'FFFFFF', fill: { color: col(o.fill || '#2b579a') } } : { color: col(o.color || '#262626'), fill: o.hdr && r % 2 === 0 ? { color: 'EDEDED' } : undefined } })));
         s.addTable(rowsT, { ...pos, fontSize: Math.round((o.fs || 20) * 0.75), fontFace: o.ff || 'Calibri', border: { type: 'solid', color: bc, pt: 1 }, valign: 'middle', margin: 0.06 }); continue;
@@ -233,16 +236,26 @@ async function pptxBuild(deck) {
     if (sd.notes) s.addNotes(sd.notes);
   }
   let buf = Buffer.from(await p.write({ outputType: 'nodebuffer' }));
-  if (deck.slides.some(x => x.tr && x.tr !== 'none')) {
+  const hasTr = deck.slides.some(x => x.tr && x.tr !== 'none'), hasAn = animsBySlide.some(a => a.length);
+  if (hasTr || hasAn) {
     try {
       const JSZip = require('jszip'), zip = await JSZip.loadAsync(buf), X = { fade: '<p:fade/>', slide: '<p:cover dir="l"/>', push: '<p:push dir="l"/>', zoom: '<p:zoom dir="in"/>', wipe: '<p:wipe dir="l"/>', flip: '<p:split orient="horz" dir="out"/>', rotate: '<p:zoom dir="out"/>', blur: '<p:fade/>', bounce: '<p:push dir="u"/>', curtain: '<p:split orient="vert" dir="out"/>' };
+      const EFF = { fade: [10, 0, 'fade'], fly: [22, 8, 'wipe(left)'], right: [22, 2, 'wipe(right)'], up: [22, 4, 'wipe(down)'], drop: [22, 1, 'wipe(up)'] };
+      const timing = list => {
+        let id = 3; const clicks = list.map(a => { const e = EFF[a.kind] || EFF.fade, c = id; id += 5;
+          return '<p:par><p:cTn id="' + c + '" fill="hold"><p:stCondLst><p:cond delay="indefinite"/></p:stCondLst><p:childTnLst><p:par><p:cTn id="' + (c + 1) + '" fill="hold"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst><p:par><p:cTn id="' + (c + 2) + '" presetID="' + e[0] + '" presetClass="entr" presetSubtype="' + e[1] + '" fill="hold" nodeType="clickEffect"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst><p:set><p:cBhvr><p:cTn id="' + (c + 3) + '" dur="1" fill="hold"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn><p:tgtEl><p:spTgt spid="' + a.spid + '"/></p:tgtEl><p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst></p:cBhvr><p:to><p:strVal val="visible"/></p:to></p:set><p:animEffect transition="in" filter="' + e[2] + '"><p:cBhvr><p:cTn id="' + (c + 4) + '" dur="500"/><p:tgtEl><p:spTgt spid="' + a.spid + '"/></p:tgtEl></p:cBhvr></p:animEffect></p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn></p:par>'; }).join('');
+        return '<p:timing><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst><p:seq concurrent="1" nextAc="seek"><p:cTn id="2" dur="indefinite" nodeType="mainSeq"><p:childTnLst>' + clicks + '</p:childTnLst></p:cTn><p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst><p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst></p:seq></p:childTnLst></p:cTn></p:par></p:tnLst></p:timing>';
+      };
       for (let i = 0; i < deck.slides.length; i++) {
-        const t = X[deck.slides[i].tr], f = zip.file('ppt/slides/slide' + (i + 1) + '.xml'); if (!t || !f) continue;
-        const xml = await f.async('string'); if (xml.includes('<p:transition')) continue;
-        zip.file('ppt/slides/slide' + (i + 1) + '.xml', xml.replace('</p:clrMapOvr>', '</p:clrMapOvr><p:transition spd="med">' + t + '</p:transition>'));
+        const f = zip.file('ppt/slides/slide' + (i + 1) + '.xml'); if (!f) continue;
+        let xml = await f.async('string'), add = '';
+        const t = X[deck.slides[i].tr]; if (t && !xml.includes('<p:transition')) add += '<p:transition spd="med">' + t + '</p:transition>';
+        const list = animsBySlide[i].map(a => { const m = new RegExp('<p:cNvPr id="(\\d+)" name="nocte-' + a.id + '"').exec(xml); return m ? { kind: a.kind, spid: m[1] } : null; }).filter(Boolean);
+        if (list.length && !xml.includes('<p:timing')) add += timing(list);
+        if (add) zip.file('ppt/slides/slide' + (i + 1) + '.xml', xml.replace('</p:clrMapOvr>', '</p:clrMapOvr>' + add));
       }
       buf = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
-    } catch (e) { /* transitions non exportées */ }
+    } catch (e) { /* transitions et animations non exportées */ }
   }
   return buf;
 }

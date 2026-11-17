@@ -25,7 +25,7 @@ W.store = (function () {
     });
   }
   return {
-    async put(rec) { try { return await run('readwrite', s => s.put(rec)); } catch (e) { mem[rec.id] = rec; throw e; } },
+    async put(rec) { try { const o = JSON.parse(localStorage.getItem('wd_owner') || '""'); if (o && rec && !rec.owner) rec.owner = o; } catch (e) { /* ignore */ } try { return await run('readwrite', s => s.put(rec)); } catch (e) { mem[rec.id] = rec; throw e; } },
     async get(id) { try { return await run('readonly', s => s.get(id)); } catch (e) { return mem[id]; } },
     async del(id) { delete mem[id]; try { return await run('readwrite', s => s.delete(id)); } catch (e) { /* ignoré */ } },
     async all() { try { return (await run('readonly', s => s.getAll())) || []; } catch (e) { return Object.values(mem); } }

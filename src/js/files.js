@@ -75,6 +75,7 @@
     if (W.autoFit) W.fitWidth();
     W.settings.set('lastDoc', W.doc.id);
     ed.scrollTop = 0; $('#workspace').scrollTop = 0;
+    if (window.NxTabs) NxTabs.sync();
   };
   W.newDoc = async function (tplKey) {
     await W.saveLibrary();

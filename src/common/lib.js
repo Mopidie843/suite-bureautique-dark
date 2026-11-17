@@ -67,5 +67,6 @@ document.querySelectorAll('.ribbon-tab').forEach(t => t.addEventListener('click'
 A.store = (dbName) => {
   const open = () => new Promise((res, rej) => { const r = indexedDB.open(dbName, 1); r.onupgradeneeded = () => r.result.createObjectStore('docs', { keyPath: 'id' }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
   const tx = async (mode, fn) => { const db = await open(); return new Promise((res, rej) => { const t = db.transaction('docs', mode), q = fn(t.objectStore('docs')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }); };
-  return { put: d => tx('readwrite', s => s.put(d)), get: id => tx('readonly', s => s.get(id)), del: id => tx('readwrite', s => s.delete(id)), all: () => tx('readonly', s => s.getAll()) };
+  const stamp = d => { try { const o = JSON.parse(localStorage.getItem('wd_owner') || '""'); if (o && d && !d.owner) d.owner = o; } catch (e) { /* ignore */ } return d; };
+  return { put: d => tx('readwrite', s => s.put(stamp(d))), get: id => tx('readonly', s => s.get(id)), del: id => tx('readwrite', s => s.delete(id)), all: () => tx('readonly', s => s.getAll()) };
 };

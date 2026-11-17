@@ -370,7 +370,7 @@
     wb.path = path; wb.title = A.baseName(path); $('#doc-title').value = wb.title; document.title = wb.title + ' - Nocte Excel'; await doSave(); dirty = false; setBadge('saved'); A.toast('Enregistré : ' + path.replace(/^.*[\\/]/, ''), 'ok'); return true;
   };
   ACT.saveAs = () => ACT.save(null, null, true);
-  function load(b) { wb = b; sel = { r0: 0, c0: 0, r1: 0, c1: 0 }; act = { r: 0, c: 0 }; anchor = act; undoStack = []; redoStack = []; ROWS = ROWS0; $('#doc-title').value = wb.title; document.title = wb.title + ' - Nocte Excel'; build(); setBadge('saved'); dirty = false; }
+  function load(b) { wb = b; sel = { r0: 0, c0: 0, r1: 0, c1: 0 }; act = { r: 0, c: 0 }; anchor = act; undoStack = []; redoStack = []; ROWS = ROWS0; $('#doc-title').value = wb.title; document.title = wb.title + ' - Nocte Excel'; build(); setBadge('saved'); dirty = false; if (window.NxTabs) NxTabs.sync(); }
   ACT.newBook = async () => { await doSave(); load(newBook()); };
   async function openFile(f) {
     const ext = (f.ext || '').toLowerCase(); let b;
@@ -392,6 +392,7 @@
     if (!v) return; if (v.a) ACT[v.a](); else if (v.d) { await doSave(); const rec = await store.get(v.d); if (rec) load(rec); }
   };
   $('#doc-title').addEventListener('change', e => { wb.title = e.target.value.trim() || 'Classeur1'; e.target.value = wb.title; document.title = wb.title + ' - Nocte Excel'; dirty = true; autosave(); });
+  if (window.NxTabs) NxTabs.init({ current: () => ({ id: wb.id, title: wb.title }), exists: async id => !!(await store.get(id)), save: doSave, open: async id => { await doSave(); const rec = await store.get(id); if (!rec) throw new Error('absent'); load(rec); }, create: ACT.newBook });
   window.addEventListener('beforeunload', () => { doSave(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) doSave(); });
   if (api && api.onBeforeClose) api.onBeforeClose(async () => { if (dirty && !A.settings.get('autosave', true)) { const ok = await A.confirmBox('Nocte Excel', 'Enregistrer les modifications de « ' + wb.title + ' » ?', 'Enregistrer'); if (ok) await ACT.save(); } await doSave(); api.confirmClose(true); });

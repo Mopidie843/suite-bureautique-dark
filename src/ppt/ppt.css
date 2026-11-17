@@ -88,3 +88,10 @@ body:not(.look-word) .ai-m.bot{background:#2b2b2b;color:#ddd}
 #present.presenter{cursor:default}
 #present.presenter #pres-panel{display:flex;flex-direction:column;gap:8px;position:absolute;right:0;top:0;bottom:0;width:36%;padding:20px;background:#15181d;color:#e8e8e8;font:15px/1.5 Segoe UI,sans-serif;overflow:auto}
 #pres-panel .pp-t{font:700 44px/1 Consolas,monospace;color:#6ab0ff}#pres-panel h4{margin:10px 0 0;color:#9aa;font-size:12px;text-transform:uppercase;letter-spacing:.08em}#pres-panel .pp-n{white-space:pre-wrap;font-size:18px}#pres-panel small{margin-top:auto;opacity:.5}
+
+/* multi-sélection, lasso, groupes, masque */
+.pobj.msel{outline:2px dashed #35a7d8;outline-offset:1px}
+.marquee{position:absolute;border:1px solid #35a7d8;background:rgba(53,167,216,.15);pointer-events:none;z-index:40}
+.mobj{pointer-events:none!important;user-select:none}
+#master-banner{flex:0 0 auto;background:linear-gradient(90deg,#6a4cf6,#b44cf6);color:#fff;padding:7px 14px;font-size:12px;display:flex;gap:10px;align-items:center;justify-content:center}
+#master-banner button{background:rgba(255,255,255,.22);border:0;color:#fff;border-radius:12px;padding:3px 10px;cursor:pointer}

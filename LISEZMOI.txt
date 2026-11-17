@@ -65,3 +65,11 @@ COMPTE GOOGLE (3.5)
 - Bascule clair/sombre instantanée (plus de délai).
 - Barre d'onglets : indicateur dégradé lumineux qui glisse d'un onglet à l'autre.
 - Petits sons (synthétisés) : clics, onglets, notifications, ouverture de fenêtres, case à cocher ; Sons (accueil) ou Affichage > Sons pour les couper.
+
+3.10
+----
+- PowerPoint : grouper / dissocier, sélection multiple (Maj+clic ou lasso), alignement de plusieurs objets.
+- PowerPoint : masque des diapositives (Création > Masque) avec numéro de diapo ; animations (fondu, entrées) et masque exportés dans le .pptx.
+- Onglets de documents (Word, Excel, PowerPoint) : Ctrl+T pour un nouvel onglet, clic milieu ou × pour fermer.
+- Accueil : documents récents séparés par compte Google.
+- Version Android (APK) : voir dossier mobile/.

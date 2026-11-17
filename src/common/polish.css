@@ -66,3 +66,14 @@ body.zen #workspace{height:100vh!important;top:0!important}
 @keyframes tabStretch{0%{height:3px}40%{height:5px;filter:brightness(1.4)}100%{height:3px}}
 .ribbon-tab.active{text-shadow:0 0 12px rgba(140,160,255,.45)}
 @media (prefers-reduced-motion:reduce){.tab-ind{animation:none}}
+
+/* onglets de documents */
+#doc-tabs{display:flex;align-items:flex-end;gap:2px;padding:4px 8px 0;background:rgba(120,140,190,.12);border-bottom:1px solid rgba(120,140,190,.25);overflow-x:auto;overflow-y:hidden;flex:0 0 auto;min-height:32px}
+#doc-tabs.hidden{display:none}
+#doc-tabs .dt{display:flex;align-items:center;gap:6px;max-width:200px;min-width:90px;padding:6px 8px 6px 12px;border-radius:8px 8px 0 0;font-size:12.5px;cursor:pointer;color:inherit;opacity:.72;background:rgba(120,140,190,.1);transition:background .15s,opacity .15s}
+#doc-tabs .dt:hover{opacity:1;background:rgba(120,140,190,.22)}
+#doc-tabs .dt.on{opacity:1;background:var(--bg-page,#fff);box-shadow:0 -2px 0 #7b96ff inset,0 -6px 14px -8px rgba(123,150,255,.7);font-weight:600}
+#doc-tabs .dt-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+#doc-tabs .dt-x,#doc-tabs .dt-plus{background:transparent;border:0;color:inherit;border-radius:50%;width:20px;height:20px;line-height:18px;cursor:pointer;opacity:.6;font-size:15px;padding:0}
+#doc-tabs .dt-x:hover,#doc-tabs .dt-plus:hover{opacity:1;background:rgba(255,80,80,.25)}
+#doc-tabs .dt-plus:hover{background:rgba(120,160,255,.3)}

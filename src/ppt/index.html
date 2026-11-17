@@ -83,6 +83,9 @@
     <div class="group" data-label="Assistant"><div class="btn big" data-act="aiToggle"><i class="fa-solid fa-wand-magic-sparkles c-purple"></i><span>Assistant IA</span></div></div>
     <div class="divider"></div>
     <div class="group" data-label="Organiser">
+      <div class="stack"><div class="btn sm" data-act="group" title="Grouper les objets sélectionnés"><i class="fa-solid fa-object-group c-blue"></i> Grouper</div><div class="btn sm" data-act="ungroup" title="Dissocier le groupe"><i class="fa-solid fa-object-ungroup c-orange"></i> Dissocier</div></div>
+      <div class="stack"><div class="btn sm" data-act="alignLeft" title="Aligner à gauche"><i class="fa-solid fa-align-left"></i></div><div class="btn sm" data-act="alignCenter" title="Centrer horizontalement"><i class="fa-solid fa-align-center"></i></div><div class="btn sm" data-act="alignRight" title="Aligner à droite"><i class="fa-solid fa-align-right"></i></div></div>
+      <div class="stack"><div class="btn sm" data-act="alignTop" title="Aligner en haut"><i class="fa-solid fa-arrow-up-long"></i></div><div class="btn sm" data-act="alignMiddle" title="Centrer verticalement"><i class="fa-solid fa-grip-lines"></i></div><div class="btn sm" data-act="alignBottom" title="Aligner en bas"><i class="fa-solid fa-arrow-down-long"></i></div></div>
       <div class="stack"><div class="btn sm" data-act="toFront"><i class="fa-solid fa-arrow-up"></i> Premier plan</div><div class="btn sm" data-act="toBack"><i class="fa-solid fa-arrow-down"></i> Arrière-plan</div></div>
     </div>
   </div>
@@ -108,6 +111,12 @@
     <div class="group" data-label="Arrière-plan">
       <label class="btn big colorbtn" style="position:relative"><i class="fa-solid fa-fill c-blue"></i><span>Couleur de fond</span><input type="color" id="in-bg" value="#ffffff"></label>
       <div class="btn big" data-act="bgAll"><i class="fa-solid fa-copy c-purple"></i><span>Fond sur toutes</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="group" data-label="Masque">
+      <div class="btn big" data-act="masterToggle" title="Éléments communs à toutes les diapositives"><i class="fa-solid fa-layer-group c-purple"></i><span>Masque</span></div>
+      <div class="btn big" data-act="masterNum"><i class="fa-solid fa-hashtag c-green"></i><span>Numéro de diapo</span></div>
+      <div class="btn big" data-act="masterHide"><i class="fa-solid fa-eye-slash c-orange"></i><span>Masquer ici</span></div>
     </div>
   </div>
   <div class="ribbon-panel hidden" id="ribbon-transitions">
@@ -148,6 +157,7 @@
 <input type="file" id="image-input" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
 <script src="../vendor/jszip.min.js"></script>
 <script src="../common/lib.js"></script>
+<script src="../common/tabs.js"></script>
 <script src="../common/templates.js"></script>
 <script src="app.js"></script>
 <script src="ai.js"></script>

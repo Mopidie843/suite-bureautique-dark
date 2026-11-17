@@ -105,3 +105,5 @@
     W.toast(r.stats.mod + ' paragraphe(s) modifié(s), ' + r.stats.ins + ' ajouté(s), ' + r.stats.del + ' supprimé(s). Acceptez ou refusez dans Révision.', 'ok');
   };
 })();
+
+(function () { if (!window.NxTabs || !window.W) return; NxTabs.init({ current: () => ({ id: W.doc.id, title: W.doc.title }), exists: async id => !!(await W.store.get(id)), save: () => W.store.put(W.docRecord()), open: async id => { await W.store.put(W.docRecord()); await W.openLibraryDoc(id); }, create: async () => { await W.store.put(W.docRecord()); await W.newDoc('blank'); } }); })();
